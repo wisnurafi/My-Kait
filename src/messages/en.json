@@ -198,6 +198,8 @@
     "sendFailed": "Failed to send: {error}",
     "sending": "Sending…",
     "send": "Send",
+    "kbdSend": "{mod}+Enter to send",
+    "kbdSave": "{mod}+S to save as template",
     "field": {
       "title": "Title",
       "titleUrl": "Title URL",

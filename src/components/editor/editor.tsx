@@ -14,7 +14,7 @@
  * - Undo/redo, autosave draft to localStorage
  */
 
-import { useState, useEffect, useCallback, useTransition, useMemo } from "react";
+import { useState, useEffect, useCallback, useTransition, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -154,6 +154,34 @@ export function Editor({
   });
 
   const [editMessageId, setEditMessageId] = useState<string | null>(null);
+
+  // Keyboard shortcuts: Ctrl/Cmd+Enter = send, Ctrl/Cmd+S = save as template
+  const sendFormRef = useRef<HTMLFormElement>(null);
+  const [modKey, setModKey] = useState("Ctrl");
+
+  useEffect(() => {
+    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+    const platform = nav.userAgentData?.platform ?? nav.platform ?? "";
+    if (/mac/i.test(platform)) setModKey("\u2318");
+  }, []);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const target = e.target as HTMLElement | null;
+      // Don't hijack keys inside the JSON panel or the save-template modal
+      if (target?.closest?.("[data-kbd-off]")) return;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendFormRef.current?.requestSubmit();
+      } else if (e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        setShowSaveTemplate(true);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   // Load draft from localStorage or sessionStorage (for duplicate-to-editor)
   useEffect(() => {
@@ -329,7 +357,7 @@ export function Editor({
           <Button variant="ghost" size="sm" onClick={handleExportJson} className="gap-1.5 uppercase tracking-[0.05em]">
             <Download size={16} /> {t("exportJson")}
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowSaveTemplate(true)} className="gap-1.5 uppercase tracking-[0.05em]">
+          <Button variant="ghost" size="sm" onClick={() => setShowSaveTemplate(true)} title={t("kbdSave", { mod: modKey })} className="gap-1.5 uppercase tracking-[0.05em]">
             <Save size={16} /> {t("saveAs")}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setShowJson(!showJson)} className="gap-1.5 uppercase tracking-[0.05em]">
@@ -340,7 +368,7 @@ export function Editor({
 
       {/* JSON Import/Export panel */}
       {showJson && (
-        <Card className="p-4 bg-surface border-[3px] border-border-ink">
+        <Card data-kbd-off className="p-4 bg-surface border-[3px] border-border-ink">
           <Label>JSON Payload</Label>
           <Textarea
             value={jsonText}
@@ -500,7 +528,7 @@ export function Editor({
           {/* Send form */}
           <Card className="p-4 bg-surface border-[3px] border-border-ink">
             <h3 className="font-bold text-sm mb-3 uppercase tracking-[0.05em]">{t("sendTo")}</h3>
-            <form onSubmit={handleSend} className="space-y-3">
+            <form ref={sendFormRef} onSubmit={handleSend} className="space-y-3">
               <div>
                 <Label>{t("selectWebhook")}</Label>
                 <Select
@@ -568,7 +596,7 @@ export function Editor({
               {result?.success && (
                 <p className="text-sm text-success font-semibold uppercase tracking-[0.05em]">{result.message}</p>
               )}
-              <Button type="submit" disabled={pending || !canSend} className="w-full gap-2 uppercase tracking-[0.05em]" size="lg">
+              <Button type="submit" disabled={pending || !canSend} title={t("kbdSend", { mod: modKey })} className="w-full gap-2 uppercase tracking-[0.05em]" size="lg">
                 {pending ? (
                   <span className="inline-block h-5 w-5 animate-spin border-[3px] border-current border-t-transparent" />
                 ) : (
@@ -576,6 +604,9 @@ export function Editor({
                 )}
                 {pending ? t("sending") : editMessageId ? "Edit Pesan" : t("send")}
               </Button>
+              <p className="text-xs text-muted-foreground text-center uppercase tracking-[0.05em]">
+                {t("kbdSend", { mod: modKey })} \u00b7 {t("kbdSave", { mod: modKey })}
+              </p>
             </form>
           </Card>
         </div>
@@ -583,7 +614,9 @@ export function Editor({
 
       {/* Save as template modal */}
       {showSaveTemplate && (
-        <SaveTemplateModal payload={payload} onClose={() => setShowSaveTemplate(false)} />
+        <div data-kbd-off>
+          <SaveTemplateModal payload={payload} onClose={() => setShowSaveTemplate(false)} />
+        </div>
       )}
     </div>
   );

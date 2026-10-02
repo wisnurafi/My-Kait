@@ -198,6 +198,8 @@
     "sendFailed": "Gagal mengirim: {error}",
     "sending": "Mengirim…",
     "send": "Kirim",
+    "kbdSend": "{mod}+Enter untuk mengirim",
+    "kbdSave": "{mod}+S untuk simpan sebagai template",
     "field": {
       "title": "Title",
       "titleUrl": "Title URL",
