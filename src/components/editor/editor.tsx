@@ -126,7 +126,12 @@ export function Editor({
 }) {
   const t = useTranslations("editor");
   const [pending, startTransition] = useTransition();
-  const [result, setResult] = useState<{ success?: boolean; error?: string; message?: string } | null>(null);
+  const [result, setResult] = useState<{
+    success?: boolean;
+    error?: string;
+    message?: string;
+    results?: Array<{ id: string; name: string; success: boolean; messageId?: string; error?: string }>;
+  } | null>(null);
   const [showJson, setShowJson] = useState(false);
   const [jsonText, setJsonText] = useState("");
   const [showSaveTemplate, setShowSaveTemplate] = useState(false);
@@ -546,8 +551,31 @@ export function Editor({
               </div>
               {!sendConfig.webhookId && webhooks.length > 1 && (
                 <div>
-                  <Label>Kirim ke beberapa webhook (multi-target)</Label>
-                  <div className="space-y-1 max-h-32 overflow-y-auto mt-1">
+                  <div className="flex items-center justify-between">
+                    <Label>{t("multiTarget")}</Label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSendConfig({ ...sendConfig, multiTarget: webhooks.map((w) => w.id) })}
+                        className="text-xs font-bold uppercase tracking-[0.05em] underline"
+                      >
+                        {t("selectAll")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSendConfig({ ...sendConfig, multiTarget: [] })}
+                        className="text-xs font-bold uppercase tracking-[0.05em] underline"
+                      >
+                        {t("clear")}
+                      </button>
+                    </div>
+                  </div>
+                  {sendConfig.multiTarget.length > 0 && (
+                    <p className="text-xs font-mono mt-1">
+                      {t("selectedCount", { count: sendConfig.multiTarget.length })}
+                    </p>
+                  )}
+                  <div className="space-y-1 max-h-36 overflow-y-auto mt-1 border-[2px] border-border-ink p-2 bg-background">
                     {webhooks.map((wh) => (
                       <label key={wh.id} className="flex items-center gap-2 text-sm cursor-pointer">
                         <input
@@ -568,7 +596,10 @@ export function Editor({
                           }}
                           className="w-4 h-4 border-[2px] border-border-ink"
                         />
-                        {wh.name} ({wh.lastStatus})
+                        <span className="flex-1">{wh.name}</span>
+                        <Badge variant={wh.lastStatus === "active" ? "success" : wh.lastStatus === "invalid" ? "danger" : "default"}>
+                          {wh.lastStatus}
+                        </Badge>
                       </label>
                     ))}
                   </div>
@@ -595,6 +626,21 @@ export function Editor({
               )}
               {result?.success && (
                 <p className="text-sm text-success font-semibold uppercase tracking-[0.05em]">{result.message}</p>
+              )}
+              {result?.results && result.results.length > 0 && (
+                <div className="border-[2px] border-border-ink p-2 space-y-1 max-h-40 overflow-y-auto bg-background">
+                  {result.results.map((r) => (
+                    <div key={r.id} className="flex items-center gap-2 text-sm">
+                      <span className={r.success ? "text-success font-bold" : "text-error font-bold"}>
+                        {r.success ? "✓" : "✗"}
+                      </span>
+                      <span className="flex-1 truncate">{r.name}</span>
+                      {!r.success && r.error && (
+                        <span className="text-xs text-error truncate max-w-[50%]">{r.error}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
               <Button type="submit" disabled={pending || !canSend} title={t("kbdSend", { mod: modKey })} className="w-full gap-2 uppercase tracking-[0.05em]" size="lg">
                 {pending ? (
