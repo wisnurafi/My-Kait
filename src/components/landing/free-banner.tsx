@@ -1,41 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { motion } from "motion/react";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ShieldOff, Infinity as InfinityIcon, Gift, Sun, Moon } from "lucide-react";
-
-// Inline theme toggle for the banner
-function BannerThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    setIsDark(document.documentElement.getAttribute("data-theme") === "dark");
-  }, []);
-
-  function toggle() {
-    const newDark = !isDark;
-    setIsDark(newDark);
-    document.documentElement.setAttribute("data-theme", newDark ? "dark" : "light");
-    localStorage.setItem("mykait-theme", newDark ? "dark" : "light");
-  }
-
-  if (!mounted) return <div className="w-10 h-10" />;
-
-  return (
-    <button
-      onClick={toggle}
-      aria-label="Toggle theme"
-      className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-[#faf7f2] dark:border-[#1a1512] text-[#faf7f2] dark:text-[#1a1512] hover:opacity-80 transition-opacity cursor-pointer"
-    >
-      {isDark ? <Moon size={18} /> : <Sun size={18} />}
-    </button>
-  );
-}
+import { Sparkles, ShieldOff, Infinity as InfinityIcon, Gift } from "lucide-react";
 
 /**
  * Free Forever banner — inverted block, big text, icon list.
@@ -63,10 +32,6 @@ export function FreeBanner() {
   return (
     <section className="border-t border-border">
       <div className="bg-[#2d2a26] dark:bg-[#faf7f2] py-24 px-6 relative">
-        {/* Theme toggle in banner */}
-        <div className="absolute top-6 right-6">
-          <BannerThemeToggle />
-        </div>
         <div className="max-w-4xl mx-auto text-center">
           {/* Icon */}
           <motion.div
@@ -97,7 +62,7 @@ export function FreeBanner() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, margin: "-80px" }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="mt-6 text-lg md:text-xl text-bg max-w-2xl mx-auto opacity-90"
+            className="mt-6 text-lg md:text-xl text-[#faf7f2] dark:text-[#1a1512] max-w-2xl mx-auto opacity-90"
           >
             {t("freeDesc")}
           </motion.p>
@@ -116,7 +81,7 @@ export function FreeBanner() {
                 className="flex items-center gap-2 border-2 border-[#faf7f2] dark:border-[#1a1512] px-4 py-2 rounded-lg"
               >
                 <p.icon size={18} className="text-[#faf7f2] dark:text-[#1a1512]" />
-                <span className="font-bold uppercase tracking-[0.05em] text-sm text-bg">
+                <span className="font-bold uppercase tracking-[0.05em] text-sm text-[#faf7f2] dark:text-[#1a1512]">
                   {labels[p.key][lang]}
                 </span>
               </div>
