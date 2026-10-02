@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Link2, SendHorizontal, TrendingUp } from "lucide-react";
 import type { DailyStat, WebhookStat } from "@/server/actions/stats";
 
@@ -40,15 +41,35 @@ export function StatCards({
   successRate: number;
 }) {
   const t = useTranslations("dashboard");
-  const stats = [
+  const stats: {
+    label: string;
+    value: number;
+    suffix: string;
+    icon: typeof Link2;
+    hint?: string;
+  }[] = [
     { label: t("webhooksCount"), value: webhooks, suffix: "", icon: Link2 },
     { label: t("messagesSent"), value: sent, suffix: "", icon: SendHorizontal },
-    { label: t("successRate"), value: successRate, suffix: "%", icon: TrendingUp },
+    {
+      label: t("successRate"),
+      value: successRate,
+      suffix: "%",
+      icon: TrendingUp,
+      hint: t("successRateHint"),
+    },
   ];
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {stats.map((s, i) => (
-        <StatCard key={s.label} label={s.label} value={s.value} suffix={s.suffix} icon={s.icon} index={i} />
+        <StatCard
+          key={s.label}
+          label={s.label}
+          value={s.value}
+          suffix={s.suffix}
+          icon={s.icon}
+          index={i}
+          hint={s.hint}
+        />
       ))}
     </div>
   );
@@ -60,30 +81,41 @@ function StatCard({
   suffix,
   icon: Icon,
   index,
+  hint,
 }: {
   label: string;
   value: number;
   suffix: string;
   icon: typeof Link2;
   index: number;
+  hint?: string;
 }) {
   const count = useCountUp(value);
-  return (
-    <div className="stagger-in" style={{ "--stagger-index": index } as CSSProperties}>
-      <Card className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="label mb-2">{label}</div>
-            <div className="font-mono text-4xl tabular-nums text-fg">
-              {count}
-              <span className="text-lg text-fg-tertiary">{suffix}</span>
-            </div>
-          </div>
-          <div className="rounded-lg p-2.5 bg-sunken border border-border-ink shrink-0">
-            <Icon size={20} className="text-accent" />
+  const card = (
+    <Card className={hint ? "p-5 cursor-help" : "p-5"}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="label mb-2">{label}</div>
+          <div className="font-mono text-4xl tabular-nums text-fg">
+            {count}
+            <span className="text-lg text-fg-tertiary">{suffix}</span>
           </div>
         </div>
-      </Card>
+        <div className="rounded-lg p-2.5 bg-sunken border border-border-ink shrink-0">
+          <Icon size={20} className="text-accent" />
+        </div>
+      </div>
+    </Card>
+  );
+  return (
+    <div className="stagger-in" style={{ "--stagger-index": index } as CSSProperties}>
+      {hint ? (
+        <Tooltip content={hint} position="bottom">
+          {card}
+        </Tooltip>
+      ) : (
+        card
+      )}
     </div>
   );
 }

@@ -112,7 +112,8 @@
       "failed": "Gagal",
       "noData": "Belum ada data 30 hari terakhir",
       "last30days": "30 hari terakhir"
-    }
+    },
+    "successRateHint": "Rasio pesan terkirim dari total percobaan"
   },
   "settings": {
     "title": "Pengaturan",
@@ -245,7 +246,9 @@
     "healthAlerts": "Peringatan Kesehatan Webhook",
     "dismissAll": "Abaikan semua",
     "alertDown": "Mati",
-    "alertRecovered": "Pulih"
+    "alertRecovered": "Pulih",
+    "editWebhook": "Edit webhook",
+    "deleteWebhook": "Hapus webhook"
   },
   "editor": {
     "title": "Editor Pesan",
@@ -355,7 +358,8 @@
       "messageId": "Message ID",
       "error": "Error",
       "duration": "Durasi",
-      "actions": "Aksi"
+      "actions": "Aksi",
+      "close": "Tutup detail"
     },
     "export": "Export CSV/JSON",
     "noLogs": "Belum ada riwayat",
