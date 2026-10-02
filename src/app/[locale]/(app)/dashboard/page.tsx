@@ -5,10 +5,10 @@ import { getDashboardStats } from "@/server/actions/stats";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip } from "@/components/ui/tooltip";
 import { Mascot } from "@/components/mascot";
+import { CommandPaletteButton } from "@/components/app/command-palette";
 import { DashboardStats, StatCards } from "@/components/dashboard/dashboard-stats";
-import { Plus, Command } from "lucide-react";
+import { Plus } from "lucide-react";
 
 const statusVariants = {
   sent: "success",
@@ -52,13 +52,7 @@ export default async function DashboardPage({
           </div>
         </div>
         <div className="flex items-center gap-2.5">
-          <Tooltip content={t("soon")}>
-            <span className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border-ink bg-surface text-fg-tertiary font-mono text-[11px] cursor-default">
-              <Command size={14} />
-              ⌘K
-              <span className="hidden sm:inline">{t("commandPalette")}</span>
-            </span>
-          </Tooltip>
+          <CommandPaletteButton />
           <Link href="/editor">
             <Button className="gap-2">
               <Plus size={16} />
