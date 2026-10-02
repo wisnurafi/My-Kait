@@ -218,6 +218,7 @@
   },
   "editor": {
     "title": "Message Editor",
+    "invalidJson": "Invalid JSON",
     "importEmpty": "Template is empty / invalid",
     "importFailed": "Failed to load template",
     "mode": {

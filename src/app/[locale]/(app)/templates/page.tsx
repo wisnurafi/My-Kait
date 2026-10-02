@@ -8,23 +8,29 @@ export default async function TemplatesPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ search?: string; tag?: string; folder?: string }>;
+  searchParams: Promise<{ search?: string; tag?: string; folder?: string; page?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const { search, tag, folder } = await searchParams;
-  const [templates, folders] = await Promise.all([
-    getTemplates(search, tag, folder),
+  const { search, tag, folder, page } = await searchParams;
+  const [data, folders] = await Promise.all([
+    getTemplates({
+      search,
+      tagFilter: tag,
+      folderId: folder,
+      page: page ? parseInt(page) : 1,
+    }),
     getFolders(),
   ]);
 
   return (
     <div className="animate-fade-in">
       <TemplatesList
-        templates={templates}
+        templates={data.templates}
         folders={folders}
         activeFolder={folder ?? "all"}
+        pagination={{ page: data.page, totalPages: data.totalPages }}
       />
     </div>
   );
