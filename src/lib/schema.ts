@@ -207,11 +207,40 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const webhooksRelations = relations(webhooks, ({ one, many }) => ({
   user: one(users, { fields: [webhooks.userId], references: [users.id] }),
   checks: many(webhookChecks),
+  healthAlerts: many(webhookHealthAlerts),
   messageLogs: many(messageLogs),
 }));
 
 export const webhookChecksRelations = relations(webhookChecks, ({ one }) => ({
   webhook: one(webhooks, { fields: [webhookChecks.webhookId], references: [webhooks.id] }),
+}));
+
+/* --- Webhook health alerts (from scheduled health monitor) --- */
+
+export const webhookHealthAlerts = pgTable(
+  "webhook_health_alerts",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    webhookId: text("webhook_id")
+      .notNull()
+      .references(() => webhooks.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    message: text("message"),
+    acknowledgedAt: timestamp("acknowledged_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdx: index("webhook_health_alerts_user_id_idx").on(table.userId),
+    webhookIdx: index("webhook_health_alerts_webhook_id_idx").on(table.webhookId),
+  }),
+);
+
+export const webhookHealthAlertsRelations = relations(webhookHealthAlerts, ({ one }) => ({
+  user: one(users, { fields: [webhookHealthAlerts.userId], references: [users.id] }),
+  webhook: one(webhooks, { fields: [webhookHealthAlerts.webhookId], references: [webhooks.id] }),
 }));
 
 export const templateFoldersRelations = relations(templateFolders, ({ one, many }) => ({
@@ -236,6 +265,9 @@ export const messageLogsRelations = relations(messageLogs, ({ one }) => ({
   user: one(users, { fields: [messageLogs.userId], references: [users.id] }),
   webhook: one(webhooks, { fields: [messageLogs.webhookId], references: [webhooks.id] }),
 }));
+
+export type WebhookHealthAlert = typeof webhookHealthAlerts.$inferSelect;
+export type NewWebhookHealthAlert = typeof webhookHealthAlerts.$inferInsert;
 
 /* --- Type aliases for enums --- */
 
