@@ -30,8 +30,8 @@ export function FreeBanner() {
   const lang = locale === "en" ? "en" : "id";
 
   return (
-    <section className="border-t-[5px] border-border-ink">
-      <div className="inverted py-24 px-6">
+    <section className="border-t border-border">
+      <div className="bg-inverted text-bg py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           {/* Icon */}
           <motion.div
@@ -62,7 +62,7 @@ export function FreeBanner() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, margin: "-80px" }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="mt-6 text-lg md:text-xl text-bg/90 max-w-2xl mx-auto"
+            className="mt-6 text-lg md:text-xl text-bg max-w-2xl mx-auto opacity-90"
           >
             {t("freeDesc")}
           </motion.p>
