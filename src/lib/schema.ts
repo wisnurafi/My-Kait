@@ -7,6 +7,7 @@
  * - webhooks (encrypted URL)
  * - webhook_checks (ping history)
  * - templates
+ * - template_folders
  * - template_shares
  * - message_logs
  */
@@ -65,6 +66,9 @@ export const webhooks = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    folderId: text("folder_id").references(() => templateFolders.id, {
+      onDelete: "set null",
+    }),
     name: text("name").notNull(),
     discordWebhookId: text("discord_webhook_id"),
     urlEncrypted: text("url_encrypted").notNull(),
@@ -104,6 +108,22 @@ export const webhookChecks = pgTable(
   }),
 );
 
+export const templateFolders = pgTable(
+  "template_folders",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdx: index("template_folders_user_id_idx").on(table.userId),
+    nameIdx: index("template_folders_name_idx").on(table.userId, table.name),
+  }),
+);
+
 export const templates = pgTable(
   "templates",
   {
@@ -121,6 +141,7 @@ export const templates = pgTable(
   (table) => ({
     userIdx: index("templates_user_id_idx").on(table.userId),
     nameIdx: index("templates_name_idx").on(table.userId, table.name),
+    folderIdx: index("templates_folder_id_idx").on(table.folderId),
   }),
 );
 
@@ -179,6 +200,7 @@ export const messageLogs = pgTable(
 export const usersRelations = relations(users, ({ many }) => ({
   webhooks: many(webhooks),
   templates: many(templates),
+  templateFolders: many(templateFolders),
   messageLogs: many(messageLogs),
 }));
 
@@ -192,8 +214,17 @@ export const webhookChecksRelations = relations(webhookChecks, ({ one }) => ({
   webhook: one(webhooks, { fields: [webhookChecks.webhookId], references: [webhooks.id] }),
 }));
 
+export const templateFoldersRelations = relations(templateFolders, ({ one, many }) => ({
+  user: one(users, { fields: [templateFolders.userId], references: [users.id] }),
+  templates: many(templates),
+}));
+
 export const templatesRelations = relations(templates, ({ one, many }) => ({
   user: one(users, { fields: [templates.userId], references: [users.id] }),
+  folder: one(templateFolders, {
+    fields: [templates.folderId],
+    references: [templateFolders.id],
+  }),
   shares: many(templateShares),
 }));
 
@@ -222,6 +253,8 @@ export type WebhookCheck = typeof webhookChecks.$inferSelect;
 export type NewWebhookCheck = typeof webhookChecks.$inferInsert;
 export type Template = typeof templates.$inferSelect;
 export type NewTemplate = typeof templates.$inferInsert;
+export type TemplateFolder = typeof templateFolders.$inferSelect;
+export type NewTemplateFolder = typeof templateFolders.$inferInsert;
 export type TemplateShare = typeof templateShares.$inferSelect;
 export type MessageLog = typeof messageLogs.$inferSelect;
 export type NewMessageLog = typeof messageLogs.$inferInsert;
