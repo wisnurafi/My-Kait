@@ -49,7 +49,7 @@ export function FreeBanner() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, margin: "-80px" }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="font-display text-5xl md:text-7xl uppercase leading-none"
+            className="font-display text-5xl md:text-7xl uppercase leading-none text-bg"
           >
             {t("freeTitle")}
             <br />
