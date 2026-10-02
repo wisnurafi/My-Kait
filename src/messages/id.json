@@ -396,5 +396,20 @@
     "emptyTitle": "Template tidak ditemukan",
     "emptyDesc": "Coba kata kunci lain, atau jadi yang pertama membagikan.",
     "loginDiscord": "Login dengan Discord"
+  },
+  "palette": {
+    "title": "Command palette",
+    "placeholder": "Ketik perintah atau cari...",
+    "goTo": "Navigasi",
+    "actions": "Aksi",
+    "gallery": "Galeri template",
+    "landingPage": "Halaman utama",
+    "newMessage": "Pesan baru",
+    "addWebhook": "Tambah webhook",
+    "importTemplate": "Import template",
+    "noResults": "Tidak ada hasil untuk \"{q}\"",
+    "hintNavigate": "navigasi",
+    "hintSelect": "pilih",
+    "hintClose": "tutup"
   }
 }

@@ -396,5 +396,20 @@
     "emptyTitle": "No templates found",
     "emptyDesc": "Try a different keyword, or be the first to share one.",
     "loginDiscord": "Login with Discord"
+  },
+  "palette": {
+    "title": "Command palette",
+    "placeholder": "Type a command or search...",
+    "goTo": "Go to",
+    "actions": "Actions",
+    "gallery": "Template gallery",
+    "landingPage": "Landing page",
+    "newMessage": "New message",
+    "addWebhook": "Add webhook",
+    "importTemplate": "Import template",
+    "noResults": "No results for \"{q}\"",
+    "hintNavigate": "navigate",
+    "hintSelect": "select",
+    "hintClose": "close"
   }
 }
