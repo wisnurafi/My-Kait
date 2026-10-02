@@ -12,8 +12,7 @@ const steps = [
 ] as const;
 
 /**
- * How It Works — 4 step guide with numbered cards and icons.
- * RawBlock: bordered grid, no radius, big number + icon.
+ * How It Works — 4 step guide with numbered glass cards and gradient-glow icons.
  */
 export function HowItWorks() {
   const t = useTranslations("landing");
@@ -37,7 +36,7 @@ export function HowItWorks() {
         </motion.div>
 
         {/* Steps grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-[3px] border-border-ink">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {steps.map((step, i) => (
             <motion.div
               key={step.key}
@@ -45,27 +44,25 @@ export function HowItWorks() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`
-                p-6 bg-surface hover:bg-surface-hover transition-colors duration-100
-                border-r-[3px] border-border-ink last:border-r-0
-                border-b-[3px] border-border-ink lg:border-b-0 last:lg:border-b-0
-                lg:last:border-r-0
-              `}
             >
-              {/* Number + Icon row */}
-              <div className="flex items-start justify-between mb-4">
-                <span className="font-display text-5xl text-fg-tertiary leading-none">
-                  {step.num}
-                </span>
-                <step.icon size={32} className="text-fg" />
+              <div className="glass lift h-full p-6 hover:border-border-strong transition-colors">
+                {/* Number + Icon row */}
+                <div className="flex items-start justify-between mb-5">
+                  <span className="font-display text-5xl leading-none gradient-text">
+                    {step.num}
+                  </span>
+                  <div className="rounded-xl bg-gradient-to-br from-accent via-accent-2 to-accent-3 p-2.5 glow-primary">
+                    <step.icon size={24} className="text-white" />
+                  </div>
+                </div>
+                {/* Text */}
+                <h3 className="font-display text-lg uppercase mb-2 leading-tight">
+                  {t(`steps.${step.key}.title`)}
+                </h3>
+                <p className="text-sm text-fg-secondary leading-relaxed">
+                  {t(`steps.${step.key}.desc`)}
+                </p>
               </div>
-              {/* Text */}
-              <h3 className="font-display text-lg uppercase mb-2 leading-tight">
-                {t(`steps.${step.key}.title`)}
-              </h3>
-              <p className="text-sm text-fg-secondary leading-relaxed">
-                {t(`steps.${step.key}.desc`)}
-              </p>
             </motion.div>
           ))}
         </div>

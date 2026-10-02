@@ -27,12 +27,14 @@ export default async function SharedTemplatePage({
   const session = await auth();
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 animate-fade-in">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="font-display text-3xl uppercase">{shared.name}</h1>
+            <h1 className="font-display text-3xl uppercase">
+              <span className="gradient-text">{shared.name}</span>
+            </h1>
             {shared.description && (
               <p className="text-fg-secondary mt-1">{shared.description}</p>
             )}

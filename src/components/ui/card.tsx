@@ -1,6 +1,6 @@
 /**
- * RawBlock Card — bold border, no shadow, no radius.
- * Visual hierarchy through border weight only.
+ * Neon Glass Card — glassmorphism panel with soft border + radius.
+ * Props kept compatible: hover (lift on hover), elevated (gradient border).
  */
 import { cn } from "@/lib/utils";
 
@@ -18,10 +18,8 @@ export function Card({
   return (
     <div
       className={cn(
-        "bg-surface",
-        elevated ? "border-[5px]" : "border-[3px]",
-        "border-border-ink",
-        hover && "transition-colors duration-100 hover:bg-sunken",
+        elevated ? "gradient-border" : "glass",
+        hover && "lift cursor-pointer",
         className,
       )}
     >
@@ -31,7 +29,7 @@ export function Card({
 }
 
 export function CardHeader({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("p-6 border-b-[1px] border-border-ink", className)}>{children}</div>;
+  return <div className={cn("p-6 border-b border-border-ink", className)}>{children}</div>;
 }
 
 export function CardBody({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -39,5 +37,5 @@ export function CardBody({ children, className }: { children: React.ReactNode; c
 }
 
 export function CardFooter({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("p-6 border-t-[1px] border-border-ink", className)}>{children}</div>;
+  return <div className={cn("p-6 border-t border-border-ink", className)}>{children}</div>;
 }

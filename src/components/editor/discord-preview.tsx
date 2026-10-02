@@ -9,6 +9,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
+import { MessageSquare } from "lucide-react";
 
 type DiscordTheme = "dark" | "light";
 
@@ -54,21 +55,24 @@ export function DiscordPreview({
   const avatar = avatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
 
   return (
-    <div
-      className="overflow-hidden border-[3px] border-border-ink"
-    >
-      {/* Header */}
+    <div className="glass overflow-hidden animate-fade-in p-0">
+      {/* Blurple accent bar */}
       <div
-        className="flex items-center justify-between px-3 py-2 bg-surface border-b-[1px] border-border-ink"
-        style={{ background: c.surface }}
-      >
-        <span className="text-xs font-bold text-fg-secondary uppercase tracking-[0.05em]">
+        aria-hidden="true"
+        className="h-1 bg-[linear-gradient(90deg,var(--accent-primary),var(--accent-secondary),var(--accent-tertiary))]"
+      />
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-ink">
+        <span className="flex items-center gap-2 text-xs font-bold text-fg-secondary uppercase tracking-[0.05em]">
+          <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))] text-white shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+            <MessageSquare size={12} />
+          </span>
           Discord Preview
         </span>
-        <div className="flex gap-1">
+        <div className="flex gap-1 rounded-full bg-sunken p-1">
           <button
             onClick={() => setTheme("dark")}
-            className="px-2 py-1 text-xs font-bold uppercase tracking-[0.05em] border-[2px] border-border-ink"
+            className="px-3 py-1 text-xs font-bold uppercase tracking-[0.05em] rounded-full transition-all"
             style={{
               background: theme === "dark" ? c.accent : "transparent",
               color: theme === "dark" ? "#fff" : c.muted,
@@ -78,7 +82,7 @@ export function DiscordPreview({
           </button>
           <button
             onClick={() => setTheme("light")}
-            className="px-2 py-1 text-xs font-bold uppercase tracking-[0.05em] border-[2px] border-border-ink"
+            className="px-3 py-1 text-xs font-bold uppercase tracking-[0.05em] rounded-full transition-all"
             style={{
               background: theme === "light" ? c.accent : "transparent",
               color: theme === "light" ? "#fff" : c.muted,
@@ -95,27 +99,30 @@ export function DiscordPreview({
         style={{ background: c.bg, color: c.fg }}
       >
         {showEmpty ? (
-          <div className="flex items-center justify-center h-[200px]" style={{ color: c.muted }}>
+          <div className="flex flex-col items-center justify-center gap-2 h-[200px]" style={{ color: c.muted }}>
+            <MessageSquare size={28} className="opacity-50" />
             <span className="text-sm">Pesan kosong — mulai mengetik di editor</span>
           </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex gap-3"
+            className="flex gap-3 rounded-lg px-2 py-2 -mx-2 hover:bg-white/[0.03] transition-colors"
           >
             {/* Avatar */}
             <img
               src={avatar}
               alt=""
-              className="w-10 h-10 flex-shrink-0 mt-0.5"
-              style={{ borderRadius: "50%" }}
+              className="w-10 h-10 flex-shrink-0 mt-0.5 rounded-full"
             />
             {/* Message content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-sm" style={{ color: c.accent }}>
+                <span className="font-bold text-sm" style={{ color: c.fg }}>
                   {displayName}
+                </span>
+                <span className="rounded bg-[#5865F2] px-1 py-0.5 text-[10px] font-bold uppercase text-white leading-none">
+                  Bot
                 </span>
                 <span className="text-xs" style={{ color: c.muted }}>
                   hari ini pada {new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
@@ -168,7 +175,7 @@ function EmbedPreview({
 
   return (
     <div
-      className="rounded-[4px] overflow-hidden flex"
+      className="rounded-[4px] overflow-hidden flex max-w-[432px]"
       style={{
         background: colors.embedBg,
         borderLeft: `4px solid ${borderColor}`,

@@ -9,6 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { FilterChip } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/dialog";
+import { toast } from "@/components/ui/toast";
 import {
   deleteTemplateAction,
   duplicateTemplateAction,
@@ -35,6 +39,7 @@ import {
   FolderOpen,
   LayoutGrid,
   FileQuestion,
+  LayoutTemplate,
 } from "lucide-react";
 import { useState as useReactState } from "react";
 
@@ -54,6 +59,8 @@ type Folder = {
   name: string;
   templateCount: number;
 };
+
+type ConfirmTarget = { kind: "template" | "folder"; id: string; name?: string } | null;
 
 export function TemplatesList({
   templates: initial,
@@ -77,6 +84,7 @@ export function TemplatesList({
   const [newFolderName, setNewFolderName] = useState("");
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget>(null);
 
   function pushParams(patch: Record<string, string | undefined>) {
     const params = new URLSearchParams();
@@ -101,11 +109,24 @@ export function TemplatesList({
   }
 
   function handleDelete(id: string) {
-    if (!confirm(t("confirmDelete"))) return;
+    setConfirmTarget({ kind: "template", id });
+  }
+
+  function handleConfirmDelete() {
+    if (!confirmTarget) return;
+    const target = confirmTarget;
+    setConfirmTarget(null);
     startTransition(async () => {
       const fd = new FormData();
-      fd.set("id", id);
-      await deleteTemplateAction(fd);
+      fd.set("id", target.id);
+      if (target.kind === "template") {
+        await deleteTemplateAction(fd);
+        toast.success(t("deleted"));
+      } else {
+        await deleteFolderAction(fd);
+        if (activeFolder === target.id) selectFolder("all");
+        toast.success(t("folders.deleted"));
+      }
     });
   }
 
@@ -114,6 +135,7 @@ export function TemplatesList({
       const fd = new FormData();
       fd.set("id", id);
       await duplicateTemplateAction(fd);
+      toast.success(t("duplicated"));
     });
   }
 
@@ -144,6 +166,7 @@ export function TemplatesList({
       fd.set("tags", editTags);
       await (await import("@/server/actions/templates")).updateTemplateAction(fd);
       setEditingId(null);
+      toast.success(t("updated"));
     });
   }
 
@@ -163,8 +186,9 @@ export function TemplatesList({
       if (result.success) {
         setNewFolderName("");
         setShowNewFolder(false);
+        toast.success(t("folders.created"));
       } else if (result.error) {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   }
@@ -178,20 +202,15 @@ export function TemplatesList({
       const result = await renameFolderAction(fd);
       if (result.success) {
         setRenamingId(null);
+        toast.success(t("folders.renamed"));
       } else if (result.error) {
-        alert(result.error);
+        toast.error(result.error);
       }
     });
   }
 
   function handleDeleteFolder(id: string, name: string) {
-    if (!confirm(t("folders.confirmDelete", { name }))) return;
-    startTransition(async () => {
-      const fd = new FormData();
-      fd.set("id", id);
-      await deleteFolderAction(fd);
-      if (activeFolder === id) selectFolder("all");
-    });
+    setConfirmTarget({ kind: "folder", id, name });
   }
 
   function handleMoveTemplate(templateId: string, folderId: string) {
@@ -214,16 +233,16 @@ export function TemplatesList({
     <button
       key={id}
       onClick={() => selectFolder(id)}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-bold uppercase tracking-[0.05em] border-2 text-left transition-colors ${
+      className={`w-full flex items-center gap-2 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.06em] rounded-full border text-left transition-all duration-150 press cursor-pointer ${
         activeFolder === id
-          ? "bg-ink text-paper border-border-ink"
-          : "border-transparent hover:border-border-ink"
+          ? "bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] text-white border-transparent shadow-[0_4px_16px_rgba(88,101,242,0.4)]"
+          : "border-transparent text-fg-secondary hover:text-fg hover:bg-surface-hover hover:border-border-ink"
       }`}
     >
       {icon}
       <span className="flex-1 truncate">{label}</span>
       {count !== undefined && (
-        <span className="text-xs font-mono">{count}</span>
+        <span className="text-xs font-mono opacity-80">{count}</span>
       )}
     </button>
   );
@@ -232,9 +251,9 @@ export function TemplatesList({
     <div className="flex gap-8 flex-col lg:flex-row">
       {/* Folder sidebar */}
       <aside className="w-full lg:w-64 shrink-0">
-        <div className="lg:sticky lg:top-4 space-y-1 bg-surface border-[3px] border-border-ink p-3">
+        <div className="lg:sticky lg:top-4 space-y-1 glass p-4">
           <div className="flex items-center justify-between mb-2 gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-1.5 truncate">
+            <h2 className="text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-1.5 truncate text-fg-secondary">
               <Folder size={14} className="shrink-0" />
               <span className="truncate">{t("folders.title")}</span>
             </h2>
@@ -305,14 +324,14 @@ export function TemplatesList({
                       setRenamingId(folder.id);
                       setRenameValue(folder.name);
                     }}
-                    className="p-1.5 text-fg-tertiary hover:text-fg"
+                    className="p-1.5 text-fg-tertiary hover:text-fg cursor-pointer"
                     title={t("folders.rename")}
                   >
                     <Pencil size={13} />
                   </button>
                   <button
                     onClick={() => handleDeleteFolder(folder.id, folder.name)}
-                    className="p-1.5 text-fg-tertiary hover:text-error"
+                    className="p-1.5 text-fg-tertiary hover:text-error cursor-pointer"
                     title={t("folders.delete")}
                   >
                     <Trash2 size={13} />
@@ -326,7 +345,9 @@ export function TemplatesList({
 
       {/* Main content */}
       <div className="flex-1 min-w-0 space-y-6">
-        <h1 className="font-display text-3xl uppercase">{t("title")}</h1>
+        <h1 className="font-display text-3xl uppercase">
+          <span className="gradient-text">{t("title")}</span>
+        </h1>
 
         {/* Search */}
         <div className="flex gap-2 flex-wrap items-center">
@@ -345,28 +366,32 @@ export function TemplatesList({
         {allTags.length > 0 && (
           <div className="flex gap-2 flex-wrap">
             {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => pushParams({ tag })}
-                className="px-2.5 py-0.5 text-xs font-bold uppercase tracking-[0.05em] border-2 border-border-ink hover:bg-sunken"
-              >
+              <FilterChip key={tag} onClick={() => pushParams({ tag })}>
                 {tag}
-              </button>
+              </FilterChip>
             ))}
           </div>
         )}
 
         {/* Templates grid */}
         {initial.length === 0 ? (
-          <Card className="p-12 text-center">
+          <Card className="p-12 text-center animate-fade-in">
             <div className="text-5xl mb-4">📋</div>
             <p className="text-fg-secondary text-lg">{t("noTemplates")}</p>
             <p className="text-sm text-fg-tertiary mt-2">{t("noTemplatesHint")}</p>
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {initial.map((template) => (
-              <Card key={template.id} className="p-5" hover>
+            {initial.map((template, i) => (
+              <div
+                key={template.id}
+                className="stagger-in"
+                style={{ "--stagger-index": i } as React.CSSProperties}
+              >
+              <Card
+                className="p-5 h-full hover:border-border-strong transition-colors"
+                hover
+              >
                 {editingId === template.id ? (
                   <div className="space-y-3">
                     <div>
@@ -392,7 +417,18 @@ export function TemplatesList({
                   </div>
                 ) : (
                   <div>
-                    <h3 className="font-display text-lg uppercase mb-1">{template.name}</h3>
+                    {/* Card header with gradient icon chip */}
+                    <div className="flex items-start gap-3 mb-2">
+                      <div className="shrink-0 w-10 h-10 rounded-xl bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] flex items-center justify-center shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+                        <LayoutTemplate size={18} className="text-white" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-display text-lg uppercase leading-tight truncate">{template.name}</h3>
+                        <p className="text-xs text-fg-tertiary font-mono mt-0.5">
+                          {new Date(template.updatedAt).toLocaleDateString("id-ID")}
+                        </p>
+                      </div>
+                    </div>
                     {template.description && (
                       <p className="text-sm text-fg-secondary mb-2">{template.description}</p>
                     )}
@@ -403,17 +439,14 @@ export function TemplatesList({
                         ))}
                       </div>
                     )}
-                    <p className="text-xs text-fg-tertiary mb-3">
-                      {new Date(template.updatedAt).toLocaleDateString("id-ID")}
-                    </p>
                     {/* Move to folder */}
                     {folders.length > 0 && (
                       <div className="mb-3">
-                        <select
+                        <Select
                           value={template.folderId ?? "unfiled"}
                           onChange={(e) => handleMoveTemplate(template.id, e.target.value)}
                           disabled={pending}
-                          className="w-full h-8 text-xs font-bold uppercase tracking-[0.05em] bg-sunken border-2 border-border-ink px-2"
+                          className="h-9 text-xs font-bold uppercase tracking-[0.05em] !font-sans"
                           title={t("folders.moveTo")}
                         >
                           <option value="unfiled">{t("folders.unfiled")}</option>
@@ -422,7 +455,7 @@ export function TemplatesList({
                               📁 {f.name}
                             </option>
                           ))}
-                        </select>
+                        </Select>
                       </div>
                     )}
                     <div className="flex gap-1 flex-wrap">
@@ -443,17 +476,20 @@ export function TemplatesList({
                       </Button>
                     </div>
                     {shareSlug && (
-                      <div className="mt-3 p-2 bg-sunken border-2 border-border-ink">
+                      <div className="mt-3 p-2 bg-sunken/60 border border-border-ink rounded-xl">
                         <div className="flex items-center gap-2">
                           <Input
                             readOnly
                             value={`${window.location.origin}/t/${shareSlug}`}
-                            className="text-xs h-8"
+                            className="text-xs h-8 font-mono"
                           />
                           <Button
                             size="sm"
                             variant="secondary"
-                            onClick={() => navigator.clipboard.writeText(`${window.location.origin}/t/${shareSlug}`)}
+                            onClick={() => {
+                              navigator.clipboard.writeText(`${window.location.origin}/t/${shareSlug}`);
+                              toast.success(t("shareLinkCopied"));
+                            }}
                           >
                             <Copy size={12} />
                           </Button>
@@ -468,10 +504,25 @@ export function TemplatesList({
                   </div>
                 )}
               </Card>
+              </div>
             ))}
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmTarget !== null}
+        onClose={() => setConfirmTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title={confirmTarget?.kind === "folder" ? t("folders.deleteTitle") : t("deleteTitle")}
+        message={
+          confirmTarget?.kind === "folder"
+            ? t("folders.confirmDelete", { name: confirmTarget?.name ?? "" })
+            : t("confirmDelete")
+        }
+        confirmLabel={t("confirmAction")}
+        loading={pending}
+      />
     </div>
   );
 }

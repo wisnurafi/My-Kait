@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { signIn } from "next-auth/react";
 import { motion } from "motion/react";
+import { Webhook, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HookLogo } from "@/components/hook-logo";
 import { ScrollHint } from "@/components/landing/scroll-hint";
@@ -14,9 +15,30 @@ export function LandingHero() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background grid lines — subtle structural pattern */}
+      {/* Gradient orbs — blurred, floating, GPU-only (transform animation) */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="animated-gradient absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full blur-[100px] opacity-30 animate-float-slow" />
+        <div
+          className="absolute top-1/4 -right-40 w-[560px] h-[560px] rounded-full blur-[100px] opacity-25 animate-float-slow"
+          style={{
+            background:
+              "radial-gradient(circle, var(--accent-secondary), transparent 65%)",
+            animationDelay: "-2.4s",
+          }}
+        />
+        <div
+          className="absolute bottom-0 left-1/3 w-[420px] h-[420px] rounded-full blur-[100px] opacity-20 animate-float-slow"
+          style={{
+            background:
+              "radial-gradient(circle, var(--accent-tertiary), transparent 65%)",
+            animationDelay: "-4.8s",
+          }}
+        />
+      </div>
+
+      {/* Background grid lines — radial mask fade so it dissolves at edges */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.05] mask-[radial-gradient(ellipse_75%_65%_at_50%_40%,black_30%,transparent_75%)]"
         style={{
           backgroundImage:
             "linear-gradient(var(--fg) 1px, transparent 1px), linear-gradient(90deg, var(--fg) 1px, transparent 1px)",
@@ -24,19 +46,99 @@ export function LandingHero() {
         }}
       />
 
+      {/* Floating webhook cards — subtle, hidden on mobile */}
+      <div
+        className="absolute inset-0 pointer-events-none hidden lg:block"
+        aria-hidden="true"
+      >
+        {/* Webhook URL chip */}
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 1.0, duration: 0.6 }}
+          className="absolute left-[6%] top-[24%]"
+        >
+          <div className="animate-float-slow -rotate-6">
+            <div className="glass px-4 py-3 font-mono text-xs">
+              <div className="flex items-center gap-2">
+                <span className="status-dot pulsing bg-success" />
+                <span className="font-bold text-fg">POST</span>
+                <span className="text-fg-tertiary">/hooks/discord</span>
+              </div>
+              <div className="mt-1.5 text-fg-tertiary">200 OK · 84ms</div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Discord message preview */}
+        <motion.div
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 1.15, duration: 0.6 }}
+          className="absolute right-[5%] top-[20%]"
+        >
+          <div
+            className="animate-float-slow rotate-3"
+            style={{ animationDelay: "-2.5s" }}
+          >
+            <div className="glass p-4 w-60 text-left">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-accent glow-primary flex items-center justify-center shrink-0">
+                  <Webhook size={18} className="text-white" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold leading-tight">My Kait</div>
+                  <div className="text-[11px] text-fg-tertiary font-mono">
+                    BOT · now
+                  </div>
+                </div>
+              </div>
+              <p className="mt-2.5 text-sm text-fg-secondary">
+                Order #1024 received
+              </p>
+              <div className="mt-2 rounded-lg bg-sunken border-l-2 border-accent px-3 py-2 font-mono text-[11px] text-fg-tertiary">
+                {"embeds: [{...}]"}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Terminal send chip */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.3, duration: 0.6 }}
+          className="absolute left-[9%] bottom-[22%]"
+        >
+          <div
+            className="animate-float-slow rotate-2"
+            style={{ animationDelay: "-5s" }}
+          >
+            <div className="terminal px-4 py-2.5 font-mono text-[11px] flex items-center gap-2">
+              <Zap size={13} className="text-accent-2 shrink-0" />
+              <span className="text-fg-secondary">
+                kait send --template promo
+              </span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
       {/* Theme toggle */}
       <LandingThemeToggle />
       <LandingLocaleToggle />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        {/* Logo — drop in from top with bounce */}
+        {/* Logo — drop in from top with bounce, soft blurple glow */}
         <motion.div
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 80, delay: 0.1 }}
           className="inline-block mb-8"
         >
-          <HookLogo size={80} />
+          <div className="drop-shadow-[0_0_36px_rgba(88,101,242,0.5)]">
+            <HookLogo size={80} />
+          </div>
         </motion.div>
 
         {/* Tagline badge above title */}
@@ -44,9 +146,9 @@ export function LandingHero() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="inline-block mb-6 border-[2px] border-border-ink px-4 py-1"
+          className="mb-6"
         >
-          <span className="font-bold text-xs uppercase tracking-[0.1em] font-mono">
+          <span className="glass inline-block rounded-full px-4 py-1.5 font-bold text-xs uppercase tracking-[0.1em] font-mono text-fg-secondary">
             {t("footerRights")}
           </span>
         </motion.div>
@@ -56,7 +158,7 @@ export function LandingHero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] uppercase"
+          className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] uppercase gradient-text"
         >
           {t("heroTitle")}
         </motion.h1>

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/dialog";
+import { toast } from "@/components/ui/toast";
 import {
   pingWebhookAction,
   deleteWebhookAction,
@@ -21,12 +23,14 @@ import { useRouter } from "next/navigation";
 
 type WebhookStatus = "active" | "invalid" | "rate_limited" | "unchecked";
 
-const statusConfig: Record<WebhookStatus, { variant: "success" | "danger" | "warning" | "default"; icon: string }> = {
-  active: { variant: "success", icon: "●" },
-  invalid: { variant: "danger", icon: "✕" },
-  rate_limited: { variant: "warning", icon: "⏳" },
-  unchecked: { variant: "default", icon: "?" },
+const statusConfig: Record<WebhookStatus, { variant: "active" | "danger" | "warning" | "default"; icon: string; pulse: boolean }> = {
+  active: { variant: "active", icon: "", pulse: true },
+  invalid: { variant: "danger", icon: "✕", pulse: false },
+  rate_limited: { variant: "warning", icon: "⏳", pulse: false },
+  unchecked: { variant: "default", icon: "?", pulse: false },
 };
+
+type ConfirmTarget = { kind: "delete" | "test"; id: string } | null;
 
 export function WebhooksList({
   webhooks: initialWebhooks,
@@ -51,6 +55,7 @@ export function WebhooksList({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("");
+  const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget>(null);
 
   const filteredWebhooks = statusFilter
     ? initialWebhooks.filter((w) => w.lastStatus === statusFilter)
@@ -72,21 +77,28 @@ export function WebhooksList({
   }
 
   function handleDelete(webhookId: string) {
-    if (!confirm(t("confirmDelete"))) return;
-    startTransition(async () => {
-      const formData = new FormData();
-      formData.set("webhookId", webhookId);
-      await deleteWebhookAction(formData);
-    });
+    setConfirmTarget({ kind: "delete", id: webhookId });
   }
 
   function handleTestSend(webhookId: string) {
-    if (!confirm(t("testConfirm"))) return;
+    setConfirmTarget({ kind: "test", id: webhookId });
+  }
+
+  function handleConfirm() {
+    if (!confirmTarget) return;
+    const target = confirmTarget;
+    setConfirmTarget(null);
     startTransition(async () => {
       const formData = new FormData();
-      formData.set("webhookId", webhookId);
-      const result = await sendTestMessageAction(formData);
-      if (result.error) alert(result.error);
+      formData.set("webhookId", target.id);
+      if (target.kind === "delete") {
+        await deleteWebhookAction(formData);
+        toast.success(t("deleted"));
+      } else {
+        const result = await sendTestMessageAction(formData);
+        if (result.error) toast.error(result.error);
+        else toast.success(t("testSent"));
+      }
     });
   }
 
@@ -98,7 +110,7 @@ export function WebhooksList({
 
   if (filteredWebhooks.length === 0 && !search) {
     return (
-      <Card className="bg-surface border-[3px] border-border-ink p-12 text-center">
+      <Card className="p-12 text-center animate-fade-in">
         <div className="text-5xl mb-4">🪝</div>
         <p className="text-fg-secondary text-lg">{t("noWebhooks")}</p>
       </Card>
@@ -134,11 +146,19 @@ export function WebhooksList({
       </div>
 
       <div className="grid gap-4">
-        {filteredWebhooks.map((wh) => {
+        {filteredWebhooks.map((wh, i) => {
           const sc = statusConfig[wh.lastStatus];
           const isExpanded = expandedId === wh.id;
           return (
-            <Card key={wh.id} className="bg-surface border-[3px] border-border-ink p-5" hover>
+            <div
+              key={wh.id}
+              className="stagger-in"
+              style={{ "--stagger-index": i } as React.CSSProperties}
+            >
+            <Card
+              className="p-5 h-full hover:border-border-strong transition-colors"
+              hover
+            >
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex-1 min-w-[200px]">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -151,7 +171,7 @@ export function WebhooksList({
                     ) : (
                       <h3 className="font-display text-lg font-bold uppercase tracking-[0.05em]">{wh.name}</h3>
                     )}
-                    <Badge variant={sc.variant}>
+                    <Badge variant={sc.variant} pulse={sc.pulse}>
                       {sc.icon} {t(`status.${wh.lastStatus}`)}
                     </Badge>
                   </div>
@@ -160,8 +180,13 @@ export function WebhooksList({
                       #{wh.channelName} · {wh.guildName}
                     </p>
                   )}
+                  {wh.discordWebhookId && (
+                    <p className="text-xs text-fg-tertiary mt-1 font-mono">
+                      {wh.discordWebhookId}
+                    </p>
+                  )}
                   {wh.lastCheckedAt && (
-                    <p className="text-xs text-fg-tertiary mt-1">
+                    <p className="text-xs text-fg-tertiary mt-1 font-mono">
                       {t("lastChecked")}: {format.dateTime(wh.lastCheckedAt, { dateStyle: "medium", timeStyle: "short" })}
                     </p>
                   )}
@@ -216,9 +241,21 @@ export function WebhooksList({
               </div>
               {isExpanded && <PingHistory webhookId={wh.id} />}
             </Card>
+            </div>
           );
         })}
       </div>
+
+      <ConfirmDialog
+        open={confirmTarget !== null}
+        onClose={() => setConfirmTarget(null)}
+        onConfirm={handleConfirm}
+        title={confirmTarget?.kind === "test" ? t("testTitle") : t("deleteTitle")}
+        message={confirmTarget?.kind === "test" ? t("testConfirm") : t("confirmDelete")}
+        confirmLabel={confirmTarget?.kind === "test" ? t("sendTest") : t("confirmAction")}
+        danger={confirmTarget?.kind !== "test"}
+        loading={pending}
+      />
     </div>
   );
 }
