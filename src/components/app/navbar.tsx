@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Navbar — precise devtool sidebar.
+ * Surface bg, 1px right border, active item gets lime left indicator
+ * + accent-soft fill. 18px lucide icons, mono micro labels.
+ */
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
@@ -24,42 +29,53 @@ export function Navbar() {
 
   return (
     <>
-      {/* Desktop sidebar — glass panel */}
-      <aside className="fixed left-0 top-0 h-full w-64 z-40 hidden md:flex flex-col backdrop-blur-xl bg-surface/70 border-r border-border-ink">
-        <div className="p-6 border-b border-border-ink">
-          <Link href="/" className="flex items-center gap-2 no-underline group">
-            <span className="transition-transform duration-300 group-hover:rotate-[-8deg]">
-              <HookLogo size={36} />
+      {/* Desktop sidebar */}
+      <aside className="fixed left-0 top-0 h-full w-64 z-40 hidden md:flex flex-col bg-surface border-r border-border-ink">
+        <div className="px-5 py-5 border-b border-border-ink">
+          <Link href="/" className="flex items-center gap-2.5 no-underline">
+            <HookLogo size={32} />
+            <span className="font-display font-bold text-lg tracking-tight text-fg">
+              my-kait
             </span>
-            <span className="font-display text-xl gradient-text">MY KAIT</span>
           </Link>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
+
+        <nav className="flex-1 px-3 py-4 space-y-1">
           {navItems.map((item) => {
             const isActive = pathname.includes(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 text-sm font-bold uppercase tracking-[0.05em] no-underline rounded-xl transition-all duration-200",
+                  "relative flex items-center gap-3 px-3 py-2.5 no-underline rounded-lg",
+                  "font-mono text-[11px] uppercase tracking-[0.14em]",
+                  "transition-colors duration-150 focus-ring",
                   isActive
-                    ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_18px_rgba(122,158,126,0.5)]"
-                    : "text-fg-secondary hover:text-fg hover:bg-white/[0.05] hover:translate-x-1",
+                    ? "bg-accent-soft text-accent"
+                    : "text-fg-secondary hover:text-fg hover:bg-surface-hover",
                 )}
               >
-                <item.icon size={18} />
+                {isActive && (
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-accent"
+                  />
+                )}
+                <item.icon size={18} className="shrink-0" />
                 {t(item.key)}
               </Link>
             );
           })}
         </nav>
-        <div className="p-4 border-t border-border-ink space-y-3">
+
+        <div className="px-3 py-4 border-t border-border-ink space-y-3">
           <ThemeLanguageSwitcher />
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-3"
+            className="w-full justify-start gap-3 font-mono text-[11px] uppercase tracking-[0.14em]"
             onClick={() => signOut({ redirectTo: "/" })}
           >
             <LogOut size={18} />
@@ -68,28 +84,29 @@ export function Navbar() {
         </div>
       </aside>
 
-      {/* Mobile bottom nav — glass bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden flex items-stretch justify-around px-2 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-xl bg-surface/80 border-t border-border-ink">
+      {/* Mobile bottom nav */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden flex items-stretch justify-around bg-surface border-t border-border-ink px-2 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         {navItems.slice(0, 5).map((item) => {
           const isActive = pathname.includes(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex flex-col items-center gap-1 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.05em] no-underline transition-colors duration-200",
-                isActive ? "text-accent-2" : "text-fg-secondary",
+                "relative flex flex-col items-center gap-1 px-3 py-2 no-underline",
+                "font-mono text-[9px] uppercase tracking-[0.12em]",
+                "transition-colors duration-150",
+                isActive ? "text-accent" : "text-fg-secondary",
               )}
             >
-              <span
-                className={cn(
-                  "rounded-full p-1.5 transition-all duration-200",
-                  isActive &&
-                    "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_14px_rgba(122,158,126,0.55)]",
-                )}
-              >
-                <item.icon size={18} />
-              </span>
+              {isActive && (
+                <span
+                  aria-hidden
+                  className="absolute top-0 h-[2px] w-8 rounded-full bg-accent"
+                />
+              )}
+              <item.icon size={18} />
               {t(item.key)}
             </Link>
           );

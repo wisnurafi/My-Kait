@@ -48,7 +48,7 @@ export function ReportButton({ templateId }: { templateId: string }) {
   }
 
   return (
-    <form action={formAction} className="w-full max-w-md text-left space-y-3 glass p-5 animate-fade-in">
+    <form action={formAction} className="w-full max-w-md text-left space-y-3 panel p-5 animate-fade-in">
       <input type="hidden" name="templateId" value={templateId} />
       <div>
         <Label htmlFor="report-reason">{t("reportReason")}</Label>

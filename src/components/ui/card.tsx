@@ -1,6 +1,6 @@
 /**
- * Neon Glass Card — glassmorphism panel with soft border + radius.
- * Props kept compatible: hover (lift on hover), elevated (gradient border).
+ * Card — flat panel surface, 1px border, small radius.
+ * Props kept compatible: hover (lift on hover), elevated (stronger border).
  */
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,10 @@ export function Card({
   return (
     <div
       className={cn(
-        elevated ? "gradient-border" : "glass",
+        "panel",
+        // `.panel` is unlayered CSS so a normal utility can't override its
+        // border-color; the trailing `!` (Tailwind v4 important) is required.
+        elevated && "border-border-strong!",
         hover && "lift cursor-pointer",
         className,
       )}

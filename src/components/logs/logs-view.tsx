@@ -158,8 +158,12 @@ export function LogsView({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-display text-3xl font-bold uppercase">{t("title")}</h1>
+      {/* Page head */}
+      <div className="flex items-start justify-between gap-4 flex-wrap stagger-in">
+        <div>
+          <div className="label mb-2">{t("title")}</div>
+          <h2 className="uppercase">{t("title")}</h2>
+        </div>
         <div className="flex gap-2 flex-wrap">
           <Button
             variant="secondary"
@@ -206,7 +210,7 @@ export function LogsView({
           <div key={s.label} className="stagger-in" style={staggerStyle(i)}>
             <Card hover className="p-5">
               <div className={`text-3xl font-display font-bold ${s.color}`}>{s.value}</div>
-              <div className="text-sm text-fg-secondary mt-1">{s.label}</div>
+              <div className="label mt-1.5">{s.label}</div>
             </Card>
           </div>
         ))}
@@ -393,12 +397,12 @@ export function LogsView({
       {selectedLog && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/70"
             onClick={() => setSelectedLog(null)}
             aria-hidden
           />
           <div
-            className="relative w-full max-w-lg h-full glass overflow-y-auto p-6"
+            className="relative w-full max-w-lg h-full panel overflow-y-auto p-6"
             style={{ borderLeft: "1px solid var(--border)", borderRadius: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -447,7 +451,7 @@ export function LogsView({
                 {selectedLog.error && (
                   <div>
                     <div className="text-fg-secondary mb-1.5">{t("detail.error")}</div>
-                    <div className="terminal p-3 text-xs text-error overflow-x-auto whitespace-pre-wrap">
+                    <div className="bg-sunken border border-border-ink rounded-lg p-3 text-xs text-error overflow-x-auto whitespace-pre-wrap font-mono">
                       {selectedLog.error}
                     </div>
                   </div>
@@ -530,7 +534,7 @@ export function LogsView({
                   <h3 className="font-display text-sm uppercase mb-2 flex items-center gap-1.5">
                     <Terminal size={14} className="text-fg-tertiary" /> {t("detail.payload")}
                   </h3>
-                  <pre className="terminal p-4 text-xs leading-relaxed overflow-auto max-h-72 whitespace-pre-wrap break-words">
+                  <pre className="bg-sunken border border-border-ink rounded-lg p-4 text-xs leading-relaxed overflow-auto max-h-72 whitespace-pre-wrap break-words font-mono">
                     {JSON.stringify(selectedLog.payload, null, 2)}
                   </pre>
                 </div>

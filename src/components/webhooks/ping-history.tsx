@@ -20,7 +20,7 @@ export function PingHistory({ webhookId }: { webhookId: string }) {
 
   if (!history) {
     return (
-      <div className="mt-4 pt-4 border-t-[3px] border-border-ink flex justify-center">
+      <div className="mt-4 pt-4 border-t border-border-ink flex justify-center">
         <Spinner />
       </div>
     );
@@ -28,7 +28,7 @@ export function PingHistory({ webhookId }: { webhookId: string }) {
 
   if (history.length === 0) {
     return (
-      <div className="mt-4 pt-4 border-t-[3px] border-border-ink">
+      <div className="mt-4 pt-4 border-t border-border-ink">
         <p className="text-sm text-fg-secondary text-center py-4">{t("noHistory")}</p>
       </div>
     );
@@ -43,11 +43,11 @@ export function PingHistory({ webhookId }: { webhookId: string }) {
   };
 
   return (
-    <div className="mt-4 pt-4 border-t-[3px] border-border-ink">
+    <div className="mt-4 pt-4 border-t border-border-ink">
       <h4 className="text-sm font-bold mb-3 font-display uppercase tracking-[0.05em]">{t("history")}</h4>
       <div className="space-y-2 max-h-64 overflow-y-auto">
         {history.map((check) => (
-          <div key={check.id} className="flex items-center justify-between text-sm py-2 px-3 bg-sunken border-[1px] border-border-ink">
+          <div key={check.id} className="flex items-center justify-between text-sm py-2 px-3 bg-sunken border border-border-ink rounded-lg">
             <div className="flex items-center gap-2">
               <Badge variant={statusVariant[check.status as PingStatus]}>
                 {check.status}

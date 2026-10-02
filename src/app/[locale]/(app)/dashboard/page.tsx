@@ -2,13 +2,13 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { getWebhooks } from "@/server/actions/webhooks";
 import { getLogs } from "@/server/actions/messages";
 import { getDashboardStats } from "@/server/actions/stats";
-import { auth } from "@/lib/auth";
 import { Link } from "@/i18n/routing";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Mascot } from "@/components/mascot";
 import { DashboardStats, StatCards } from "@/components/dashboard/dashboard-stats";
-import { Pencil, Link2, History } from "lucide-react";
+import { Plus, Command } from "lucide-react";
 
 const statusVariants = {
   sent: "success",
@@ -17,6 +17,14 @@ const statusVariants = {
   edited: "info",
   deleted: "default",
 } as const;
+
+const statusDot: Record<string, string> = {
+  sent: "bg-success",
+  failed: "bg-error",
+  rate_limited: "bg-warning",
+  edited: "bg-info",
+  deleted: "bg-fg-tertiary",
+};
 
 export default async function DashboardPage({
   params,
@@ -27,18 +35,37 @@ export default async function DashboardPage({
   setRequestLocale(locale);
   const t = await getTranslations("dashboard");
 
-  const session = await auth();
   const webhooks = await getWebhooks();
   const logsData = await getLogs({ perPage: 5 });
   const stats = await getDashboardStats();
 
   return (
     <div className="space-y-6">
-      <div className="stagger-in">
-        <h1 className="font-display text-3xl uppercase">
-          {t("greeting", { name: session?.user?.name || "User" })}
-        </h1>
-        <p className="text-fg-secondary mt-1">{t("welcome")}</p>
+      {/* Page head */}
+      <div className="flex items-start justify-between gap-4 flex-wrap stagger-in">
+        <div className="flex items-center gap-4">
+          <Mascot mini size={52} />
+          <div>
+            <div className="label mb-2">{t("overview")}</div>
+            <h2>{t("missionControl")}</h2>
+            <p className="text-fg-secondary mt-1 text-sm">{t("welcome")}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Tooltip content={t("soon")}>
+            <span className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border-ink bg-surface text-fg-tertiary font-mono text-[11px] cursor-default">
+              <Command size={14} />
+              ⌘K
+              <span className="hidden sm:inline">{t("commandPalette")}</span>
+            </span>
+          </Tooltip>
+          <Link href="/editor">
+            <Button className="gap-2">
+              <Plus size={16} />
+              {t("createMessage")}
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <StatCards
@@ -47,29 +74,11 @@ export default async function DashboardPage({
         successRate={logsData.summary.successRate}
       />
 
-      <div className="flex gap-3 flex-wrap stagger-in" style={{ "--stagger-index": 1 } as React.CSSProperties}>
-        <Link href="/editor">
-          <Button size="lg" className="gap-2">
-            <Pencil size={20} />
-            {t("createMessage")}
-          </Button>
-        </Link>
-        <Link href="/webhooks">
-          <Button variant="secondary" size="lg" className="gap-2">
-            <Link2 size={20} />
-            {t("manageWebhooks")}
-          </Button>
-        </Link>
-        <Link href="/logs">
-          <Button variant="secondary" size="lg" className="gap-2">
-            <History size={20} />
-            {t("viewLogs")}
-          </Button>
-        </Link>
-      </div>
-
       <div>
-        <h2 className="font-display text-xl uppercase mb-4 stagger-in" style={{ "--stagger-index": 2 } as React.CSSProperties}>
+        <h2
+          className="text-xl mb-4 stagger-in"
+          style={{ "--stagger-index": 2 } as React.CSSProperties}
+        >
           {t("stats.title")}
         </h2>
         <DashboardStats
@@ -81,38 +90,73 @@ export default async function DashboardPage({
         />
       </div>
 
+      {/* Recent activity — table */}
       <div>
-        <h2 className="font-display text-xl uppercase mb-4 stagger-in" style={{ "--stagger-index": 6 } as React.CSSProperties}>
-          {t("recentActivity")}
-        </h2>
-        <div className="stagger-in" style={{ "--stagger-index": 7 } as React.CSSProperties}>
-          <Card className="divide-y-[1px] divide-border-ink overflow-hidden">
-            {logsData.logs.length === 0 ? (
-              <div className="p-8 text-center text-fg-secondary">
-                {t("noActivity")}
-              </div>
-            ) : (
-              logsData.logs.map((log) => (
-                <div
-                  key={log.id}
-                  className="p-4 flex items-center justify-between gap-3 transition-colors duration-200 hover:bg-white/[0.03]"
-                >
-                  <div className="min-w-0">
-                    <div className="font-semibold text-sm truncate">{log.webhookNameSnapshot}</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-fg-secondary font-mono">{log.mode}</span>
-                      <Badge variant={statusVariants[log.status] ?? "default"} dot>
-                        {log.status.replace(/_/g, " ")}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="text-xs text-fg-tertiary font-mono shrink-0">
-                    {new Date(log.createdAt).toLocaleString()}
-                  </div>
-                </div>
-              ))
-            )}
-          </Card>
+        <div
+          className="panel overflow-hidden stagger-in"
+          style={{ "--stagger-index": 6 } as React.CSSProperties}
+        >
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border-ink">
+            <span className="font-display font-semibold text-[15px]">
+              {t("recentActivity")}
+            </span>
+            <Link
+              href="/logs"
+              className="font-mono text-xs text-accent no-underline hover:text-accent-deep"
+            >
+              {t("viewAll")} →
+            </Link>
+          </div>
+          {logsData.logs.length === 0 ? (
+            <div className="p-8 text-center text-fg-secondary text-sm">
+              {t("noActivity")}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border-ink">
+                    <th className="label text-left font-medium px-5 py-3">Status</th>
+                    <th className="label text-left font-medium px-4 py-3">Target</th>
+                    <th className="label text-left font-medium px-4 py-3">Mode</th>
+                    <th className="label text-left font-medium px-4 py-3">Latency</th>
+                    <th className="label text-right font-medium px-5 py-3">Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {logsData.logs.map((log) => (
+                    <tr
+                      key={log.id}
+                      className="border-b border-border-ink last:border-0 transition-colors hover:bg-surface-hover"
+                    >
+                      <td className="px-5 py-3.5">
+                        <span className="inline-flex items-center gap-2">
+                          <span
+                            className={`status-dot ${statusDot[log.status] ?? "bg-fg-tertiary"}`}
+                          />
+                          <Badge variant={statusVariants[log.status] ?? "default"}>
+                            {log.status.replace(/_/g, " ")}
+                          </Badge>
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 font-medium truncate max-w-[220px]">
+                        {log.webhookNameSnapshot}
+                      </td>
+                      <td className="px-4 py-3.5 font-mono text-xs text-fg-secondary">
+                        {log.mode}
+                      </td>
+                      <td className="px-4 py-3.5 font-mono text-xs text-fg-secondary">
+                        {log.latencyMs != null ? `${log.latencyMs}ms` : "—"}
+                      </td>
+                      <td className="px-5 py-3.5 font-mono text-xs text-fg-tertiary text-right whitespace-nowrap">
+                        {new Date(log.createdAt).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

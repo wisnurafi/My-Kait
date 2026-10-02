@@ -12,5 +12,9 @@ export default async function EditorPage({
 
   const webhooks = await getWebhooks();
 
-  return <Editor webhooks={webhooks} />;
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <Editor webhooks={webhooks} />
+    </div>
+  );
 }

@@ -8,8 +8,8 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Badge } from "@/components/ui/badge";
 import { MessageSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type DiscordTheme = "dark" | "light";
 
@@ -55,38 +55,35 @@ export function DiscordPreview({
   const avatar = avatarUrl || "https://cdn.discordapp.com/embed/avatars/0.png";
 
   return (
-    <div className="glass overflow-hidden animate-fade-in p-0">
-      {/* Blurple accent bar */}
-      <div
-        aria-hidden="true"
-        className="h-1 bg-[linear-gradient(90deg,var(--accent-primary),var(--accent-secondary),var(--accent-tertiary))]"
-      />
+    <div className="panel overflow-hidden animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-ink">
-        <span className="flex items-center gap-2 text-xs font-bold text-fg-secondary uppercase tracking-[0.05em]">
-          <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))] text-white shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
-            <MessageSquare size={12} />
-          </span>
-          Discord Preview
+      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-border-ink">
+        <span className="flex items-center gap-2.5">
+          <span className="status-dot bg-success pulsing" aria-hidden="true" />
+          <span className="label">live preview — discord</span>
         </span>
-        <div className="flex gap-1 rounded-full bg-sunken p-1">
+        <div className="inline-flex items-center bg-sunken border border-border-ink rounded-lg p-0.5">
           <button
             onClick={() => setTheme("dark")}
-            className="px-3 py-1 text-xs font-bold uppercase tracking-[0.05em] rounded-full transition-all"
-            style={{
-              background: theme === "dark" ? c.accent : "transparent",
-              color: theme === "dark" ? "#fff" : c.muted,
-            }}
+            aria-pressed={theme === "dark"}
+            className={cn(
+              "px-2.5 py-1 rounded-md font-mono text-[10px] uppercase tracking-[0.12em] transition-colors cursor-pointer",
+              theme === "dark"
+                ? "bg-accent text-[#0a0a0b] font-semibold"
+                : "text-fg-tertiary hover:text-fg-secondary"
+            )}
           >
             Dark
           </button>
           <button
             onClick={() => setTheme("light")}
-            className="px-3 py-1 text-xs font-bold uppercase tracking-[0.05em] rounded-full transition-all"
-            style={{
-              background: theme === "light" ? c.accent : "transparent",
-              color: theme === "light" ? "#fff" : c.muted,
-            }}
+            aria-pressed={theme === "light"}
+            className={cn(
+              "px-2.5 py-1 rounded-md font-mono text-[10px] uppercase tracking-[0.12em] transition-colors cursor-pointer",
+              theme === "light"
+                ? "bg-accent text-[#0a0a0b] font-semibold"
+                : "text-fg-tertiary hover:text-fg-secondary"
+            )}
           >
             Light
           </button>

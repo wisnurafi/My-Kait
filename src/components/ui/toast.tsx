@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Neon Glass Toast — lightweight toast system.
+ * Toast — lightweight toast system.
  * Usage:
  *   import { toast, Toaster } from "@/components/ui/toast";
  *   toast.success("Pesan terkirim!");
@@ -31,9 +31,9 @@ export const toast = {
 };
 
 const kindStyles: Record<ToastKind, { icon: typeof CheckCircle2; ring: string; iconColor: string }> = {
-  success: { icon: CheckCircle2, ring: "border-[rgba(52,211,153,0.4)]", iconColor: "text-success" },
-  error: { icon: XCircle, ring: "border-[rgba(251,113,133,0.4)]", iconColor: "text-error" },
-  info: { icon: Info, ring: "border-[rgba(122,158,126,0.45)]", iconColor: "text-accent-bright" },
+  success: { icon: CheckCircle2, ring: "border-[rgba(74,222,128,0.4)]", iconColor: "text-success" },
+  error: { icon: XCircle, ring: "border-[rgba(248,113,113,0.4)]", iconColor: "text-error" },
+  info: { icon: Info, ring: "border-[rgba(125,211,252,0.4)]", iconColor: "text-info" },
 };
 
 export function Toaster() {
@@ -67,8 +67,8 @@ export function Toaster() {
               exit={{ opacity: 0, x: 40, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 32 }}
               className={cn(
-                "pointer-events-auto flex items-center gap-2.5 pl-3 pr-4 py-3 rounded-xl border backdrop-blur-xl",
-                "bg-surface-solid/95 shadow-[0_12px_40px_rgba(0,0,0,0.5)]",
+                "pointer-events-auto flex items-center gap-2.5 pl-3 pr-4 py-3 rounded-lg border",
+                "bg-surface shadow-md",
                 s.ring,
               )}
             >

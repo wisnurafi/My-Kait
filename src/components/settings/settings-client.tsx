@@ -12,7 +12,7 @@ import { signOut } from "next-auth/react";
 import { deleteAccountAction } from "@/server/actions/messages";
 import { exportUserDataAction } from "@/server/actions/export";
 import { Link } from "@/i18n/routing";
-import { Download, AlertTriangle } from "lucide-react";
+import { Download, AlertTriangle, User } from "lucide-react";
 
 function staggerStyle(i: number) {
   return { "--stagger-index": i } as React.CSSProperties;
@@ -53,7 +53,13 @@ export function SettingsClient({
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <h1 className="font-display text-3xl uppercase">{t("title")}</h1>
+      {/* Page head */}
+      <div className="flex items-start justify-between gap-4 flex-wrap stagger-in">
+        <div>
+          <div className="label mb-2">{t("title")}</div>
+          <h2 className="uppercase">{t("title")}</h2>
+        </div>
+      </div>
 
       {/* Profile */}
       <div className="stagger-in" style={staggerStyle(0)}>
@@ -68,8 +74,8 @@ export function SettingsClient({
                   className="w-16 h-16 rounded-full ring-2 ring-border-ink object-cover"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-sunken border border-border-ink flex items-center justify-center text-2xl">
-                  👤
+                <div className="w-16 h-16 rounded-full bg-sunken border border-border-ink flex items-center justify-center">
+                  <User size={24} className="text-fg-tertiary" />
                 </div>
               )}
               <div>
@@ -90,8 +96,8 @@ export function SettingsClient({
               <div>
                 <Label>{t("language")}</Label>
                 <div className="flex gap-2 mt-2">
-                  <Badge variant="info">🇮🇩 ID</Badge>
-                  <Badge variant="default">🇬🇧 EN</Badge>
+                  <Badge variant="info">ID</Badge>
+                  <Badge variant="default">EN</Badge>
                 </div>
               </div>
               <div>
@@ -126,10 +132,10 @@ export function SettingsClient({
       {/* Danger zone */}
       <div className="stagger-in" style={staggerStyle(3)}>
         <div
-          className="glass glow-error"
+          className="panel"
           style={{
-            backgroundColor: "rgba(251,113,133,0.06)",
-            borderColor: "rgba(251,113,133,0.35)",
+            borderColor: "rgba(248, 113, 113, 0.4)",
+            background: "var(--error-soft)",
           }}
         >
           <CardBody>

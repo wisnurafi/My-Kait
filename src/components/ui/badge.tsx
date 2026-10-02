@@ -1,6 +1,6 @@
 /**
- * Cozy Badge — soft rounded pills with warm tinted backgrounds.
- * `pulse` adds a gentle pulse dot (great for "active" webhook status).
+ * Badge — mono micro-label pills, semantic status tints.
+ * `pulse` adds a pulsing status dot (great for "active" webhook status).
  */
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ type BadgeVariant =
   | "info";
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: "bg-surface-hover text-fg-secondary border-border",
+  default: "bg-surface-hover text-fg-secondary border-border-ink",
   active: "bg-success-soft text-success border-success/30",
   success: "bg-success-soft text-success border-success/30",
   warning: "bg-warning-soft text-warning border-warning/30",
@@ -53,7 +53,7 @@ export function Badge({
     <span
       className={cn(
         "inline-flex items-center gap-1.5 px-3 py-1",
-        "text-[11px] font-bold tracking-wide leading-none",
+        "font-mono text-[11px] font-medium uppercase tracking-wide leading-none",
         "rounded-full border",
         variantClasses[variant],
         className,
@@ -86,11 +86,11 @@ export function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "px-4 py-1.5 text-[11px] font-bold tracking-wide leading-none",
-        "rounded-full border cursor-pointer transition-all duration-150 press",
+        "px-4 py-1.5 font-mono text-[11px] font-medium uppercase tracking-wide leading-none",
+        "rounded-full border cursor-pointer transition-colors duration-150 press",
         active
-          ? "bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-primary-deep))] text-[#fffdf9] border-transparent shadow-md"
-          : "bg-surface text-fg-secondary border-border hover:text-fg hover:border-border-strong",
+          ? "bg-accent text-[#0a0a0b] border-transparent"
+          : "bg-surface text-fg-secondary border-border-ink hover:text-fg hover:border-border-strong",
         className,
       )}
     >
