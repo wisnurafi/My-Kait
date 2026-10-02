@@ -211,30 +211,36 @@ body {
     radial-gradient(700px 600px at 50% 110%, rgba(191, 168, 217, 0.05), transparent 60%);
 }
 
-/* Headings — friendly rounded, not shouty */
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  color: var(--fg);
-}
-h1 {
-  font-size: clamp(1.9rem, 4.5vw, 3.4rem);
-}
-h2 {
-  font-size: clamp(1.4rem, 3vw, 2.1rem);
-}
-h3 {
-  font-size: clamp(1.1rem, 2.2vw, 1.45rem);
-}
-h4 {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.35;
+/* Headings — friendly rounded, not shouty.
+   NOTE: wrapped in @layer base so Tailwind utilities (e.g. text-[#faf7f2]
+   on the free banner) can override these. Unlayered rules beat ALL layered
+   utilities regardless of specificity, which made banner headings ignore
+   their text color classes (invisible heading bug). */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4.5vw, 3.4rem);
+  }
+  h2 {
+    font-size: clamp(1.4rem, 3vw, 2.1rem);
+  }
+  h3 {
+    font-size: clamp(1.1rem, 2.2vw, 1.45rem);
+  }
+  h4 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
 }
 
 @layer base {
