@@ -47,7 +47,18 @@
     "shareLinkCopied": "Link disalin!",
     "importCount": "Diimpor {count} kali",
     "useThisTemplate": "Pakai template ini",
-    "loginToImport": "Login dengan Discord untuk mengimpor template ini."
+    "loginToImport": "Login dengan Discord untuk mengimpor template ini.",
+    "folders": {
+      "title": "Folder",
+      "new": "Folder baru",
+      "all": "Semua template",
+      "unfiled": "Tanpa folder",
+      "namePlaceholder": "Nama folder…",
+      "rename": "Ubah nama folder",
+      "delete": "Hapus folder",
+      "confirmDelete": "Hapus folder \"{name}\"? Template di dalamnya jadi tanpa folder.",
+      "moveTo": "Pindah ke folder"
+    }
   },
   "dashboard": {
     "greeting": "Hai, {name}! 👋",
@@ -64,7 +75,17 @@
     "thisWeek": "Minggu ini",
     "activeWebhooks": "Webhook aktif",
     "templateVars": "Variabel Template",
-    "templateVarsHint": "Gunakan {tanggal}, {waktu}, {hari} di pesan"
+    "templateVarsHint": "Gunakan {tanggal}, {waktu}, {hari} di pesan",
+    "stats": {
+      "title": "Statistik",
+      "perDay": "Pesan per hari",
+      "topWebhooks": "Webhook paling aktif",
+      "successRate": "Tingkat keberhasilan",
+      "sent": "Terkirim",
+      "failed": "Gagal",
+      "noData": "Belum ada data 30 hari terakhir",
+      "last30days": "30 hari terakhir"
+    }
   },
   "settings": {
     "title": "Pengaturan",
