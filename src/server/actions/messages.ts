@@ -343,7 +343,7 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
     webhookName = wh[0].name;
     effectiveWebhookId = overrideWebhookId;
   } else {
-    return { error: "Pilih webhook untuk mengedit pesan ini" };
+    return { error: "Pesan ini dikirim sebelum fitur simpan URL aktif. Edit manual via Discord atau kirim ulang." };
   }
   const result = await editWebhookMessage(url, log[0].discordMessageId, payload);
 
@@ -416,7 +416,7 @@ export async function deleteMessageAction(prevState: unknown, formData: FormData
     // Use stored manual URL
     url = decryptWebhookUrl(log[0].manualUrlEncrypted, log[0].manualUrlKeyVersion);
   } else {
-    return { error: "Pesan tidak ditemukan atau tidak bisa dihapus" };
+    return { error: "Pesan ini dikirim sebelum fitur simpan URL aktif. Hapus manual via Discord." };
   }
   const result = await deleteWebhookMessage(url, log[0].discordMessageId);
 
