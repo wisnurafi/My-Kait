@@ -128,4 +128,4 @@ Issues and pull requests are welcome. Keep it simple: one focused change per PR,
 
 ## License
 
-No license chosen yet — all rights reserved for now. If you intend to contribute or reuse this code, open an issue to discuss licensing.
+[MIT](LICENSE) — use it, fork it, sell it, just keep the copyright notice.
