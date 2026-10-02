@@ -112,7 +112,8 @@
       "failed": "Failed",
       "noData": "No data in the last 30 days",
       "last30days": "Last 30 days"
-    }
+    },
+    "successRateHint": "Sent messages out of total attempts"
   },
   "settings": {
     "title": "Settings",
@@ -245,7 +246,9 @@
     "healthAlerts": "Webhook Health Alerts",
     "dismissAll": "Dismiss all",
     "alertDown": "Down",
-    "alertRecovered": "Recovered"
+    "alertRecovered": "Recovered",
+    "editWebhook": "Edit webhook",
+    "deleteWebhook": "Delete webhook"
   },
   "editor": {
     "title": "Message Editor",
@@ -355,7 +358,8 @@
       "messageId": "Message ID",
       "error": "Error",
       "duration": "Duration",
-      "actions": "Actions"
+      "actions": "Actions",
+      "close": "Close detail"
     },
     "export": "Export CSV/JSON",
     "noLogs": "No logs yet",

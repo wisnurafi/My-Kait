@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ui/dialog";
+import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/toast";
 import {
   pingWebhookAction,
@@ -222,23 +223,27 @@ export function WebhooksList({
                   >
                     {isExpanded ? "Tutup" : "Riwayat"}
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditingId(editingId === wh.id ? null : wh.id)}
-                    className="gap-1.5"
-                  >
-                    <Pencil size={14} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(wh.id)}
-                    disabled={pending}
-                    className="text-error"
-                  >
-                    <Trash2 size={14} />
-                  </Button>
+                  <Tooltip content={t("editWebhook")}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingId(editingId === wh.id ? null : wh.id)}
+                      className="gap-1.5"
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip content={t("deleteWebhook")}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(wh.id)}
+                      disabled={pending}
+                      className="text-error"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </Tooltip>
                 </div>
               </div>
               {isExpanded && <PingHistory webhookId={wh.id} />}

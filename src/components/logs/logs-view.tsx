@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ConfirmDialog } from "@/components/ui/dialog";
+import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/toast";
 import { clearLogsAction, deleteMessageAction } from "@/server/actions/messages";
 import { saveAsTemplateAction } from "@/server/actions/templates";
@@ -408,9 +409,11 @@ export function LogsView({
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display text-xl font-bold uppercase">Detail</h2>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedLog(null)}>
-                <X size={18} />
-              </Button>
+              <Tooltip content={t("detail.close")} position="bottom">
+                <Button variant="ghost" size="sm" onClick={() => setSelectedLog(null)}>
+                  <X size={18} />
+                </Button>
+              </Tooltip>
             </div>
 
             <div className="space-y-5">
