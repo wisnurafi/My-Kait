@@ -79,7 +79,7 @@ export default async function SharedTemplatePage({
               <p className="text-sm text-fg-secondary mb-4">
                 {t("loginToImport")}
               </p>
-              <Link href="/api/auth/signin?callbackUrl=/t/[slug]">
+              <Link href="/api/auth/signin/discord?callbackUrl=/t/[slug]">
                 <Button className="gap-2">{t("loginWithDiscord")}</Button>
               </Link>
             </div>
