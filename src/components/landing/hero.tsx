@@ -7,6 +7,7 @@ import { Link } from "@/i18n/routing";
 import { HookLogo } from "@/components/hook-logo";
 import { Mascot } from "@/components/mascot";
 import { LandingLocaleToggle } from "@/components/landing/locale-toggle";
+import { LandingThemeToggle } from "@/components/landing/theme-toggle";
 
 interface PublicStats {
   totalMessages: number;
@@ -481,6 +482,7 @@ export function LandingHero() {
           </div>
           <div className="flex items-center gap-2.5">
             <LandingLocaleToggle />
+            <LandingThemeToggle />
             {loggedIn ? (
               <Link href="/dashboard" className={ctaPrimaryClass}>
                 {t("openDashboard")}

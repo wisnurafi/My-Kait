@@ -211,7 +211,8 @@
     "statsLatency": "median latency",
     "live": "LIVE",
     "versionNote": "SCHEDULED SENDS — now live",
-    "openDashboard": "Open dashboard"
+    "openDashboard": "Open dashboard",
+    "toggleTheme": "Toggle theme"
   },
   "webhooks": {
     "title": "My Webhooks",
