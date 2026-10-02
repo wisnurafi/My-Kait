@@ -18,7 +18,7 @@ export function Features() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 text-center">
           <div className="label mb-3" style={{ color: "var(--accent-primary)" }}>
-            system.capabilities
+            system capabilities
           </div>
           <h2 className="mb-3 font-display text-4xl font-bold tracking-tight text-fg">
             {t("title")}
