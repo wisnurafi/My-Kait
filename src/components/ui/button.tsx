@@ -11,7 +11,7 @@ type Size = "sm" | "md" | "lg" | "icon";
 const variantClasses: Record<Variant, string> = {
   // Sage green fill, cream text, soft shadow. Hover: lift + deepen.
   primary:
-    "text-[#fffdf9] border-transparent bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-primary-deep))] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(122,158,126,0.35)] hover:brightness-105",
+    "text-[#2d2a26] border-transparent bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-primary-deep))] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(122,158,126,0.35)] hover:brightness-105",
   // Warm surface, soft border. Hover: lift + warm tint.
   secondary:
     "bg-surface text-fg border-border hover:bg-surface-hover hover:border-border-strong hover:-translate-y-0.5 hover:shadow-md",
