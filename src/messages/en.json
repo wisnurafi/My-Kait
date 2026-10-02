@@ -210,7 +210,8 @@
     "statsRate": "delivery rate",
     "statsLatency": "median latency",
     "live": "LIVE",
-    "versionNote": "SCHEDULED SENDS — now live"
+    "versionNote": "SCHEDULED SENDS — now live",
+    "openDashboard": "Open dashboard"
   },
   "webhooks": {
     "title": "My Webhooks",
@@ -393,6 +394,7 @@
     "popular": "Popular",
     "latest": "Latest",
     "emptyTitle": "No templates found",
-    "emptyDesc": "Try a different keyword, or be the first to share one."
+    "emptyDesc": "Try a different keyword, or be the first to share one.",
+    "loginDiscord": "Login with Discord"
   }
 }

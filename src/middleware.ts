@@ -15,6 +15,7 @@ const intlMiddleware = createMiddleware(routing);
 const publicRoutes = [
   "/",
   "/t/[slug]",
+  "/gallery",
   "/api/auth",
 ];
 
@@ -26,6 +27,7 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname === "/") return true;
   if (pathname.match(/^\/(id|en)\/?$/)) return true;
   if (pathname.match(/^\/(id|en)\/t\/[\w-]+\/?$/)) return true;
+  if (pathname.match(/^\/(id|en)\/gallery\/?$/)) return true;
   if (pathname.startsWith("/api/auth")) return true;
   if (pathname.startsWith("/api/cron")) return true;
   return false;
@@ -53,15 +55,9 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  // If logged in and on landing page, redirect to dashboard
-  if (isPublicRoute(pathname) && !pathname.startsWith("/api") && !pathname.includes("/t/")) {
-    const session = await auth();
-    if (session) {
-      const locale = pathname.startsWith("/en") ? "en" : "id";
-      const dashboardUrl = new URL(`/${locale}/dashboard`, req.url);
-      return NextResponse.redirect(dashboardUrl);
-    }
-  }
+  // NOTE: logged-in users are intentionally allowed to visit the landing
+  // page (previously this redirected to /dashboard, which made the landing
+  // unreachable without logging out).
 
   return intlResponse;
 }

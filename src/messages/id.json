@@ -210,7 +210,8 @@
     "statsRate": "tingkat keberhasilan",
     "statsLatency": "latensi median",
     "live": "LIVE",
-    "versionNote": "SCHEDULED SENDS — sudah live"
+    "versionNote": "SCHEDULED SENDS — sudah live",
+    "openDashboard": "Buka dashboard"
   },
   "webhooks": {
     "title": "Webhook Saya",
@@ -393,6 +394,7 @@
     "popular": "Populer",
     "latest": "Terbaru",
     "emptyTitle": "Template tidak ditemukan",
-    "emptyDesc": "Coba kata kunci lain, atau jadi yang pertama membagikan."
+    "emptyDesc": "Coba kata kunci lain, atau jadi yang pertama membagikan.",
+    "loginDiscord": "Login dengan Discord"
   }
 }
