@@ -23,6 +23,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "landingPage": "Halaman utama",
     "editor": "Editor",
     "webhooks": "Webhook",
     "templates": "Template",

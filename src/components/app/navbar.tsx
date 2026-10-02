@@ -12,7 +12,7 @@ import { HookLogo } from "@/components/hook-logo";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ThemeLanguageSwitcher } from "@/components/app/theme-language-switcher";
-import { LogOut, Home, Pencil, Link2, FileText, History, Settings } from "lucide-react";
+import { LogOut, Home, Pencil, Link2, FileText, History, Settings, Globe } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", icon: Home, key: "dashboard" },
@@ -71,6 +71,13 @@ export function Navbar() {
         </nav>
 
         <div className="px-3 py-4 border-t border-border-ink space-y-3">
+          <Link
+            href="/"
+            className="flex items-center gap-3 px-3 py-2.5 no-underline rounded-lg font-mono text-[11px] uppercase tracking-[0.14em] text-fg-secondary hover:text-fg hover:bg-surface-hover transition-colors duration-150 focus-ring"
+          >
+            <Globe size={18} className="shrink-0" />
+            {t("landingPage")}
+          </Link>
           <ThemeLanguageSwitcher />
           <Button
             variant="ghost"

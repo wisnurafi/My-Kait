@@ -23,6 +23,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "landingPage": "Landing page",
     "editor": "Editor",
     "webhooks": "Webhooks",
     "templates": "Templates",
