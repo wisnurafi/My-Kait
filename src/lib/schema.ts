@@ -204,6 +204,9 @@ export const messageLogs = pgTable(
       onDelete: "set null",
     }),
     webhookNameSnapshot: text("webhook_name_snapshot").notNull(),
+    // For manual URL sends: store encrypted URL so edit/delete work without saved webhook
+    manualUrlEncrypted: text("manual_url_encrypted"),
+    manualUrlKeyVersion: text("manual_url_key_version"),
     mode: messageModeEnum("mode").notNull(),
     payload: jsonb("payload"),
     status: messageStatusEnum("status").notNull(),

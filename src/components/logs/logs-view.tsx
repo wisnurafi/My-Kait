@@ -485,17 +485,15 @@ export function LogsView({
                       >
                         <Pencil size={14} /> Edit Pesan
                       </Button>
-                      {selectedLog.webhookId && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="gap-1.5"
-                          disabled={!selectedLog.discordMessageId || pending}
-                          onClick={() => setConfirmDeleteOpen(true)}
-                        >
-                          <Trash2 size={14} /> Hapus Pesan
-                        </Button>
-                      )}
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="gap-1.5"
+                        disabled={!selectedLog.discordMessageId || pending}
+                        onClick={() => setConfirmDeleteOpen(true)}
+                      >
+                        <Trash2 size={14} /> Hapus Pesan
+                      </Button>
                     </>
                   )}
                   <Button

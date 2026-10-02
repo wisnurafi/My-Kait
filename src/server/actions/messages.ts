@@ -10,7 +10,7 @@ import { db } from "@/lib/db";
 import { webhooks, messageLogs } from "@/lib/schema";
 import { eq, and, desc, gte, lte, ilike, sql, count } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
-import { decryptWebhookUrl } from "@/lib/crypto";
+import { decryptWebhookUrl, encryptWebhookUrl } from "@/lib/crypto";
 import {
   sendWebhookMessage,
   editWebhookMessage,
@@ -214,10 +214,21 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   }
 
   // Log to database
+  // For manual URL sends, encrypt and store the URL so edit/delete work later
+  let manualUrlEncrypted: string | null = null;
+  let manualUrlKeyVersion: string | null = null;
+  if (!webhookRecord && url) {
+    const enc = encryptWebhookUrl(url);
+    manualUrlEncrypted = enc.encrypted;
+    manualUrlKeyVersion = enc.keyVersion;
+  }
+
   await db.insert(messageLogs).values({
     userId: user.id,
     webhookId: webhookRecord?.id ?? null,
     webhookNameSnapshot: webhookRecord?.name ?? "Manual URL",
+    manualUrlEncrypted,
+    manualUrlKeyVersion,
     mode,
     payload: savePayload ? processedPayload : null,
     status,
@@ -286,36 +297,61 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
     return { error: "Pesan tidak ditemukan atau tidak bisa diedit" };
   }
 
-  // Use log's webhookId, or override from form (for manual URL sends)
-  const effectiveWebhookId = log[0].webhookId ?? overrideWebhookId;
-  if (!effectiveWebhookId) {
+  // Determine webhook URL: saved webhook > stored manual URL > form override
+  let url: string;
+  let webhookName = "Manual URL";
+  let effectiveWebhookId: string | null = log[0].webhookId;
+
+  if (effectiveWebhookId) {
+    // Get webhook URL from saved webhook
+    const wh = await db
+      .select()
+      .from(webhooks)
+      .where(
+        and(
+          eq(webhooks.id, effectiveWebhookId),
+          eq(webhooks.userId, user.id),
+        ),
+      )
+      .limit(1);
+
+    if (wh.length === 0) {
+      return { error: "Webhook tidak ditemukan" };
+    }
+    url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
+    webhookName = wh[0].name;
+  } else if (log[0].manualUrlEncrypted && log[0].manualUrlKeyVersion) {
+    // Use stored manual URL (no need to select webhook)
+    url = decryptWebhookUrl(log[0].manualUrlEncrypted, log[0].manualUrlKeyVersion);
+  } else if (overrideWebhookId) {
+    // Fallback: user selected a webhook in editor
+    const wh = await db
+      .select()
+      .from(webhooks)
+      .where(
+        and(
+          eq(webhooks.id, overrideWebhookId),
+          eq(webhooks.userId, user.id),
+        ),
+      )
+      .limit(1);
+
+    if (wh.length === 0) {
+      return { error: "Webhook tidak ditemukan" };
+    }
+    url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
+    webhookName = wh[0].name;
+    effectiveWebhookId = overrideWebhookId;
+  } else {
     return { error: "Pilih webhook untuk mengedit pesan ini" };
   }
-
-  // Get webhook URL
-  const wh = await db
-    .select()
-    .from(webhooks)
-    .where(
-      and(
-        eq(webhooks.id, effectiveWebhookId),
-        eq(webhooks.userId, user.id),
-      ),
-    )
-    .limit(1);
-
-  if (wh.length === 0) {
-    return { error: "Webhook tidak ditemukan" };
-  }
-
-  const url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
   const result = await editWebhookMessage(url, log[0].discordMessageId, payload);
 
   // Log the edit
   await db.insert(messageLogs).values({
     userId: user.id,
     webhookId: effectiveWebhookId,
-    webhookNameSnapshot: wh[0].name,
+    webhookNameSnapshot: webhookName,
     mode: log[0].mode,
     payload,
     status: result.success ? "edited" : "failed",
@@ -350,32 +386,44 @@ export async function deleteMessageAction(prevState: unknown, formData: FormData
     )
     .limit(1);
 
-  if (log.length === 0 || !log[0].discordMessageId || !log[0].webhookId) {
+  if (log.length === 0 || !log[0].discordMessageId) {
     return { error: "Pesan tidak ditemukan atau tidak bisa dihapus" };
   }
 
-  const wh = await db
-    .select()
-    .from(webhooks)
-    .where(
-      and(
-        eq(webhooks.id, log[0].webhookId),
-        eq(webhooks.userId, user.id),
-      ),
-    )
-    .limit(1);
+  // Determine webhook URL: saved webhook > stored manual URL
+  let url: string;
+  let webhookName = "Manual URL";
+  let effectiveWebhookId: string | null = log[0].webhookId;
 
-  if (wh.length === 0) {
-    return { error: "Webhook tidak ditemukan" };
+  if (effectiveWebhookId) {
+    const wh = await db
+      .select()
+      .from(webhooks)
+      .where(
+        and(
+          eq(webhooks.id, effectiveWebhookId),
+          eq(webhooks.userId, user.id),
+        ),
+      )
+      .limit(1);
+
+    if (wh.length === 0) {
+      return { error: "Webhook tidak ditemukan" };
+    }
+    url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
+    webhookName = wh[0].name;
+  } else if (log[0].manualUrlEncrypted && log[0].manualUrlKeyVersion) {
+    // Use stored manual URL
+    url = decryptWebhookUrl(log[0].manualUrlEncrypted, log[0].manualUrlKeyVersion);
+  } else {
+    return { error: "Pesan tidak ditemukan atau tidak bisa dihapus" };
   }
-
-  const url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
   const result = await deleteWebhookMessage(url, log[0].discordMessageId);
 
   await db.insert(messageLogs).values({
     userId: user.id,
-    webhookId: log[0].webhookId,
-    webhookNameSnapshot: wh[0].name,
+    webhookId: effectiveWebhookId,
+    webhookNameSnapshot: webhookName,
     mode: log[0].mode,
     status: result.success ? "deleted" : "failed",
     httpStatus: result.httpStatus,
