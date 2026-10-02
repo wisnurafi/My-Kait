@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Dark mode variant based on data-theme attribute (not prefers-color-scheme) */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ============================================
    MY KAIT — Cozy Cabin Design System
    Warm, soft, nature-inspired. Colorful but comfy.
