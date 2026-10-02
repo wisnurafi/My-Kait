@@ -11,45 +11,38 @@ type Theme = "system" | "light" | "dark";
  * Glass pill, cycling system → light → dark.
  */
 export function LandingThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const saved = localStorage.getItem("mykait-theme") as Theme | null;
-    if (saved) setTheme(saved);
+    const saved = localStorage.getItem("mykait-theme");
+    if (saved === "dark" || saved === "light") {
+      setTheme(saved);
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
+    }
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
-    const root = document.documentElement;
-    if (theme === "system") {
-      root.removeAttribute("data-theme");
-    } else {
-      root.setAttribute("data-theme", theme);
-    }
+    document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("mykait-theme", theme);
   }, [theme, mounted]);
 
-  function cycle() {
-    if (theme === "system") setTheme("light");
-    else if (theme === "light") setTheme("dark");
-    else setTheme("system");
+  function toggle() {
+    setTheme((t) => (t === "light" ? "dark" : "light"));
   }
 
   if (!mounted) {
     return <div className="fixed top-6 right-6 z-50 w-11 h-11" />;
   }
 
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" &&
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDark = theme === "dark";
 
   return (
     <button
-      onClick={cycle}
+      onClick={toggle}
       aria-label="Toggle theme"
       className={cn(
         "fixed top-6 right-6 z-50 w-11 h-11 flex items-center justify-center cursor-pointer",
