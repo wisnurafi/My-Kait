@@ -1,9 +1,11 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
+import { auth } from "@/lib/auth";
 import { getGalleryTemplates } from "@/server/actions/templates";
 import { Mascot } from "@/components/mascot";
 import { HookLogo } from "@/components/hook-logo";
 import { Badge } from "@/components/ui/badge";
+import { DiscordLoginButton } from "@/components/auth/discord-login-button";
 import { Download, ArrowUpRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +23,7 @@ export default async function GalleryPage({
   const { search, sort } = await searchParams;
   const activeSort = sort === "latest" ? "latest" : "popular";
   const templates = await getGalleryTemplates({ search, sort: activeSort });
+  const session = await auth();
 
   const sortHref = (s: "popular" | "latest") => {
     const sp = new URLSearchParams();
@@ -40,12 +43,18 @@ export default async function GalleryPage({
               MY KAIT
             </span>
           </Link>
-          <Link
-            href="/dashboard"
-            className="text-sm font-semibold text-fg-secondary hover:text-fg transition-colors"
-          >
-            {t("openApp")}
-          </Link>
+          {session ? (
+            <Link
+              href="/dashboard"
+              className="text-sm font-semibold text-fg-secondary hover:text-fg transition-colors"
+            >
+              {t("openApp")}
+            </Link>
+          ) : (
+            <DiscordLoginButton callbackUrl={`/${locale}/dashboard`}>
+              {t("loginDiscord")}
+            </DiscordLoginButton>
+          )}
         </div>
       </header>
 

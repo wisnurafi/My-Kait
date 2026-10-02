@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { Link } from "@/i18n/routing";
 import { HookLogo } from "@/components/hook-logo";
 import { Mascot } from "@/components/mascot";
@@ -440,8 +440,13 @@ function StatsStrip() {
 export function LandingHero() {
   const t = useTranslations("landing");
   const locale = useLocale();
+  const { status } = useSession();
+  const loggedIn = status === "authenticated";
   const login = () =>
     signIn("discord", { callbackUrl: `/${locale}/dashboard` });
+
+  const ctaPrimaryClass =
+    "inline-flex items-center gap-2 rounded-lg border border-accent bg-accent px-4 py-2 font-mono text-[13px] font-semibold text-[#0a0a0b] transition-colors hover:brightness-110";
 
   return (
     <>
@@ -476,13 +481,19 @@ export function LandingHero() {
           </div>
           <div className="flex items-center gap-2.5">
             <LandingLocaleToggle />
-            <button
-              type="button"
-              onClick={login}
-              className="inline-flex items-center gap-2 rounded-lg border border-accent bg-accent px-4 py-2 font-mono text-[13px] font-semibold text-[#0a0a0b] transition-colors hover:brightness-110"
-            >
-              {t("loginDiscord")}
-            </button>
+            {loggedIn ? (
+              <Link href="/dashboard" className={ctaPrimaryClass}>
+                {t("openDashboard")}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={login}
+                className={ctaPrimaryClass}
+              >
+                {t("loginDiscord")}
+              </button>
+            )}
           </div>
         </nav>
       </header>
@@ -518,13 +529,22 @@ export function LandingHero() {
             {t("heroSubtitle")}
           </p>
           <div className="mt-[34px] flex flex-wrap items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={login}
-              className="inline-flex items-center gap-2 rounded-lg border border-accent bg-accent px-5 py-2.5 font-mono text-[13px] font-semibold text-[#0a0a0b] transition-colors hover:brightness-110"
-            >
-              {t("ctaStart")}
-            </button>
+            {loggedIn ? (
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-lg border border-accent bg-accent px-5 py-2.5 font-mono text-[13px] font-semibold text-[#0a0a0b] transition-colors hover:brightness-110"
+              >
+                {t("openDashboard")}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={login}
+                className="inline-flex items-center gap-2 rounded-lg border border-accent bg-accent px-5 py-2.5 font-mono text-[13px] font-semibold text-[#0a0a0b] transition-colors hover:brightness-110"
+              >
+                {t("ctaStart")}
+              </button>
+            )}
             <Link
               href="/gallery"
               className="inline-flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-5 py-2.5 font-mono text-[13px] font-semibold text-fg transition-colors hover:border-fg-tertiary"
