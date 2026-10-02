@@ -182,3 +182,15 @@ export type LogFilter = z.infer<typeof logFilterSchema>;
 export const deleteAccountSchema = z.object({
   confirm: z.literal("DELETE"),
 });
+
+/* --- Template report (public; anonymous allowed) --- */
+
+export const reportTemplateSchema = z.object({
+  templateId: z.string().min(1, "Template tidak valid"),
+  reason: z
+    .string()
+    .min(10, "Alasan minimal 10 karakter")
+    .max(1000, "Alasan maksimal 1000 karakter"),
+});
+
+export type ReportTemplateInput = z.infer<typeof reportTemplateSchema>;

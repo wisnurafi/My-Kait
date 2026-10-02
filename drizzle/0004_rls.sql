@@ -10,6 +10,11 @@
 -- where each query is a separate HTTP request and SET does not persist
 -- across queries. Per-transaction `SET LOCAL app.current_user_id` is the
 -- supported way to activate RLS enforcement for sensitive operations.
+--
+-- Tables covered here are the ones present in this branch's schema.
+-- Re-running is safe: ENABLE ROW LEVEL SECURITY is idempotent and
+-- duplicate CREATE POLICY errors contain "already exists", which
+-- scripts/push-migration.ts skips.
 
 --> statement-breakpoint
 
@@ -167,8 +172,9 @@ CREATE POLICY "template_shares_owner_delete" ON "template_shares"
   );
 --> statement-breakpoint
 
--- template_reports: anyone can file a report (INSERT open);
--- reads/writes restricted when context is set (reporters see own reports).
+-- template_reports: anyone can file a report (INSERT open, anonymous allowed);
+-- reads/writes restricted when context is set (reporters see own reports,
+-- moderation tooling queries without context to see everything).
 CREATE POLICY "template_reports_public_insert" ON "template_reports"
   FOR INSERT WITH CHECK (true);
 --> statement-breakpoint

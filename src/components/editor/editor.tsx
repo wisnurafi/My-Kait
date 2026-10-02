@@ -656,7 +656,7 @@ export function Editor({
                 {pending ? t("sending") : editMessageId ? "Edit Pesan" : t("send")}
               </Button>
               <p className="text-xs text-muted-foreground text-center uppercase tracking-[0.05em]">
-                {t("kbdSend", { mod: modKey })} \u00b7 {t("kbdSave", { mod: modKey })}
+                {t("kbdSend", { mod: modKey })} · {t("kbdSave", { mod: modKey })}
               </p>
             </form>
           </Card>

@@ -7,10 +7,10 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { templates, templateShares } from "@/lib/schema";
+import { templates, templateShares, templateReports } from "@/lib/schema";
 import { eq, and, desc, ilike, sql } from "drizzle-orm";
-import { requireAuth } from "@/lib/auth";
-import { templateSchema } from "@/lib/validations";
+import { requireAuth, auth } from "@/lib/auth";
+import { templateSchema, reportTemplateSchema } from "@/lib/validations";
 import { generateSlug } from "@/lib/utils";
 
 /* --- Create template --- */
@@ -393,4 +393,40 @@ export async function importTemplateAction(formData: FormData) {
     .where(eq(templateShares.id, shareId));
 
   return { success: true, id: created.id };
+}
+
+/* --- Report a shared template (public; anonymous allowed) --- */
+
+export async function reportTemplateAction(
+  _prevState: unknown,
+  formData: FormData,
+) {
+  const parsed = reportTemplateSchema.safeParse({
+    templateId: String(formData.get("templateId") ?? ""),
+    reason: String(formData.get("reason") ?? "").trim(),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Input tidak valid" };
+  }
+
+  // Template must exist (prevents orphan reports)
+  const [template] = await db
+    .select({ id: templates.id })
+    .from(templates)
+    .where(eq(templates.id, parsed.data.templateId))
+    .limit(1);
+  if (!template) {
+    return { error: "Template tidak ditemukan" };
+  }
+
+  // Anonymous allowed — attach reporter id when logged in
+  const session = await auth();
+
+  await db.insert(templateReports).values({
+    templateId: parsed.data.templateId,
+    reporterUserId: session?.user?.id ?? null,
+    reason: parsed.data.reason,
+  });
+
+  return { success: true };
 }

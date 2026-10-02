@@ -109,7 +109,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
 
       if (wh.length === 0) continue;
 
-      // Skip invalid webhooks
+      // Skip webhooks marked as invalid
       if (wh[0].lastStatus === "invalid") {
         results.push({ id: wh[0].id, name: wh[0].name, success: false, error: "Webhook tidak valid" });
         continue;

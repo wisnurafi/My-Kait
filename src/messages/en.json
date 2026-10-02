@@ -191,7 +191,11 @@
     "noWebhooks": "No saved webhooks yet",
     "confirmDelete": "Delete this webhook?",
     "testConfirm": "Test message will be visible in channel. Continue?",
-    "maskedUrl": "URL hidden"
+    "maskedUrl": "URL hidden",
+    "healthAlerts": "Webhook Health Alerts",
+    "dismissAll": "Dismiss all",
+    "alertDown": "Down",
+    "alertRecovered": "Recovered"
   },
   "editor": {
     "title": "Message Editor",
@@ -254,7 +258,11 @@
     "roleIdPlaceholder": "Paste Role ID (numbers)…",
     "roleIdInvalid": "Role ID must be 10-25 digits",
     "insertTag": "Insert",
-    "roleMentionHint": "Get Role ID: Server Settings → Roles → right-click role → Copy ID. @everyone/@here can be typed directly."
+    "roleMentionHint": "Get Role ID: Server Settings → Roles → right-click role → Copy ID. @everyone/@here can be typed directly.",
+    "multiTarget": "Send to multiple webhooks",
+    "selectAll": "Select all",
+    "clear": "Clear",
+    "selectedCount": "{count} webhooks selected"
   },
   "logs": {
     "title": "Delivery History",
