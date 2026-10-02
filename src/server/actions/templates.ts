@@ -7,8 +7,8 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { templates, templateShares, templateReports } from "@/lib/schema";
-import { eq, and, desc, ilike, sql, count, arrayContains } from "drizzle-orm";
+import { templates, templateShares, templateReports, users } from "@/lib/schema";
+import { eq, and, desc, ilike, or, sql, count, arrayContains } from "drizzle-orm";
 import { requireAuth, auth } from "@/lib/auth";
 import { templateSchema, reportTemplateSchema } from "@/lib/validations";
 import { generateSlug } from "@/lib/utils";
@@ -455,4 +455,60 @@ export async function reportTemplateAction(
   });
 
   return { success: true };
+}
+
+/* --- Public gallery: list active shared templates (public, no auth) --- */
+export type GalleryTemplate = {
+  slug: string;
+  name: string;
+  description: string | null;
+  tags: string[] | null;
+  importCount: number;
+  author: string;
+  sharedAt: Date;
+};
+
+export async function getGalleryTemplates(opts: {
+  search?: string;
+  sort?: "popular" | "latest";
+  limit?: number;
+}): Promise<GalleryTemplate[]> {
+  const { search, sort = "popular", limit = 48 } = opts;
+
+  const conditions = [eq(templateShares.isActive, true)];
+
+  const q = search?.trim();
+  if (q) {
+    const pattern = `%${q}%`;
+    const match = or(
+      ilike(templates.name, pattern),
+      ilike(templates.description, pattern),
+      sql`array_to_string(${templates.tags}, ' ') ilike ${pattern}`,
+    );
+    if (match) conditions.push(match);
+  }
+
+  const orderBy =
+    sort === "latest"
+      ? desc(templateShares.createdAt)
+      : desc(templateShares.importCount);
+
+  const rows = await db
+    .select({
+      slug: templateShares.slug,
+      name: templates.name,
+      description: templates.description,
+      tags: templates.tags,
+      importCount: templateShares.importCount,
+      author: users.username,
+      sharedAt: templateShares.createdAt,
+    })
+    .from(templateShares)
+    .innerJoin(templates, eq(templateShares.templateId, templates.id))
+    .innerJoin(users, eq(templates.userId, users.id))
+    .where(and(...conditions))
+    .orderBy(orderBy)
+    .limit(limit);
+
+  return rows;
 }
