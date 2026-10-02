@@ -24,7 +24,7 @@ export function LandingHero() {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden pb-24">
       {/* Gradient orbs — blurred, floating, parallax on scroll */}
       <motion.div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ y: orbsY }}>
         <div className="animated-gradient absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full blur-[100px] opacity-30 animate-float-slow" />
