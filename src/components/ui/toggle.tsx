@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Cozy Toggle — rounded pill, sage when on, soft shadow.
+ * Toggle — rounded pill, lime when on, sunken when off.
  */
 export function Toggle({
   checked,
@@ -24,21 +24,23 @@ export function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative w-12 h-7 rounded-full border border-border cursor-pointer shadow-sm",
+          "relative w-12 h-7 rounded-full border cursor-pointer",
           "transition-colors duration-200",
-          checked ? "bg-accent border-transparent" : "bg-sunken",
+          checked ? "bg-accent border-transparent" : "bg-sunken border-border-ink",
         )}
       >
         <span
           className={cn(
-            "absolute top-0.5 w-5 h-5 rounded-full bg-surface shadow transition-all duration-200",
-            checked ? "left-[22px]" : "left-0.5",
+            "absolute top-0.5 w-5 h-5 rounded-full border transition-all duration-200",
+            checked
+              ? "left-[22px] bg-[#0a0a0b] border-transparent"
+              : "left-0.5 bg-surface border-border-strong",
           )}
         />
       </button>
       {(label || description) && (
         <div>
-          {label && <div className="text-sm font-bold">{label}</div>}
+          {label && <div className="text-sm font-semibold">{label}</div>}
           {description && <div className="text-xs text-fg-secondary">{description}</div>}
         </div>
       )}

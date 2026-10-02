@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Neon Glass Dialog — animated modal (scale + fade, GPU only).
+ * Dialog — solid panel modal (scale + fade, GPU only).
  * Usage:
  *   <Dialog open={open} onClose={() => setOpen(false)}>
  *     <DialogTitle>...</DialogTitle>
@@ -50,9 +50,9 @@ export function Dialog({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
         >
-          {/* Backdrop */}
+          {/* Backdrop — plain dim, no blur */}
           <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/70"
             onClick={onClose}
             aria-hidden
           />
@@ -61,7 +61,7 @@ export function Dialog({
             role="dialog"
             aria-modal="true"
             className={cn(
-              "relative w-full max-w-md glass !bg-surface-solid/95 shadow-[0_24px_80px_rgba(0,0,0,0.6)]",
+              "panel relative w-full max-w-md shadow-lg",
               className,
             )}
             initial={{ opacity: 0, scale: 0.92, y: 16 }}
@@ -127,18 +127,19 @@ export function ConfirmDialog({
       <DialogFooter>
         <button
           onClick={onClose}
-          className="h-10 px-5 text-sm font-bold rounded-xl border border-border-ink bg-surface text-fg-secondary hover:text-fg hover:border-border-strong transition-all cursor-pointer"
+          className="h-10 px-5 text-sm font-semibold rounded-lg border border-border-ink bg-surface text-fg-secondary hover:text-fg hover:border-border-strong transition-colors cursor-pointer"
         >
           Cancel
         </button>
         <button
           onClick={onConfirm}
           disabled={loading}
-          className={
+          className={cn(
+            "h-10 px-5 text-sm font-semibold rounded-lg border border-transparent transition-colors cursor-pointer disabled:opacity-50",
             danger
-              ? "h-10 px-5 text-sm font-bold rounded-xl text-white bg-[linear-gradient(120deg,#f43f5e,#e11d48)] hover:brightness-110 disabled:opacity-50 transition-all cursor-pointer"
-              : "h-10 px-5 text-sm font-bold rounded-xl text-white bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] hover:brightness-110 disabled:opacity-50 transition-all cursor-pointer"
-          }
+              ? "bg-error text-white hover:bg-error/90"
+              : "bg-accent text-[#0a0a0b] hover:bg-accent-deep",
+          )}
         >
           {loading ? (
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

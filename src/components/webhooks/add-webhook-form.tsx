@@ -67,10 +67,10 @@ export function AddWebhookForm() {
           </div>
         </div>
         {error && (
-          <p className="text-sm text-error font-semibold">⚠️ {error}</p>
+          <p className="text-sm text-error font-semibold">{error}</p>
         )}
         {pingResult && (
-          <p className="text-sm text-success font-semibold">✓ {pingResult}</p>
+          <p className="text-sm text-success font-semibold">{pingResult}</p>
         )}
         <Button type="submit" disabled={pending} className="gap-2">
           {pending ? (

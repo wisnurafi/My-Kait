@@ -53,9 +53,9 @@ export function HealthAlerts({
   if (visible.length === 0) return null;
 
   return (
-    <div className="glass p-4 animate-fade-in">
+    <div className="panel p-4 animate-fade-in">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-bold text-sm uppercase tracking-[0.05em] flex items-center gap-2">
+        <h3 className="label flex items-center gap-2">
           <AlertTriangle size={16} className="text-warning" />
           {t("healthAlerts")} ({visible.length})
         </h3>
@@ -76,24 +76,24 @@ export function HealthAlerts({
                 exit={{ opacity: 0, x: 60, transition: { duration: 0.25 } }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className={cn(
-                  "flex items-center gap-2 text-sm rounded-xl border px-3 py-2.5 backdrop-blur-sm",
+                  "flex items-center gap-2 text-sm rounded-lg border px-3 py-2.5",
                   down
-                    ? "border-[rgba(251,113,133,0.35)] bg-[rgba(251,113,133,0.07)] shadow-[0_0_28px_rgba(251,113,133,0.12)]"
-                    : "border-[rgba(52,211,153,0.35)] bg-[rgba(52,211,153,0.07)] shadow-[0_0_28px_rgba(52,211,153,0.12)]",
+                    ? "border-error/40 bg-error-soft"
+                    : "border-success/40 bg-success-soft",
                 )}
               >
                 {down ? (
-                  <Badge variant="danger" pulse className="gap-1 shrink-0">
+                  <Badge variant="danger" dot className="gap-1 shrink-0">
                     <AlertTriangle size={12} /> {t("alertDown")}
                   </Badge>
                 ) : (
-                  <Badge variant="success" className="gap-1 shrink-0">
+                  <Badge variant="success" dot className="gap-1 shrink-0">
                     <CheckCircle2 size={12} /> {t("alertRecovered")}
                   </Badge>
                 )}
                 <span className="flex-1 min-w-0">
                   <strong>{alert.webhookName}</strong>
-                  {alert.message && <span className="text-muted"> — {alert.message}</span>}
+                  {alert.message && <span className="text-fg-secondary"> — {alert.message}</span>}
                 </span>
                 <Button variant="ghost" size="sm" onClick={() => dismiss(alert.id)} disabled={pending} className="shrink-0">
                   <X size={14} />

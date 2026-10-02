@@ -17,7 +17,6 @@
 import { useState, useEffect, useCallback, useTransition, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -25,13 +24,12 @@ import { Select } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 import { Badge } from "@/components/ui/badge";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { cn } from "@/lib/utils";
 import { DiscordPreview } from "@/components/editor/discord-preview";
 import { sendMessageAction, editMessageAction } from "@/server/actions/messages";
 import {
-  Pencil,
   Layers,
   Type,
-  Image as ImageIcon,
   Plus,
   Trash2,
   Copy,
@@ -42,7 +40,6 @@ import {
   Redo,
   ChevronDown,
   ChevronUp,
-  Palette,
   Save,
   SlidersHorizontal,
 } from "lucide-react";
@@ -397,44 +394,74 @@ export function Editor({
   /* --- Render --- */
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Edit mode indicator */}
       {editMessageId && (
-        <div className="glass flex items-center justify-between p-3 animate-fade-in border-warning/40">
-          <span className="text-sm font-bold text-warning uppercase tracking-[0.05em]">
+        <div className="panel flex items-center justify-between gap-3 px-4 py-3 animate-fade-in !border-warning/40">
+          <span className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-warning">
+            <span className="status-dot bg-warning" aria-hidden="true" />
             Mode Edit — pesan akan di-PATCH, bukan kirim baru
           </span>
-          <Button variant="ghost" size="sm" onClick={() => setEditMessageId(null)}>
+          <Button variant="ghost" size="sm" onClick={() => setEditMessageId(null)} className="font-mono text-[11px] uppercase tracking-[0.14em]">
             Batal Edit
           </Button>
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3 border-b border-border-ink pb-3">
-        <h1 className="font-display text-3xl uppercase gradient-text">{t("title")}</h1>
-        <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={undo} disabled={historyIndex <= 0} className="gap-1.5 uppercase tracking-[0.05em]">
-            <Undo size={16} /> {t("undo")}
-          </Button>
-          <Button variant="ghost" size="sm" onClick={redo} disabled={historyIndex >= history.length - 1} className="gap-1.5 uppercase tracking-[0.05em]">
-            <Redo size={16} /> {t("redo")}
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleExportJson} className="gap-1.5 uppercase tracking-[0.05em]">
-            <Download size={16} /> {t("exportJson")}
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowSaveTemplate(true)} title={t("kbdSave", { mod: modKey })} className="gap-1.5 uppercase tracking-[0.05em]">
-            <Save size={16} /> {t("saveAs")}
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowJson(!showJson)} className="gap-1.5 uppercase tracking-[0.05em]">
-            <Upload size={16} /> {t("importJson")}
-          </Button>
+      {/* Page head */}
+      <div className="flex items-end justify-between flex-wrap gap-4">
+        <div>
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent mb-2">compose</p>
+          <h1 className="font-display text-3xl tracking-tight">{t("title")}</h1>
         </div>
+        {/* Segmented mode control */}
+        <div
+          role="group"
+          aria-label={t("title")}
+          className="inline-flex items-center bg-sunken border border-border-ink rounded-lg p-1"
+        >
+          {(["normal", "embed", "both"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => updateState((prev) => ({ ...prev, mode: m }))}
+              aria-pressed={state.mode === m}
+              className={cn(
+                "px-4 py-2 rounded-md font-mono text-xs uppercase tracking-[0.08em] transition-colors cursor-pointer focus-ring",
+                state.mode === m
+                  ? "bg-accent text-[#0a0a0b] font-semibold"
+                  : "text-fg-secondary hover:text-fg"
+              )}
+            >
+              {t(`mode.${m}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Toolbar: undo/redo · JSON import-export · save template */}
+      <div className="flex items-center gap-1 flex-wrap">
+        <Button variant="ghost" size="sm" onClick={undo} disabled={historyIndex <= 0} className="gap-2 font-mono text-[11px] uppercase tracking-[0.14em]">
+          <Undo size={14} /> {t("undo")}
+        </Button>
+        <Button variant="ghost" size="sm" onClick={redo} disabled={historyIndex >= history.length - 1} className="gap-2 font-mono text-[11px] uppercase tracking-[0.14em]">
+          <Redo size={14} /> {t("redo")}
+        </Button>
+        <span aria-hidden="true" className="mx-2 h-5 w-px bg-border-ink" />
+        <Button variant="ghost" size="sm" onClick={handleExportJson} className="gap-2 font-mono text-[11px] uppercase tracking-[0.14em]">
+          <Download size={14} /> {t("exportJson")}
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setShowJson(!showJson)} className="gap-2 font-mono text-[11px] uppercase tracking-[0.14em]">
+          <Upload size={14} /> {t("importJson")}
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setShowSaveTemplate(true)} title={t("kbdSave", { mod: modKey })} className="gap-2 font-mono text-[11px] uppercase tracking-[0.14em]">
+          <Save size={14} /> {t("saveAs")}
+        </Button>
       </div>
 
       {/* JSON Import/Export panel */}
       {showJson && (
-        <Card data-kbd-off className="p-4 animate-fade-in">
+        <div data-kbd-off className="panel p-5 animate-fade-in">
           <Label>JSON Payload</Label>
           <Textarea
             value={jsonText}
@@ -443,43 +470,27 @@ export function Editor({
             className="font-mono text-xs"
             placeholder='{"content":"...","embeds":[...]}'
           />
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 mt-3">
             <Button size="sm" onClick={handleImportJson}>Import</Button>
             <Button size="sm" variant="secondary" onClick={() => { navigator.clipboard.writeText(jsonText); }}>Copy</Button>
           </div>
-        </Card>
+        </div>
       )}
 
-      {/* Mode selector */}
-      <div className="flex gap-2 flex-wrap">
-        {(["normal", "embed", "both"] as const).map((m) => (
-          <Button
-            key={m}
-            variant={state.mode === m ? "primary" : "secondary"}
-            size="sm"
-            onClick={() => updateState((prev) => ({ ...prev, mode: m }))}
-            className="gap-1.5 uppercase tracking-[0.05em]"
-          >
-            {m === "normal" ? <Type size={14} /> : m === "embed" ? <Layers size={14} /> : <Pencil size={14} />}
-            {t(`mode.${m}`)}
-          </Button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left: Editor */}
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-4 items-start">
+        {/* Left: form */}
+        <div className="space-y-4 min-w-0">
           {/* Content */}
           {(state.mode === "normal" || state.mode === "both") && (
-            <Card className="p-4 animate-fade-in">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))] text-white shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
+            <section className="panel p-5 animate-fade-in">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="flex items-center gap-2.5 font-display text-base font-semibold">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent">
                     <Type size={14} />
                   </span>
-                  <Label>{t("content")}</Label>
-                </div>
-                <Badge variant={state.content.length > 2000 ? "danger" : "default"}>
+                  {t("content")}
+                </h2>
+                <Badge variant={state.content.length > 2000 ? "danger" : "default"} className="font-mono">
                   {state.content.length}/2000
                 </Badge>
               </div>
@@ -495,24 +506,24 @@ export function Editor({
                   updateState((prev) => ({ ...prev, content: prev.content + mention }));
                 }}
               />
-            </Card>
+            </section>
           )}
 
           {/* Embeds */}
           {(state.mode === "embed" || state.mode === "both") && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-display text-lg uppercase flex items-center gap-2">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-secondary),var(--accent-primary))] text-white shadow-[0_4px_16px_rgba(34,211,238,0.35)]">
+                <h2 className="flex items-center gap-2.5 font-display text-base font-semibold">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent">
                     <Layers size={14} />
                   </span>
                   {t("embeds")}
                 </h2>
                 <div className="flex items-center gap-2">
-                  <Badge variant={totalEmbedChars > 6000 ? "danger" : "default"}>
+                  <Badge variant={totalEmbedChars > 6000 ? "danger" : "default"} className="font-mono">
                     {totalEmbedChars}/6000
                   </Badge>
-                  <Badge variant={state.embeds.length > 10 ? "danger" : "default"}>
+                  <Badge variant={state.embeds.length > 10 ? "danger" : "default"} className="font-mono">
                     {state.embeds.length}/10
                   </Badge>
                 </div>
@@ -546,9 +557,9 @@ export function Editor({
                     ...prev,
                     embeds: [...prev.embeds, createEmptyEmbed()],
                   }))}
-                  className="gap-2 w-full uppercase tracking-[0.05em]"
+                  className="gap-2 w-full font-mono text-[11px] uppercase tracking-[0.14em]"
                 >
-                  <Plus size={18} />
+                  <Plus size={16} />
                   {t("addEmbed")}
                 </Button>
               )}
@@ -556,13 +567,13 @@ export function Editor({
           )}
 
           {/* Override section */}
-          <Card className="p-4 animate-fade-in">
-            <h3 className="flex items-center gap-2 font-bold text-sm mb-3 uppercase tracking-[0.05em]">
-              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-tertiary),var(--accent-primary))] text-white shadow-[0_4px_16px_rgba(244,114,182,0.35)]">
+          <section className="panel p-5 animate-fade-in">
+            <h2 className="flex items-center gap-2.5 font-display text-base font-semibold mb-4">
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent">
                 <SlidersHorizontal size={14} />
               </span>
               {t("override")}
-            </h3>
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <Label>{t("username")}</Label>
@@ -601,21 +612,21 @@ export function Editor({
                 />
               </div>
             </div>
-          </Card>
+          </section>
         </div>
 
-        {/* Right: Preview + Send */}
-        <div className="space-y-4 lg:sticky lg:top-6 lg:self-start">
+        {/* Right: preview + send */}
+        <div className="space-y-4 lg:sticky lg:top-6 min-w-0">
           <DiscordPreview payload={payload} username={state.username} avatarUrl={state.avatarUrl} />
 
           {/* Send form */}
-          <Card className="p-4 animate-fade-in">
-            <h3 className="flex items-center gap-2 font-bold text-sm mb-3 uppercase tracking-[0.05em]">
-              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary))] text-white shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
+          <section className="panel p-5 animate-fade-in">
+            <h2 className="flex items-center gap-2.5 font-display text-base font-semibold mb-4">
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent">
                 <Send size={14} />
               </span>
               {t("sendTo")}
-            </h3>
+            </h2>
             <form ref={sendFormRef} onSubmit={handleSend} className="space-y-3">
               <div>
                 <Label>{t("selectWebhook")}</Label>
@@ -640,25 +651,25 @@ export function Editor({
                       <button
                         type="button"
                         onClick={() => setSendConfig({ ...sendConfig, multiTarget: webhooks.map((w) => w.id) })}
-                        className="text-xs font-bold uppercase tracking-[0.05em] underline"
+                        className="text-xs font-mono uppercase tracking-[0.08em] underline text-fg-secondary hover:text-accent"
                       >
                         {t("selectAll")}
                       </button>
                       <button
                         type="button"
                         onClick={() => setSendConfig({ ...sendConfig, multiTarget: [] })}
-                        className="text-xs font-bold uppercase tracking-[0.05em] underline"
+                        className="text-xs font-mono uppercase tracking-[0.08em] underline text-fg-secondary hover:text-accent"
                       >
                         {t("clear")}
                       </button>
                     </div>
                   </div>
                   {sendConfig.multiTarget.length > 0 && (
-                    <p className="text-xs font-mono mt-1">
+                    <p className="text-xs font-mono mt-1 text-fg-secondary">
                       {t("selectedCount", { count: sendConfig.multiTarget.length })}
                     </p>
                   )}
-                  <div className="terminal space-y-1 max-h-36 overflow-y-auto mt-1 p-2 text-xs">
+                  <div className="rounded-lg border border-border-ink bg-sunken space-y-1 max-h-36 overflow-y-auto mt-1 p-2 text-xs">
                     {webhooks.map((wh) => (
                       <label key={wh.id} className="flex items-center gap-2 text-sm cursor-pointer">
                         <input
@@ -705,13 +716,13 @@ export function Editor({
                 label="Simpan payload di log"
               />
               {result?.error && (
-                <p className="text-sm text-error font-semibold uppercase tracking-[0.05em]">{result.error}</p>
+                <p className="font-mono text-xs uppercase tracking-[0.14em] text-error">{result.error}</p>
               )}
               {result?.success && (
-                <p className="text-sm text-success font-semibold uppercase tracking-[0.05em]">{result.message}</p>
+                <p className="font-mono text-xs uppercase tracking-[0.14em] text-success">{result.message}</p>
               )}
               {result?.results && result.results.length > 0 && (
-                <div className="terminal space-y-1.5 max-h-40 overflow-y-auto p-3 text-xs" aria-live="polite">
+                <div className="rounded-lg border border-border-ink bg-sunken space-y-1.5 max-h-40 overflow-y-auto p-3 text-xs" aria-live="polite">
                   {result.results.map((r) => (
                     <div key={r.id} className="flex items-center gap-2">
                       <span className={r.success ? "text-success font-bold" : "text-error font-bold"} aria-hidden="true">
@@ -728,7 +739,7 @@ export function Editor({
                   ))}
                 </div>
               )}
-              <Button type="submit" disabled={pending || !canSend} title={t("kbdSend", { mod: modKey })} className="w-full gap-2 uppercase tracking-[0.05em] glow-primary" size="lg">
+              <Button type="submit" disabled={pending || !canSend} title={t("kbdSend", { mod: modKey })} className="w-full gap-2" size="lg">
                 {pending ? (
                   <span className="inline-block h-5 w-5 animate-spin rounded-full border-[3px] border-current border-t-transparent" />
                 ) : (
@@ -736,19 +747,17 @@ export function Editor({
                 )}
                 {pending ? t("sending") : editMessageId ? "Edit Pesan" : t("send")}
               </Button>
-              <p className="text-xs text-muted-foreground text-center uppercase tracking-[0.05em]">
+              <p className="text-center font-mono text-[11px] uppercase tracking-[0.14em] text-fg-tertiary">
                 {t("kbdSend", { mod: modKey })} · {t("kbdSave", { mod: modKey })}
               </p>
             </form>
-          </Card>
+          </section>
         </div>
       </div>
 
       {/* Save as template modal */}
       {showSaveTemplate && (
-        <div data-kbd-off>
-          <SaveTemplateModal payload={payload} onClose={() => setShowSaveTemplate(false)} />
-        </div>
+        <SaveTemplateModal payload={payload} onClose={() => setShowSaveTemplate(false)} />
       )}
     </div>
   );
@@ -778,21 +787,18 @@ function EmbedEditor({
   }
 
   return (
-    <Card className="relative overflow-hidden p-4 animate-fade-in">
+    <section className="panel relative overflow-hidden p-5 pl-6 animate-fade-in">
       <div
         aria-hidden="true"
-        className="absolute inset-y-0 left-0 w-1 rounded-l-2xl"
-        style={{
-          background: `linear-gradient(180deg, ${embed.color}, ${embed.color}66)`,
-          boxShadow: `0 0 16px ${embed.color}`,
-        }}
+        className="absolute inset-y-0 left-0 w-1"
+        style={{ background: embed.color }}
       />
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-2 font-bold text-sm uppercase tracking-[0.05em]"
+          className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.14em] text-fg-secondary hover:text-fg transition-colors cursor-pointer"
         >
-          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           Embed #{index + 1}
         </button>
         <div className="flex gap-1">
@@ -850,7 +856,7 @@ function EmbedEditor({
               type="color"
               value={embed.color}
               onChange={(e) => update({ color: e.target.value })}
-              className="h-10 w-12 rounded-xl border border-border shadow-sm cursor-pointer"
+              className="h-10 w-12 rounded-lg border border-border-ink bg-sunken cursor-pointer"
             />
             <Input
               value={embed.color}
@@ -860,7 +866,7 @@ function EmbedEditor({
           </div>
 
           {/* Author */}
-          <div className="border-t-[1px] border-border-ink pt-3">
+          <div className="border-t border-border-ink pt-3">
             <Label>{t("field.author")}</Label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-1">
               <Input
@@ -903,7 +909,7 @@ function EmbedEditor({
           </div>
 
           {/* Fields */}
-          <div className="border-t-[1px] border-border-ink pt-3">
+          <div className="border-t border-border-ink pt-3">
             <div className="flex items-center justify-between mb-2">
               <Label>{t("field.fields")} ({embed.fields.length}/25)</Label>
               {embed.fields.length < 25 && (
@@ -911,7 +917,7 @@ function EmbedEditor({
                   variant="ghost"
                   size="sm"
                   onClick={() => update({ fields: [...embed.fields, createEmptyField()] })}
-                  className="gap-1 uppercase tracking-[0.05em]"
+                  className="gap-1 font-mono text-[11px] uppercase tracking-[0.14em]"
                 >
                   <Plus size={14} />
                   {t("addField")}
@@ -958,7 +964,7 @@ function EmbedEditor({
           </div>
 
           {/* Footer */}
-          <div className="border-t-[1px] border-border-ink pt-3">
+          <div className="border-t border-border-ink pt-3">
             <Label>{t("field.footer")} (2048)</Label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-1">
               <Input
@@ -977,7 +983,7 @@ function EmbedEditor({
           </div>
 
           {/* Timestamp */}
-          <div className="border-t-[1px] border-border-ink pt-3">
+          <div className="border-t border-border-ink pt-3">
             <Toggle
               checked={embed.useTimestamp}
               onChange={(v) => update({ useTimestamp: v })}
@@ -987,7 +993,7 @@ function EmbedEditor({
           </div>
         </div>
       )}
-    </Card>
+    </section>
   );
 }
 
@@ -1118,8 +1124,8 @@ function RoleMentionHelper({ onInsert }: { onInsert: (mention: string) => void }
   }
 
   return (
-    <div className="mt-3 border-t border-border-ink pt-3">
-      <p className="text-xs font-bold uppercase tracking-[0.05em] mb-2">{t("mentionRole")}</p>
+    <div className="mt-4 border-t border-border-ink pt-4">
+      <p className="label mb-2">{t("mentionRole")}</p>
       <div className="flex gap-2">
         <Input
           value={roleId}
@@ -1140,19 +1146,19 @@ function RoleMentionHelper({ onInsert }: { onInsert: (mention: string) => void }
         <button
           type="button"
           onClick={() => onInsert("@everyone ")}
-          className="text-xs font-bold uppercase tracking-[0.05em] underline"
+          className="text-xs font-mono uppercase tracking-[0.08em] underline text-fg-secondary hover:text-accent"
         >
           @everyone
         </button>
         <button
           type="button"
           onClick={() => onInsert("@here ")}
-          className="text-xs font-bold uppercase tracking-[0.05em] underline"
+          className="text-xs font-mono uppercase tracking-[0.08em] underline text-fg-secondary hover:text-accent"
         >
           @here
         </button>
       </div>
-      <p className="text-[11px] text-muted-foreground mt-1">{t("roleMentionHint")}</p>
+      <p className="text-[11px] text-fg-tertiary mt-1">{t("roleMentionHint")}</p>
     </div>
   );
 }

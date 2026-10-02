@@ -1,17 +1,16 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { motion } from "motion/react";
 import { signIn } from "next-auth/react";
-import { Button } from "@/components/ui/button";
-import { Sparkles, ShieldOff, Infinity as InfinityIcon, Gift } from "lucide-react";
+import { ShieldOff, Infinity as InfinityIcon, Gift } from "lucide-react";
 
 /**
- * Free Forever banner — inverted block, big text, icon list.
- * RawBlock: black bg, white text, full inversion.
+ * Free banner — full-bleed lime band, dark ink text.
+ * The one place the accent color goes loud.
  */
 export function FreeBanner() {
   const t = useTranslations("landing");
+  const locale = useLocale();
 
   const points = [
     { icon: ShieldOff, key: "noPaywall" },
@@ -19,87 +18,52 @@ export function FreeBanner() {
     { icon: Gift, key: "noCard" },
   ] as const;
 
-  // Use inline text since these are short labels
   const labels: Record<string, { id: string; en: string }> = {
     noPaywall: { id: "Tanpa paywall", en: "No paywall" },
     noQuota: { id: "Tanpa batasan jumlah", en: "No quota limits" },
     noCard: { id: "Tanpa kartu kredit", en: "No credit card" },
   };
-
-  const locale = useLocale();
   const lang = locale === "en" ? "en" : "id";
 
   return (
-    <section className="border-t border-border">
-      <div className="bg-[#2d2a26] dark:bg-[#faf7f2] py-24 px-6 relative">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Icon */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
-            className="inline-block mb-6"
-          >
-            <Sparkles size={48} className="text-[#faf7f2] dark:text-[#1a1512]" />
-          </motion.div>
+    <section className="border-t border-border-ink bg-accent text-[#0a0a0b]">
+      <div className="mx-auto max-w-4xl px-6 py-24 text-center">
+        <div className="label mb-4" style={{ color: "rgba(10,10,11,0.6)" }}>
+          pricing.plan
+        </div>
+        <h2 className="font-display text-5xl font-bold leading-none tracking-tight md:text-6xl">
+          {t("freeTitle")}
+          <br />
+          {t("freeTitle2")}
+        </h2>
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-[#0a0a0b]/80">
+          {t("freeDesc")}
+        </p>
 
-          {/* Title */}
-          <motion.h2
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, margin: "-80px" }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-            className="font-display text-5xl md:text-7xl uppercase leading-none text-[#faf7f2] dark:text-[#1a1512]"
-          >
-            {t("freeTitle")}
-            <br />
-            {t("freeTitle2")}
-          </motion.h2>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          {points.map((p) => (
+            <div
+              key={p.key}
+              className="flex items-center gap-2 rounded-lg border border-[#0a0a0b]/40 px-4 py-2"
+            >
+              <p.icon size={17} strokeWidth={2.25} />
+              <span className="font-mono text-xs font-bold uppercase tracking-[0.08em]">
+                {labels[p.key][lang]}
+              </span>
+            </div>
+          ))}
+        </div>
 
-          {/* Description */}
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, margin: "-80px" }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mt-6 text-lg md:text-xl text-[#faf7f2] dark:text-[#1a1512] max-w-2xl mx-auto opacity-90"
+        <div className="mt-10">
+          <button
+            type="button"
+            onClick={() =>
+              signIn("discord", { callbackUrl: `/${locale}/dashboard` })
+            }
+            className="inline-flex items-center gap-2 rounded-lg border border-[#0a0a0b] bg-[#0a0a0b] px-6 py-3 font-mono text-sm font-semibold text-accent transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            {t("freeDesc")}
-          </motion.p>
-
-          {/* Points */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
-            transition={{ delay: 0.3 }}
-            className="mt-10 flex flex-wrap items-center justify-center gap-6"
-          >
-            {points.map((p) => (
-              <div
-                key={p.key}
-                className="flex items-center gap-2 border-2 border-[#faf7f2] dark:border-[#1a1512] px-4 py-2 rounded-lg"
-              >
-                <p.icon size={18} className="text-[#faf7f2] dark:text-[#1a1512]" />
-                <span className="font-bold uppercase tracking-[0.05em] text-sm text-[#faf7f2] dark:text-[#1a1512]">
-                  {labels[p.key][lang]}
-                </span>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
-            transition={{ delay: 0.4 }}
-            className="mt-10"
-          >
-            <Button size="lg" className="text-lg gap-3" onClick={() => signIn("discord", { callbackUrl: "/id/dashboard" })}>
-              {t("freeCta")}
-            </Button>
-          </motion.div>
+            {t("freeCta")} →
+          </button>
         </div>
       </div>
     </section>

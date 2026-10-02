@@ -21,10 +21,11 @@ export default async function WebhooksPage({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h1 className="font-display text-3xl uppercase">
-          <span className="gradient-text">Webhook</span>
-        </h1>
+      <div className="flex items-start justify-between gap-4 flex-wrap stagger-in">
+        <div>
+          <div className="label mb-2">Webhook</div>
+          <h2 className="uppercase">Webhook</h2>
+        </div>
       </div>
       <HealthAlerts initialAlerts={healthAlerts} />
       <AddWebhookForm />

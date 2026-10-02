@@ -1,5 +1,5 @@
 /**
- * Cozy Label — Nunito bold, sentence case, warm.
+ * Label — mono micro-label utility, block, optional required asterisk.
  */
 import { cn } from "@/lib/utils";
 
@@ -17,10 +17,7 @@ export function Label({
   return (
     <label
       htmlFor={htmlFor}
-      className={cn(
-        "block font-display font-bold text-[14px] mb-1.5 text-fg",
-        className,
-      )}
+      className={cn("label block mb-1.5", className)}
     >
       {children}
       {required && <span className="text-error ml-0.5">*</span>}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * RawBlock Tooltip — black fill, white text, Space Mono, no radius.
+ * Tooltip — solid surface, 1px strong border, mono micro text.
  */
 export function Tooltip({
   children,
@@ -27,8 +27,8 @@ export function Tooltip({
         <div
           className={cn(
             "absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2",
-            "px-3 py-2 text-[13px] font-mono leading-none whitespace-nowrap",
-            "bg-fg text-bg border-[2px] border-fg",
+            "px-3 py-2 font-mono text-[11px] leading-relaxed whitespace-nowrap",
+            "bg-surface text-fg-secondary border border-border-strong rounded-lg shadow-md",
             "max-w-[260px]",
           )}
         >
