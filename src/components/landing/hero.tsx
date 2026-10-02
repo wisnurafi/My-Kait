@@ -468,7 +468,7 @@ export function LandingHero() {
               {t("navHow")}
             </a>
             <Link
-              href="/templates"
+              href="/gallery"
               className="text-[13.5px] font-medium text-fg-secondary transition-colors hover:text-fg"
             >
               {t("navTemplates")}
@@ -526,7 +526,7 @@ export function LandingHero() {
               {t("ctaStart")}
             </button>
             <Link
-              href="/templates"
+              href="/gallery"
               className="inline-flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-5 py-2.5 font-mono text-[13px] font-semibold text-fg transition-colors hover:border-fg-tertiary"
             >
               {t("ctaTemplates")}

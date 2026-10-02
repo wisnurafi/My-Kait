@@ -381,5 +381,17 @@
     "latency": "Latensi",
     "history": "Riwayat ping",
     "noHistory": "Belum ada riwayat pengecekan"
+  },
+  "gallery": {
+    "eyebrow": "galeri",
+    "title": "Galeri template",
+    "subtitle": "Template pesan yang dibagikan komunitas. Preview semuanya, import sekali klik — tanpa login untuk browsing.",
+    "openApp": "Buka aplikasi",
+    "searchPlaceholder": "Cari template, tag...",
+    "search": "Cari",
+    "popular": "Populer",
+    "latest": "Terbaru",
+    "emptyTitle": "Template tidak ditemukan",
+    "emptyDesc": "Coba kata kunci lain, atau jadi yang pertama membagikan."
   }
 }

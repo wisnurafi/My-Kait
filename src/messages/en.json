@@ -381,5 +381,17 @@
     "latency": "Latency",
     "history": "Ping history",
     "noHistory": "No check history yet"
+  },
+  "gallery": {
+    "eyebrow": "gallery",
+    "title": "Template gallery",
+    "subtitle": "Community-shared message templates. Preview any of them, import with one click — no login needed to browse.",
+    "openApp": "Open app",
+    "searchPlaceholder": "Search templates, tags...",
+    "search": "Search",
+    "popular": "Popular",
+    "latest": "Latest",
+    "emptyTitle": "No templates found",
+    "emptyDesc": "Try a different keyword, or be the first to share one."
   }
 }
