@@ -1,10 +1,41 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { motion } from "motion/react";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ShieldOff, Infinity as InfinityIcon, Gift } from "lucide-react";
+import { Sparkles, ShieldOff, Infinity as InfinityIcon, Gift, Sun, Moon } from "lucide-react";
+
+// Inline theme toggle for the banner
+function BannerThemeToggle() {
+  const [isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setIsDark(document.documentElement.getAttribute("data-theme") === "dark");
+  }, []);
+
+  function toggle() {
+    const newDark = !isDark;
+    setIsDark(newDark);
+    document.documentElement.setAttribute("data-theme", newDark ? "dark" : "light");
+    localStorage.setItem("mykait-theme", newDark ? "dark" : "light");
+  }
+
+  if (!mounted) return <div className="w-10 h-10" />;
+
+  return (
+    <button
+      onClick={toggle}
+      aria-label="Toggle theme"
+      className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-[#faf7f2] dark:border-[#1a1512] text-[#faf7f2] dark:text-[#1a1512] hover:opacity-80 transition-opacity cursor-pointer"
+    >
+      {isDark ? <Moon size={18} /> : <Sun size={18} />}
+    </button>
+  );
+}
 
 /**
  * Free Forever banner — inverted block, big text, icon list.
@@ -31,7 +62,11 @@ export function FreeBanner() {
 
   return (
     <section className="border-t border-border">
-      <div className="bg-inverted text-bg py-24 px-6">
+      <div className="bg-[#2d2a26] dark:bg-[#faf7f2] py-24 px-6 relative">
+        {/* Theme toggle in banner */}
+        <div className="absolute top-6 right-6">
+          <BannerThemeToggle />
+        </div>
         <div className="max-w-4xl mx-auto text-center">
           {/* Icon */}
           <motion.div
@@ -40,7 +75,7 @@ export function FreeBanner() {
             viewport={{ once: false }}
             className="inline-block mb-6"
           >
-            <Sparkles size={48} className="text-bg" />
+            <Sparkles size={48} className="text-[#faf7f2] dark:text-[#1a1512]" />
           </motion.div>
 
           {/* Title */}
@@ -49,7 +84,7 @@ export function FreeBanner() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, margin: "-80px" }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="font-display text-5xl md:text-7xl uppercase leading-none text-bg"
+            className="font-display text-5xl md:text-7xl uppercase leading-none text-[#faf7f2] dark:text-[#1a1512]"
           >
             {t("freeTitle")}
             <br />
@@ -78,9 +113,9 @@ export function FreeBanner() {
             {points.map((p) => (
               <div
                 key={p.key}
-                className="flex items-center gap-2 border-2 border-bg px-4 py-2 rounded-lg"
+                className="flex items-center gap-2 border-2 border-[#faf7f2] dark:border-[#1a1512] px-4 py-2 rounded-lg"
               >
-                <p.icon size={18} className="text-bg" />
+                <p.icon size={18} className="text-[#faf7f2] dark:text-[#1a1512]" />
                 <span className="font-bold uppercase tracking-[0.05em] text-sm text-bg">
                   {labels[p.key][lang]}
                 </span>
