@@ -4,14 +4,17 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * RawBlock Tooltip — black fill, white text, Space Mono, no radius.
+ * Cozy Cabin Tooltip — warm dark pill, cream text, soft shadow.
+ * Shows on hover/focus. Positioned above or below the trigger.
  */
 export function Tooltip({
   children,
   content,
+  position = "top",
 }: {
   children: React.ReactNode;
   content: string;
+  position?: "top" | "bottom";
 }) {
   const [show, setShow] = useState(false);
   return (
@@ -26,10 +29,13 @@ export function Tooltip({
       {show && (
         <div
           className={cn(
-            "absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2",
-            "px-3 py-2 text-[13px] font-mono leading-none whitespace-nowrap",
-            "bg-fg text-bg border-[2px] border-fg",
-            "max-w-[260px]",
+            "absolute z-50 left-1/2 -translate-x-1/2",
+            "px-3 py-1.5 text-xs font-medium leading-snug",
+            "bg-[#2d2a26] text-[#faf7f2] rounded-lg shadow-lg",
+            "dark:bg-[#faf7f2] dark:text-[#2d2a26]",
+            "max-w-[260px] whitespace-normal text-center",
+            "animate-fade-in pointer-events-none",
+            position === "top" ? "bottom-full mb-2" : "top-full mt-2",
           )}
         >
           {content}
