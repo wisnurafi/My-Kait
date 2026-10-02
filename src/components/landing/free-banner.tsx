@@ -31,7 +31,7 @@ export function FreeBanner() {
 
   return (
     <section className="border-t border-border">
-      <div className="bg-inverted text-bg py-24 px-6">
+      <div className="bg-[#2d2a26] dark:bg-[#faf7f2] text-[#faf7f2] dark:text-[#2d2a26] py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           {/* Icon */}
           <motion.div
@@ -40,7 +40,7 @@ export function FreeBanner() {
             viewport={{ once: false }}
             className="inline-block mb-6"
           >
-            <Sparkles size={48} className="text-bg" />
+            <Sparkles size={48} className="text-[#faf7f2] dark:text-[#2d2a26]" />
           </motion.div>
 
           {/* Title */}
@@ -49,7 +49,7 @@ export function FreeBanner() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, margin: "-80px" }}
             transition={{ delay: 0.1, duration: 0.6 }}
-            className="font-display text-5xl md:text-7xl uppercase leading-none text-bg"
+            className="font-display text-5xl md:text-7xl uppercase leading-none text-[#faf7f2] dark:text-[#2d2a26]"
           >
             {t("freeTitle")}
             <br />
@@ -62,7 +62,7 @@ export function FreeBanner() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, margin: "-80px" }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="mt-6 text-lg md:text-xl text-bg max-w-2xl mx-auto opacity-90"
+            className="mt-6 text-lg md:text-xl text-[#faf7f2] dark:text-[#2d2a26] max-w-2xl mx-auto opacity-90"
           >
             {t("freeDesc")}
           </motion.p>
@@ -78,10 +78,10 @@ export function FreeBanner() {
             {points.map((p) => (
               <div
                 key={p.key}
-                className="flex items-center gap-2 border-[2px] border-bg px-4 py-2"
+                className="flex items-center gap-2 border-2 border-[#faf7f2] dark:border-[#2d2a26] px-4 py-2 rounded-lg"
               >
-                <p.icon size={18} className="text-bg" />
-                <span className="font-bold uppercase tracking-[0.05em] text-sm">
+                <p.icon size={18} className="text-[#faf7f2] dark:text-[#2d2a26]" />
+                <span className="font-bold uppercase tracking-[0.05em] text-sm text-[#faf7f2] dark:text-[#2d2a26]">
                   {labels[p.key][lang]}
                 </span>
               </div>
