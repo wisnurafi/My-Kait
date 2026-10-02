@@ -110,11 +110,16 @@ export async function getDashboardStats(): Promise<{
     count: r.count,
   }));
 
-  const total = byStatus.reduce((a, b) => a + b.count, 0);
+  // Delivery outcomes only: 'deleted' is a lifecycle event (audit trail),
+  // not a delivery failure — it must not count as failed nor drag down
+  // the success rate.
   const sent = byStatus
     .filter((s) => s.status === "sent" || s.status === "edited")
     .reduce((a, b) => a + b.count, 0);
-  const failed = total - sent;
+  const failed = byStatus
+    .filter((s) => s.status === "failed" || s.status === "rate_limited")
+    .reduce((a, b) => a + b.count, 0);
+  const total = sent + failed;
 
   return {
     daily,

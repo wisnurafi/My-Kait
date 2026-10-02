@@ -7,6 +7,7 @@
  */
 
 import { useState, useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<"url" | "upload">("url");
+  const t = useTranslations("common");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(async (file: File) => {
@@ -93,7 +95,7 @@ export function ImageUpload({
           onClick={() => setMode("upload")}
           className={tabClasses(mode === "upload")}
         >
-          <Upload size={12} /> Upload
+          <Upload size={12} /> {t("uploadTab")}
         </button>
       </div>
 
@@ -126,7 +128,7 @@ export function ImageUpload({
           {uploading ? (
             <>
               <Loader2 size={16} className="animate-spin mr-2" />
-              Uploading…
+              {t("uploading")}
             </>
           ) : value ? (
             <div className="flex items-center gap-2 w-full">
@@ -146,7 +148,7 @@ export function ImageUpload({
               </Button>
             </div>
           ) : (
-            <span className="text-fg-tertiary font-mono text-xs">Drop image atau klik untuk upload (max 8MB)</span>
+            <span className="text-fg-tertiary font-mono text-xs">{t("dropHint")}</span>
           )}
           <input
             ref={fileInputRef}

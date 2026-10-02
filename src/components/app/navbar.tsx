@@ -86,7 +86,7 @@ export function Navbar() {
             onClick={() => signOut({ redirectTo: "/" })}
           >
             <LogOut size={18} />
-            Keluar
+            {t("logout")}
           </Button>
         </div>
       </aside>

@@ -77,6 +77,7 @@ export function TemplatesList({
   pagination: { page: number; totalPages: number };
 }) {
   const t = useTranslations("templates");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -425,7 +426,7 @@ export function TemplatesList({
                     </div>
                     <div>
                       <Label>{t("tags")}</Label>
-                      <Input value={editTags} onChange={(e) => setEditTags(e.target.value)} placeholder="tag1, tag2" />
+                      <Input value={editTags} onChange={(e) => setEditTags(e.target.value)} placeholder={t("tagsPlaceholder")} />
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" onClick={() => handleSaveEdit(template.id)} className="gap-1.5">
@@ -540,7 +541,7 @@ export function TemplatesList({
               disabled={pagination.page <= 1}
               className="gap-1"
             >
-              <ChevronLeft size={16} /> Prev
+              <ChevronLeft size={16} /> {tc("prev")}
             </Button>
             <span className="text-sm text-fg-secondary font-mono">
               {pagination.page} / {pagination.totalPages}
@@ -552,7 +553,7 @@ export function TemplatesList({
               disabled={pagination.page >= pagination.totalPages}
               className="gap-1"
             >
-              Next <ChevronRight size={16} />
+              {tc("next")} <ChevronRight size={16} />
             </Button>
           </div>
         )}

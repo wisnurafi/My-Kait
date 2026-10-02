@@ -30,8 +30,10 @@ export async function GET() {
   try {
     const [row] = await db
       .select({
-        total: sql<number>`count(*)::int`,
-        sent: sql<number>`count(*) filter (where ${messageLogs.status} = 'sent')::int`,
+        // Delivery attempts only — 'deleted' rows are an audit trail,
+        // not delivery outcomes.
+        total: sql<number>`count(*) filter (where ${messageLogs.status} in ('sent', 'edited', 'failed', 'rate_limited'))::int`,
+        sent: sql<number>`count(*) filter (where ${messageLogs.status} in ('sent', 'edited'))::int`,
         medianLatencyMs: sql<
           number | null
         >`percentile_cont(0.5) within group (order by ${messageLogs.latencyMs}) filter (where ${messageLogs.latencyMs} is not null)`,

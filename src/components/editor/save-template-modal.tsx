@@ -61,7 +61,7 @@ export function SaveTemplateModal({
           </div>
           <div>
             <Label>{t("tags")}</Label>
-            <Input name="tags" placeholder="tag1, tag2, tag3" />
+            <Input name="tags" placeholder={t("importTagsPlaceholder")} />
           </div>
           {result?.error && (
             <p className="font-mono text-xs uppercase tracking-[0.14em] text-error">{result.error}</p>

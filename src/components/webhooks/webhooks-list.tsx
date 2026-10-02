@@ -221,7 +221,7 @@ export function WebhooksList({
                     onClick={() => setExpandedId(isExpanded ? null : wh.id)}
                     className="gap-1.5"
                   >
-                    {isExpanded ? "Tutup" : "Riwayat"}
+                    {isExpanded ? t("collapse") : t("expand")}
                   </Button>
                   <Tooltip content={t("editWebhook")}>
                     <Button
