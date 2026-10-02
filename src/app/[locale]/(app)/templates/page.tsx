@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { getTemplates } from "@/server/actions/templates";
+import { getFolders } from "@/server/actions/folders";
 import { TemplatesList } from "@/components/templates/templates-list";
 
 export default async function TemplatesPage({
@@ -7,13 +8,22 @@ export default async function TemplatesPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ search?: string; tag?: string }>;
+  searchParams: Promise<{ search?: string; tag?: string; folder?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const { search, tag } = await searchParams;
-  const templates = await getTemplates(search, tag);
+  const { search, tag, folder } = await searchParams;
+  const [templates, folders] = await Promise.all([
+    getTemplates(search, tag, folder),
+    getFolders(),
+  ]);
 
-  return <TemplatesList templates={templates} />;
+  return (
+    <TemplatesList
+      templates={templates}
+      folders={folders}
+      activeFolder={folder ?? "all"}
+    />
+  );
 }

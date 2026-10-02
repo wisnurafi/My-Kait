@@ -1,10 +1,12 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { getWebhooks } from "@/server/actions/webhooks";
 import { getLogs } from "@/server/actions/messages";
+import { getDashboardStats } from "@/server/actions/stats";
 import { auth } from "@/lib/auth";
 import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { Pencil, Link2, History } from "lucide-react";
 
 export default async function DashboardPage({
@@ -19,6 +21,7 @@ export default async function DashboardPage({
   const session = await auth();
   const webhooks = await getWebhooks();
   const logsData = await getLogs({ perPage: 5 });
+  const stats = await getDashboardStats();
 
   return (
     <div className="space-y-6">
@@ -63,6 +66,17 @@ export default async function DashboardPage({
             {t("viewLogs")}
           </Button>
         </Link>
+      </div>
+
+      <div>
+        <h2 className="font-display text-xl uppercase mb-4">{t("stats.title")}</h2>
+        <DashboardStats
+          daily={stats.daily}
+          webhooks={stats.webhooks}
+          successRate={stats.totals.successRate}
+          sent={stats.totals.sent}
+          failed={stats.totals.failed}
+        />
       </div>
 
       <div>

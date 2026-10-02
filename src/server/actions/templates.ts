@@ -48,26 +48,26 @@ export async function createTemplateAction(formData: FormData) {
 }
 
 /* --- Get templates list --- */
-export async function getTemplates(search?: string, tagFilter?: string) {
+export async function getTemplates(search?: string, tagFilter?: string, folderId?: string) {
   const user = await requireAuth();
 
-  let query = db
-    .select()
-    .from(templates)
-    .where(eq(templates.userId, user.id))
-    .orderBy(desc(templates.updatedAt))
-    .$dynamic();
+  const conditions = [eq(templates.userId, user.id)];
 
   if (search) {
-    query = query.where(
-      and(
-        eq(templates.userId, user.id),
-        ilike(templates.name, `%${search}%`),
-      ),
-    );
+    conditions.push(ilike(templates.name, `%${search}%`));
   }
 
-  const result = await query;
+  if (folderId === "unfiled") {
+    conditions.push(sql`${templates.folderId} IS NULL`);
+  } else if (folderId) {
+    conditions.push(eq(templates.folderId, folderId));
+  }
+
+  const result = await db
+    .select()
+    .from(templates)
+    .where(and(...conditions))
+    .orderBy(desc(templates.updatedAt));
 
   // Filter by tag in JS (array filter)
   if (tagFilter) {

@@ -47,7 +47,18 @@
     "shareLinkCopied": "Link copied!",
     "importCount": "Imported {count} times",
     "useThisTemplate": "Use this template",
-    "loginToImport": "Log in with Discord to import this template."
+    "loginToImport": "Log in with Discord to import this template.",
+    "folders": {
+      "title": "Folders",
+      "new": "New folder",
+      "all": "All templates",
+      "unfiled": "Unfiled",
+      "namePlaceholder": "Folder name…",
+      "rename": "Rename folder",
+      "delete": "Delete folder",
+      "confirmDelete": "Delete folder \"{name}\"? Templates inside will become unfiled.",
+      "moveTo": "Move to folder"
+    }
   },
   "dashboard": {
     "greeting": "Hey, {name}! 👋",
@@ -64,7 +75,17 @@
     "thisWeek": "This week",
     "activeWebhooks": "Active webhooks",
     "templateVars": "Template Variables",
-    "templateVarsHint": "Use {tanggal}, {waktu}, {hari} in messages"
+    "templateVarsHint": "Use {tanggal}, {waktu}, {hari} in messages",
+    "stats": {
+      "title": "Statistics",
+      "perDay": "Messages per day",
+      "topWebhooks": "Most active webhooks",
+      "successRate": "Success rate",
+      "sent": "Sent",
+      "failed": "Failed",
+      "noData": "No data in the last 30 days",
+      "last30days": "Last 30 days"
+    }
   },
   "settings": {
     "title": "Settings",
