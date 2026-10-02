@@ -9,6 +9,7 @@
  * - templates
  * - template_folders
  * - template_shares
+ * - template_reports
  * - message_logs
  */
 
@@ -46,6 +47,13 @@ export const messageModeEnum = pgEnum("message_mode", [
   "normal",
   "embed",
   "both",
+]);
+
+export const reportStatusEnum = pgEnum("report_status", [
+  "pending",
+  "reviewed",
+  "dismissed",
+  "actioned",
 ]);
 
 /* --- Tables --- */
@@ -131,6 +139,9 @@ export const templates = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    folderId: text("folder_id").references(() => templateFolders.id, {
+      onDelete: "set null",
+    }),
     name: text("name").notNull(),
     description: text("description"),
     tags: text("tags").array().default([]),
@@ -159,6 +170,26 @@ export const templateShares = pgTable(
   },
   (table) => ({
     slugIdx: uniqueIndex("template_shares_slug_idx").on(table.slug),
+  }),
+);
+
+export const templateReports = pgTable(
+  "template_reports",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    templateId: text("template_id")
+      .notNull()
+      .references(() => templates.id, { onDelete: "cascade" }),
+    reporterUserId: text("reporter_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    reason: text("reason").notNull(),
+    status: reportStatusEnum("status").notNull().default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    templateIdx: index("template_reports_template_id_idx").on(table.templateId),
+    statusIdx: index("template_reports_status_idx").on(table.status),
   }),
 );
 
@@ -255,10 +286,16 @@ export const templatesRelations = relations(templates, ({ one, many }) => ({
     references: [templateFolders.id],
   }),
   shares: many(templateShares),
+  reports: many(templateReports),
 }));
 
 export const templateSharesRelations = relations(templateShares, ({ one }) => ({
   template: one(templates, { fields: [templateShares.templateId], references: [templates.id] }),
+}));
+
+export const templateReportsRelations = relations(templateReports, ({ one }) => ({
+  template: one(templates, { fields: [templateReports.templateId], references: [templates.id] }),
+  reporter: one(users, { fields: [templateReports.reporterUserId], references: [users.id] }),
 }));
 
 export const messageLogsRelations = relations(messageLogs, ({ one }) => ({
@@ -268,12 +305,15 @@ export const messageLogsRelations = relations(messageLogs, ({ one }) => ({
 
 export type WebhookHealthAlert = typeof webhookHealthAlerts.$inferSelect;
 export type NewWebhookHealthAlert = typeof webhookHealthAlerts.$inferInsert;
+export type TemplateReport = typeof templateReports.$inferSelect;
+export type NewTemplateReport = typeof templateReports.$inferInsert;
 
 /* --- Type aliases for enums --- */
 
 export type WebhookStatus = (typeof webhookStatusEnum.enumValues)[number];
 export type MessageStatus = (typeof messageStatusEnum.enumValues)[number];
 export type MessageMode = (typeof messageModeEnum.enumValues)[number];
+export type ReportStatus = (typeof reportStatusEnum.enumValues)[number];
 
 /* --- Types --- */
 
