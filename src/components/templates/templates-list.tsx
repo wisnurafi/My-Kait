@@ -229,14 +229,14 @@ export function TemplatesList({
   );
 
   return (
-    <div className="flex gap-6 flex-col lg:flex-row">
+    <div className="flex gap-8 flex-col lg:flex-row">
       {/* Folder sidebar */}
-      <aside className="w-full lg:w-60 shrink-0">
+      <aside className="w-full lg:w-64 shrink-0">
         <div className="lg:sticky lg:top-4 space-y-1 bg-surface border-[3px] border-border-ink p-3">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-display text-sm uppercase flex items-center gap-1.5">
-              <Folder size={14} />
-              {t("folders.title")}
+          <div className="flex items-center justify-between mb-2 gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-1.5 truncate">
+              <Folder size={14} className="shrink-0" />
+              <span className="truncate">{t("folders.title")}</span>
             </h2>
             <Button
               size="sm"

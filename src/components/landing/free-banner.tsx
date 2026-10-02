@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export function FreeBanner() {
     noCard: { id: "Tanpa kartu kredit", en: "No credit card" },
   };
 
-  const locale = typeof window !== "undefined" ? document.documentElement.lang : "id";
+  const locale = useLocale();
   const lang = locale === "en" ? "en" : "id";
 
   return (
