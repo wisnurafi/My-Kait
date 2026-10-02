@@ -96,7 +96,7 @@ export function FreeBanner() {
             transition={{ delay: 0.4 }}
             className="mt-10"
           >
-            <Link href="/api/auth/signin?callbackUrl=/id/dashboard">
+            <Link href="/api/auth/signin/discord?callbackUrl=/id/dashboard">
               <Button size="lg" className="text-lg gap-3">
                 {t("freeCta")}
               </Button>
