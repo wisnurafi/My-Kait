@@ -6,48 +6,58 @@
 
 import { z } from "zod";
 
+/**
+ * Translator for schema messages. Schemas are built per-request via the
+ * factories below so validation errors follow the user's locale.
+ * In server actions: `const t = await getActionT("errors"); addWebhookSchema(t).safeParse(...)`
+ */
+type SchemaT = (key: string) => string;
+
 /* --- Webhook management --- */
 
-export const webhookUrlSchema = z
-  .string()
-  .url("URL tidak valid")
-  .refine(
-    (url) => {
-      try {
-        const parsed = new URL(url);
-        const allowed = [
-          "discord.com",
-          "discordapp.com",
-          "ptb.discord.com",
-          "ptb.discordapp.com",
-          "canary.discord.com",
-          "canary.discordapp.com",
-        ];
-        return allowed.includes(parsed.hostname) && /^\/api\/webhooks\/\d+\/[\w-]+$/.test(
-          parsed.pathname,
-        );
-      } catch {
-        return false;
-      }
-    },
-    "URL bukan webhook Discord yang valid",
-  );
-
-export const addWebhookSchema = z.object({
-  url: webhookUrlSchema,
-  name: z
+export const webhookUrlSchema = (t: SchemaT) =>
+  z
     .string()
-    .min(1, "Nama wajib diisi")
-    .max(100, "Nama maksimal 100 karakter"),
-});
+    .url(t("urlInvalid"))
+    .refine(
+      (url) => {
+        try {
+          const parsed = new URL(url);
+          const allowed = [
+            "discord.com",
+            "discordapp.com",
+            "ptb.discord.com",
+            "ptb.discordapp.com",
+            "canary.discord.com",
+            "canary.discordapp.com",
+          ];
+          return allowed.includes(parsed.hostname) && /^\/api\/webhooks\/\d+\/[\w-]+$/.test(
+            parsed.pathname,
+          );
+        } catch {
+          return false;
+        }
+      },
+      t("webhookUrlInvalid"),
+    );
 
-export const updateWebhookSchema = z.object({
-  id: z.string(),
-  name: z
-    .string()
-    .min(1, "Nama wajib diisi")
-    .max(100, "Nama maksimal 100 karakter"),
-});
+export const addWebhookSchema = (t: SchemaT) =>
+  z.object({
+    url: webhookUrlSchema(t),
+    name: z
+      .string()
+      .min(1, t("nameRequired"))
+      .max(100, t("nameTooLong")),
+  });
+
+export const updateWebhookSchema = (t: SchemaT) =>
+  z.object({
+    id: z.string(),
+    name: z
+      .string()
+      .min(1, t("nameRequired"))
+      .max(100, t("nameTooLong")),
+  });
 
 /* --- Message payload --- */
 
@@ -91,46 +101,48 @@ export const embedSchema = z.object({
 });
 
 // Full embed array validation with total char limit
-export const embedsSchema = z
-  .array(embedSchema)
-  .max(10, "Maksimal 10 embed per pesan")
-  .refine(
-    (embeds) => {
-      const totalChars = embeds.reduce((sum, e) => {
-        return (
-          sum +
-          (e.title?.length ?? 0) +
-          (e.description?.length ?? 0) +
-          (e.author?.name?.length ?? 0) +
-          (e.footer?.text?.length ?? 0) +
-          (e.fields?.reduce((f, field) => f + field.name.length + field.value.length, 0) ?? 0)
-        );
-      }, 0);
-      return totalChars <= 6000;
-    },
-    "Total karakter semua embed maksimal 6000",
-  );
+export const embedsSchema = (t: SchemaT) =>
+  z
+    .array(embedSchema)
+    .max(10, t("maxEmbeds"))
+    .refine(
+      (embeds) => {
+        const totalChars = embeds.reduce((sum, e) => {
+          return (
+            sum +
+            (e.title?.length ?? 0) +
+            (e.description?.length ?? 0) +
+            (e.author?.name?.length ?? 0) +
+            (e.footer?.text?.length ?? 0) +
+            (e.fields?.reduce((f, field) => f + field.name.length + field.value.length, 0) ?? 0)
+          );
+        }, 0);
+        return totalChars <= 6000;
+      },
+      t("embedsTooLong"),
+    );
 
-export const sendPayloadSchema = z.object({
-  content: z.string().max(2000).optional(),
-  username: z.string().max(80).optional(),
-  avatar_url: z.string().url().optional().or(z.literal("")),
-  tts: z.boolean().optional(),
-  thread_id: z.string().optional(),
-  allowed_mentions: z
-    .object({
-      parse: z.array(z.enum(["roles", "users", "everyone"])).optional(),
-      roles: z.array(z.string()).optional(),
-      users: z.array(z.string()).optional(),
-      replied_user: z.boolean().optional(),
-    })
-    .optional(),
-  suppress_embeds: z.boolean().optional(),
-  embeds: embedsSchema.optional(),
-  applied_tags: z.array(z.string()).optional(),
-});
+export const sendPayloadSchema = (t: SchemaT) =>
+  z.object({
+    content: z.string().max(2000).optional(),
+    username: z.string().max(80).optional(),
+    avatar_url: z.string().url().optional().or(z.literal("")),
+    tts: z.boolean().optional(),
+    thread_id: z.string().optional(),
+    allowed_mentions: z
+      .object({
+        parse: z.array(z.enum(["roles", "users", "everyone"])).optional(),
+        roles: z.array(z.string()).optional(),
+        users: z.array(z.string()).optional(),
+        replied_user: z.boolean().optional(),
+      })
+      .optional(),
+    suppress_embeds: z.boolean().optional(),
+    embeds: embedsSchema(t).optional(),
+    applied_tags: z.array(z.string()).optional(),
+  });
 
-export type SendPayload = z.infer<typeof sendPayloadSchema>;
+export type SendPayload = z.infer<ReturnType<typeof sendPayloadSchema>>;
 
 /* --- Message mode --- */
 
@@ -138,22 +150,24 @@ export const messageModeSchema = z.enum(["normal", "embed", "both"]);
 
 /* --- Send request from editor --- */
 
-export const sendRequestSchema = z.object({
-  webhookId: z.string().optional(), // saved webhook
-  manualUrl: webhookUrlSchema.optional(), // manual URL
-  payload: sendPayloadSchema,
-  mode: messageModeSchema,
-  savePayload: z.boolean().optional().default(true), // log payload or not
-});
+export const sendRequestSchema = (t: SchemaT) =>
+  z.object({
+    webhookId: z.string().optional(), // saved webhook
+    manualUrl: webhookUrlSchema(t).optional(), // manual URL
+    payload: sendPayloadSchema(t),
+    mode: messageModeSchema,
+    savePayload: z.boolean().optional().default(true), // log payload or not
+  });
 
 /* --- Template --- */
 
-export const templateSchema = z.object({
-  name: z.string().min(1).max(100),
-  description: z.string().max(500).optional(),
-  tags: z.array(z.string().max(50)).max(10).optional(),
-  payload: sendPayloadSchema,
-});
+export const templateSchema = (t: SchemaT) =>
+  z.object({
+    name: z.string().min(1, t("nameRequired")).max(100, t("nameTooLong")),
+    description: z.string().max(500).optional(),
+    tags: z.array(z.string().max(50)).max(10).optional(),
+    payload: sendPayloadSchema(t),
+  });
 
 /* --- Log filter params --- */
 
@@ -185,12 +199,13 @@ export const deleteAccountSchema = z.object({
 
 /* --- Template report (public; anonymous allowed) --- */
 
-export const reportTemplateSchema = z.object({
-  templateId: z.string().min(1, "Template tidak valid"),
-  reason: z
-    .string()
-    .min(10, "Alasan minimal 10 karakter")
-    .max(1000, "Alasan maksimal 1000 karakter"),
-});
+export const reportTemplateSchema = (t: SchemaT) =>
+  z.object({
+    templateId: z.string().min(1, t("templateInvalid")),
+    reason: z
+      .string()
+      .min(10, t("reasonTooShort"))
+      .max(1000, t("reasonTooLong")),
+  });
 
-export type ReportTemplateInput = z.infer<typeof reportTemplateSchema>;
+export type ReportTemplateInput = z.infer<ReturnType<typeof reportTemplateSchema>>;

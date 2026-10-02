@@ -19,6 +19,7 @@ import {
 } from "@/lib/discord";
 import { sendRequestSchema } from "@/lib/validations";
 import { checkRateLimit } from "@/lib/ratelimit";
+import { getActionT } from "@/server/i18n";
 import { substitutePayloadVariables } from "@/lib/template-vars";
 type MessageStatus = "sent" | "failed" | "rate_limited" | "edited" | "deleted";
 type MessageMode = "normal" | "embed" | "both";
@@ -26,10 +27,11 @@ type MessageMode = "normal" | "embed" | "both";
 /* --- Send message --- */
 export async function sendMessageAction(prevState: unknown, formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
   const rl = await checkRateLimit("send", user.id);
   if (!rl.success) {
-    return { error: "Terlalu banyak pengiriman. Coba lagi nanti." };
+    return { error: t("rateLimited") };
   }
 
   // Parse payload from formData
@@ -38,7 +40,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   try {
     payload = JSON.parse(payloadStr);
   } catch {
-    return { error: "Payload tidak valid" };
+    return { error: t("payloadInvalid") };
   }
 
   const mode = String(formData.get("mode") ?? "normal") as MessageMode;
@@ -67,7 +69,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
         return {
           success: true,
           messageId: prev.discordMessageId ?? undefined,
-          message: "Pesan terkirim! (duplikat dicegah)",
+          message: t("messageSentDuplicate"),
           deduplicated: true,
         };
       }
@@ -76,7 +78,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   }
 
   // Validate
-  const parsed = sendRequestSchema.safeParse({
+  const parsed = sendRequestSchema(t).safeParse({
     webhookId,
     manualUrl,
     payload,
@@ -84,7 +86,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
     savePayload,
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Payload tidak valid" };
+    return { error: parsed.error.issues[0]?.message ?? t("payloadInvalid") };
   }
 
   // Determine which webhook URL(s) to use
@@ -111,7 +113,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
 
       // Skip webhooks marked as invalid
       if (wh[0].lastStatus === "invalid") {
-        results.push({ id: wh[0].id, name: wh[0].name, success: false, error: "Webhook tidak valid" });
+        results.push({ id: wh[0].id, name: wh[0].name, success: false, error: t("webhookInvalid") });
         continue;
       }
       
@@ -152,7 +154,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
     revalidatePath("/logs");
     const successCount = results.filter((r) => r.success).length;
     if (successCount === 0) {
-      return { error: "Semua pengiriman gagal", results };
+      return { error: t("allSendsFailed"), results };
     }
     return {
       success: true,
@@ -175,7 +177,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
       .limit(1);
 
     if (wh.length === 0) {
-      return { error: "Webhook tidak ditemukan" };
+      return { error: t("webhookNotFound") };
     }
 
     url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
@@ -183,16 +185,16 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
 
     // Check if webhook is valid
     if (wh[0].lastStatus === "invalid") {
-      return { error: "Webhook ditandai tidak valid. Ping ulang untuk mengecek." };
+      return { error: t("webhookMarkedInvalid") };
     }
   } else if (parsed.data.manualUrl) {
     const validation = validateWebhookUrl(parsed.data.manualUrl);
     if (!validation.valid) {
-      return { error: "URL webhook tidak valid" };
+      return { error: t("webhookInvalid") };
     }
     url = parsed.data.manualUrl;
   } else {
-    return { error: "Pilih webhook atau tempel URL manual" };
+    return { error: t("selectWebhookOrUrl") };
   }
 
   // Substitute template variables
@@ -258,18 +260,19 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
 
   revalidatePath("/logs");
   if (!result.success) {
-    return { error: result.error ?? "Gagal mengirim pesan" };
+    return { error: result.error ?? t("generic") };
   }
   return {
     success: true,
     messageId: result.messageId,
-    message: "Pesan terkirim!",
+    message: t("messageSent"),
   };
 }
 
 /* --- Edit sent message --- */
 export async function editMessageAction(prevState: unknown, formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
   const logId = String(formData.get("logId") ?? "");
   const payloadStr = String(formData.get("payload") ?? "");
@@ -278,7 +281,7 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
   try {
     payload = JSON.parse(payloadStr);
   } catch {
-    return { error: "Payload tidak valid" };
+    return { error: t("payloadInvalid") };
   }
 
   // Get the log record
@@ -294,7 +297,7 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
     .limit(1);
 
   if (log.length === 0 || !log[0].discordMessageId) {
-    return { error: "Pesan tidak ditemukan atau tidak bisa diedit" };
+    return { error: t("messageNotEditable") };
   }
 
   // Determine webhook URL: saved webhook > stored manual URL > form override
@@ -316,7 +319,7 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
       .limit(1);
 
     if (wh.length === 0) {
-      return { error: "Webhook tidak ditemukan" };
+      return { error: t("webhookNotFound") };
     }
     url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
     webhookName = wh[0].name;
@@ -337,13 +340,13 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
       .limit(1);
 
     if (wh.length === 0) {
-      return { error: "Webhook tidak ditemukan" };
+      return { error: t("webhookNotFound") };
     }
     url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
     webhookName = wh[0].name;
     effectiveWebhookId = overrideWebhookId;
   } else {
-    return { error: "Pesan ini dikirim sebelum fitur simpan URL aktif. Edit manual via Discord atau kirim ulang." };
+    return { error: t("legacyNoUrlEdit") };
   }
   const result = await editWebhookMessage(url, log[0].discordMessageId, payload);
 
@@ -369,12 +372,13 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
   }
 
   revalidatePath("/logs");
-  return { success: true, message: "Pesan diedit!" };
+  return { success: true, message: t("messageEdited") };
 }
 
 /* --- Delete sent message --- */
 export async function deleteMessageAction(prevState: unknown, formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
   const logId = String(formData.get("logId") ?? "");
 
@@ -390,7 +394,7 @@ export async function deleteMessageAction(prevState: unknown, formData: FormData
     .limit(1);
 
   if (log.length === 0 || !log[0].discordMessageId) {
-    return { error: "Pesan tidak ditemukan atau tidak bisa dihapus" };
+    return { error: t("messageNotDeletable") };
   }
 
   // Determine webhook URL: saved webhook > stored manual URL
@@ -411,7 +415,7 @@ export async function deleteMessageAction(prevState: unknown, formData: FormData
       .limit(1);
 
     if (wh.length === 0) {
-      return { error: "Webhook tidak ditemukan" };
+      return { error: t("webhookNotFound") };
     }
     url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
     webhookName = wh[0].name;
@@ -419,7 +423,7 @@ export async function deleteMessageAction(prevState: unknown, formData: FormData
     // Use stored manual URL
     url = decryptWebhookUrl(log[0].manualUrlEncrypted, log[0].manualUrlKeyVersion);
   } else {
-    return { error: "Pesan ini dikirim sebelum fitur simpan URL aktif. Hapus manual via Discord." };
+    return { error: t("legacyNoUrlDelete") };
   }
   const result = await deleteWebhookMessage(url, log[0].discordMessageId);
 
@@ -442,7 +446,7 @@ export async function deleteMessageAction(prevState: unknown, formData: FormData
   }
 
   revalidatePath("/logs");
-  return { success: true, message: "Pesan dihapus!" };
+  return { success: true, message: t("messageDeleted") };
 }
 
 /* --- Get logs with filters --- */
