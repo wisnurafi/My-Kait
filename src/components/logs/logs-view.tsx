@@ -445,7 +445,7 @@ export function LogsView({
                       onClick={() => {
                         const payload = JSON.stringify(selectedLog.payload);
                         sessionStorage.setItem("mykait-import-payload", payload);
-                        sessionStorage.setItem("mykait-edit-message-id", selectedLog.discordMessageId ?? "");
+                        sessionStorage.setItem("mykait-edit-message-id", selectedLog.id);
                         router.push("/editor");
                       }}
                     >

@@ -47,6 +47,33 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   const savePayload = formData.get("savePayload") !== "false";
   const multiTargetRaw = String(formData.get("multiTarget") ?? "") || "";
   const multiTargetIds = multiTargetRaw ? multiTargetRaw.split(",").filter(Boolean) : [];
+  const idempotencyKey = String(formData.get("idempotencyKey") ?? "") || undefined;
+
+  // Idempotency check: if this key was already processed, return cached result
+  if (idempotencyKey) {
+    const existing = await db
+      .select()
+      .from(messageLogs)
+      .where(
+        and(
+          eq(messageLogs.userId, user.id),
+          eq(messageLogs.idempotencyKey, idempotencyKey),
+        ),
+      )
+      .limit(1);
+    if (existing.length > 0) {
+      const prev = existing[0];
+      if (prev.status === "sent") {
+        return {
+          success: true,
+          messageId: prev.discordMessageId ?? undefined,
+          message: "Pesan terkirim! (duplikat dicegah)",
+          deduplicated: true,
+        };
+      }
+      return { error: prev.error ?? "Pengiriman sebelumnya gagal" };
+    }
+  }
 
   // Validate
   const parsed = sendRequestSchema.safeParse({
@@ -66,7 +93,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   
   // Multi-target: send to multiple webhooks
   if (multiTargetIds.length > 1) {
-    const results: Array<{ name: string; success: boolean; error?: string }> = [];
+    const results: Array<{ id: string; name: string; success: boolean; messageId?: string; error?: string }> = [];
     
     for (const targetId of multiTargetIds) {
       const wh = await db
@@ -81,6 +108,12 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
         .limit(1);
 
       if (wh.length === 0) continue;
+
+      // Skip webhooks marked as invalid
+      if (wh[0].lastStatus === "invalid") {
+        results.push({ id: wh[0].id, name: wh[0].name, success: false, error: "Webhook tidak valid" });
+        continue;
+      }
       
       const targetUrl = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
       const processedPayload = substitutePayloadVariables(payload);
@@ -113,17 +146,18 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
         await db.update(webhooks).set({ lastStatus: "invalid" }).where(eq(webhooks.id, wh[0].id));
       }
 
-      results.push({ name: wh[0].name, success: result.success, error: result.error });
+      results.push({ id: wh[0].id, name: wh[0].name, success: result.success, messageId: result.messageId, error: result.error });
     }
 
     revalidatePath("/logs");
     const successCount = results.filter((r) => r.success).length;
     if (successCount === 0) {
-      return { error: "Semua pengiriman gagal" };
+      return { error: "Semua pengiriman gagal", results };
     }
     return {
       success: true,
       message: `${successCount}/${results.length} pesan terkirim!`,
+      results,
     };
   }
 
@@ -192,6 +226,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
     discordMessageId: result.messageId,
     error: result.error,
     source: "send",
+    idempotencyKey: idempotencyKey ?? null,
   });
 
   // Update webhook lastUsedAt

@@ -161,47 +161,57 @@ export type SendResult = {
 /**
  * Send a message via webhook.
  * Uses ?wait=true to get the message ID back.
+ * Automatically retries on 429 with Discord's retry_after backoff (max 3 retries).
  * See PRD 3.4, 6.3.
  */
 export async function sendWebhookMessage(
   url: string,
   payload: Record<string, unknown>,
+  maxRetries = 3,
 ): Promise<SendResult> {
   const start = Date.now();
+  let lastResult: SendResult | null = null;
 
-  try {
-    const sendUrl = url.includes("?") ? `${url}&wait=true` : `${url}?wait=true`;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const sendUrl = url.includes("?") ? `${url}&wait=true` : `${url}?wait=true`;
 
-    const response = await fetch(sendUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "MyKait/1.0 (webhook-studio)",
-      },
-      body: JSON.stringify(payload),
-      redirect: "error",
-    });
+      const response = await fetch(sendUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "MyKait/1.0 (webhook-studio)",
+        },
+        body: JSON.stringify(payload),
+        redirect: "error",
+      });
 
-    if (response.status === 204 || response.status === 200) {
-      const data = await response.json().catch(() => null);
-      return {
-        success: true,
-        messageId: data?.id,
-        httpStatus: response.status,
-      };
-    }
+      if (response.status === 204 || response.status === 200) {
+        const data = await response.json().catch(() => null);
+        return {
+          success: true,
+          messageId: data?.id,
+          httpStatus: response.status,
+        };
+      }
 
-    if (response.status === 429) {
-      const body = await response.json().catch(() => null);
-      const retryAfter = body?.retry_after ?? 5;
-      return {
-        success: false,
-        httpStatus: 429,
-        rateLimited: true,
-        retryAfter,
-        error: `Rate limited oleh Discord. Coba lagi dalam ${Math.ceil(retryAfter)} detik.`,
-      };
-    }
+      if (response.status === 429) {
+        const body = await response.json().catch(() => null);
+        const retryAfter = Math.ceil(body?.retry_after ?? 5);
+        lastResult = {
+          success: false,
+          httpStatus: 429,
+          rateLimited: true,
+          retryAfter,
+          error: `Rate limited oleh Discord. Coba lagi dalam ${retryAfter} detik.`,
+        };
+        // Auto-retry with backoff if attempts remain
+        if (attempt < maxRetries) {
+          await new Promise((r) => setTimeout(r, retryAfter * 1000));
+          continue;
+        }
+        return lastResult;
+      }
 
     if (response.status === 400) {
       const body = await response.json().catch(() => null);
@@ -223,13 +233,29 @@ export async function sendWebhookMessage(
       httpStatus: response.status,
       error: body?.message ?? `HTTP ${response.status}`,
     };
-  } catch (err) {
-    return {
-      success: false,
-      httpStatus: 0,
-      error: err instanceof Error ? err.message : "Error jaringan",
-    };
+    } catch (err) {
+      // Network error — retry if attempts remain
+      if (attempt < maxRetries) {
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        continue;
+      }
+      return {
+        success: false,
+        httpStatus: 0,
+        error: err instanceof Error ? err.message : "Error jaringan",
+      };
+    }
   }
+
+  // Should not reach here, but return last 429 result if we do
+  return (
+    lastResult ?? {
+      success: false,
+      httpStatus: 429,
+      rateLimited: true,
+      error: "Rate limited oleh Discord.",
+    }
+  );
 }
 
 /**

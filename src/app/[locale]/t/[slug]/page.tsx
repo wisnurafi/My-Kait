@@ -1,10 +1,11 @@
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { getSharedTemplateBySlug } from "@/server/actions/templates";
 import { notFound } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DiscordPreview } from "@/components/editor/discord-preview";
+import { ReportButton } from "@/components/templates/report-button";
 import Link from "next/link";
 import { Copy } from "lucide-react";
 import { auth } from "@/lib/auth";
@@ -17,6 +18,7 @@ export default async function SharedTemplatePage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("templates");
 
   const shared = await getSharedTemplateBySlug(slug);
   if (!shared) notFound();
@@ -59,7 +61,7 @@ export default async function SharedTemplatePage({
           {session?.user ? (
             <div>
               <p className="text-sm text-fg-secondary mb-3">
-                Impor template ini ke koleksi kamu untuk digunakan dan diedit.
+                {t("importHint")}
               </p>
               <form action={async (formData) => {
                 "use server";
@@ -68,29 +70,29 @@ export default async function SharedTemplatePage({
               }}>
                 <input type="hidden" name="shareId" value={shared.shareId} />
                 <Button type="submit" className="gap-2">
-                  <Copy size={18} /> Pakai template ini
+                  <Copy size={18} /> {t("useThisTemplate")}
                 </Button>
               </form>
             </div>
           ) : (
             <div className="text-center py-4">
               <p className="text-sm text-fg-secondary mb-4">
-                Login dengan Discord untuk mengimpor template ini.
+                {t("loginToImport")}
               </p>
               <Link href="/api/auth/signin?callbackUrl=/t/[slug]">
-                <Button className="gap-2">Login dengan Discord</Button>
+                <Button className="gap-2">{t("loginWithDiscord")}</Button>
               </Link>
             </div>
           )}
         </Card>
 
         {/* Import count + Report */}
-        <div className="flex items-center justify-center gap-4 text-xs text-fg-tertiary">
-          <span>Diimpor {shared.importCount} kali</span>
-          <span>·</span>
-          <a href={`mailto:abuse@mykait.app?subject=Laporan Template&body=Slug: ${slug}`} className="text-error hover:underline">
-            Laporkan
-          </a>
+        <div className="flex flex-col items-center justify-center gap-3 text-xs text-fg-tertiary">
+          <div className="flex items-center gap-4">
+            <span>{t("importCount", { count: shared.importCount })}</span>
+            <span>·</span>
+            <ReportButton templateId={shared.id} />
+          </div>
         </div>
       </div>
     </div>

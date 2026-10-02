@@ -7,7 +7,9 @@
  * - webhooks (encrypted URL)
  * - webhook_checks (ping history)
  * - templates
+ * - template_folders
  * - template_shares
+ * - template_reports
  * - message_logs
  */
 
@@ -47,6 +49,13 @@ export const messageModeEnum = pgEnum("message_mode", [
   "both",
 ]);
 
+export const reportStatusEnum = pgEnum("report_status", [
+  "pending",
+  "reviewed",
+  "dismissed",
+  "actioned",
+]);
+
 /* --- Tables --- */
 
 export const users = pgTable("users", {
@@ -65,6 +74,9 @@ export const webhooks = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    folderId: text("folder_id").references(() => templateFolders.id, {
+      onDelete: "set null",
+    }),
     name: text("name").notNull(),
     discordWebhookId: text("discord_webhook_id"),
     urlEncrypted: text("url_encrypted").notNull(),
@@ -104,6 +116,22 @@ export const webhookChecks = pgTable(
   }),
 );
 
+export const templateFolders = pgTable(
+  "template_folders",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdx: index("template_folders_user_id_idx").on(table.userId),
+    nameIdx: index("template_folders_name_idx").on(table.userId, table.name),
+  }),
+);
+
 export const templates = pgTable(
   "templates",
   {
@@ -111,6 +139,9 @@ export const templates = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    folderId: text("folder_id").references(() => templateFolders.id, {
+      onDelete: "set null",
+    }),
     name: text("name").notNull(),
     description: text("description"),
     tags: text("tags").array().default([]),
@@ -121,6 +152,7 @@ export const templates = pgTable(
   (table) => ({
     userIdx: index("templates_user_id_idx").on(table.userId),
     nameIdx: index("templates_name_idx").on(table.userId, table.name),
+    folderIdx: index("templates_folder_id_idx").on(table.folderId),
   }),
 );
 
@@ -138,6 +170,26 @@ export const templateShares = pgTable(
   },
   (table) => ({
     slugIdx: uniqueIndex("template_shares_slug_idx").on(table.slug),
+  }),
+);
+
+export const templateReports = pgTable(
+  "template_reports",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    templateId: text("template_id")
+      .notNull()
+      .references(() => templates.id, { onDelete: "cascade" }),
+    reporterUserId: text("reporter_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    reason: text("reason").notNull(),
+    status: reportStatusEnum("status").notNull().default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    templateIdx: index("template_reports_template_id_idx").on(table.templateId),
+    statusIdx: index("template_reports_status_idx").on(table.status),
   }),
 );
 
@@ -160,12 +212,17 @@ export const messageLogs = pgTable(
     discordMessageId: text("discord_message_id"),
     error: text("error"),
     source: text("source").notNull().default("send"), // send | edit | delete | resend
+    idempotencyKey: text("idempotency_key"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
     userCreatedIdx: index("message_logs_user_created_idx").on(table.userId, table.createdAt),
     userStatusIdx: index("message_logs_user_status_idx").on(table.userId, table.status),
     webhookIdx: index("message_logs_webhook_id_idx").on(table.webhookId),
+    idempotencyIdx: uniqueIndex("message_logs_idempotency_idx").on(
+      table.userId,
+      table.idempotencyKey,
+    ),
   }),
 );
 
@@ -174,12 +231,14 @@ export const messageLogs = pgTable(
 export const usersRelations = relations(users, ({ many }) => ({
   webhooks: many(webhooks),
   templates: many(templates),
+  templateFolders: many(templateFolders),
   messageLogs: many(messageLogs),
 }));
 
 export const webhooksRelations = relations(webhooks, ({ one, many }) => ({
   user: one(users, { fields: [webhooks.userId], references: [users.id] }),
   checks: many(webhookChecks),
+  healthAlerts: many(webhookHealthAlerts),
   messageLogs: many(messageLogs),
 }));
 
@@ -187,13 +246,56 @@ export const webhookChecksRelations = relations(webhookChecks, ({ one }) => ({
   webhook: one(webhooks, { fields: [webhookChecks.webhookId], references: [webhooks.id] }),
 }));
 
+/* --- Webhook health alerts (from scheduled health monitor) --- */
+
+export const webhookHealthAlerts = pgTable(
+  "webhook_health_alerts",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    webhookId: text("webhook_id")
+      .notNull()
+      .references(() => webhooks.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    message: text("message"),
+    acknowledgedAt: timestamp("acknowledged_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdx: index("webhook_health_alerts_user_id_idx").on(table.userId),
+    webhookIdx: index("webhook_health_alerts_webhook_id_idx").on(table.webhookId),
+  }),
+);
+
+export const webhookHealthAlertsRelations = relations(webhookHealthAlerts, ({ one }) => ({
+  user: one(users, { fields: [webhookHealthAlerts.userId], references: [users.id] }),
+  webhook: one(webhooks, { fields: [webhookHealthAlerts.webhookId], references: [webhooks.id] }),
+}));
+
+export const templateFoldersRelations = relations(templateFolders, ({ one, many }) => ({
+  user: one(users, { fields: [templateFolders.userId], references: [users.id] }),
+  templates: many(templates),
+}));
+
 export const templatesRelations = relations(templates, ({ one, many }) => ({
   user: one(users, { fields: [templates.userId], references: [users.id] }),
+  folder: one(templateFolders, {
+    fields: [templates.folderId],
+    references: [templateFolders.id],
+  }),
   shares: many(templateShares),
+  reports: many(templateReports),
 }));
 
 export const templateSharesRelations = relations(templateShares, ({ one }) => ({
   template: one(templates, { fields: [templateShares.templateId], references: [templates.id] }),
+}));
+
+export const templateReportsRelations = relations(templateReports, ({ one }) => ({
+  template: one(templates, { fields: [templateReports.templateId], references: [templates.id] }),
+  reporter: one(users, { fields: [templateReports.reporterUserId], references: [users.id] }),
 }));
 
 export const messageLogsRelations = relations(messageLogs, ({ one }) => ({
@@ -201,11 +303,17 @@ export const messageLogsRelations = relations(messageLogs, ({ one }) => ({
   webhook: one(webhooks, { fields: [messageLogs.webhookId], references: [webhooks.id] }),
 }));
 
+export type WebhookHealthAlert = typeof webhookHealthAlerts.$inferSelect;
+export type NewWebhookHealthAlert = typeof webhookHealthAlerts.$inferInsert;
+export type TemplateReport = typeof templateReports.$inferSelect;
+export type NewTemplateReport = typeof templateReports.$inferInsert;
+
 /* --- Type aliases for enums --- */
 
 export type WebhookStatus = (typeof webhookStatusEnum.enumValues)[number];
 export type MessageStatus = (typeof messageStatusEnum.enumValues)[number];
 export type MessageMode = (typeof messageModeEnum.enumValues)[number];
+export type ReportStatus = (typeof reportStatusEnum.enumValues)[number];
 
 /* --- Types --- */
 
@@ -217,6 +325,8 @@ export type WebhookCheck = typeof webhookChecks.$inferSelect;
 export type NewWebhookCheck = typeof webhookChecks.$inferInsert;
 export type Template = typeof templates.$inferSelect;
 export type NewTemplate = typeof templates.$inferInsert;
+export type TemplateFolder = typeof templateFolders.$inferSelect;
+export type NewTemplateFolder = typeof templateFolders.$inferInsert;
 export type TemplateShare = typeof templateShares.$inferSelect;
 export type MessageLog = typeof messageLogs.$inferSelect;
 export type NewMessageLog = typeof messageLogs.$inferInsert;

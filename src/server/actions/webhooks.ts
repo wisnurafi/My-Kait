@@ -7,7 +7,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { webhooks, webhookChecks } from "@/lib/schema";
+import { webhooks, webhookChecks, webhookHealthAlerts } from "@/lib/schema";
 import { eq, and, desc, ilike } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { encryptWebhookUrl, decryptWebhookUrl, maskWebhookUrl } from "@/lib/crypto";
@@ -396,4 +396,58 @@ export async function getMaskedWebhookUrl(webhookId: string): Promise<string> {
   if (wh.length === 0) return "••••••••";
   const url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
   return maskWebhookUrl(url);
+}
+
+/* --- Health alerts --- */
+
+export async function getHealthAlerts() {
+  const user = await requireAuth();
+
+  const alerts = await db
+    .select({
+      id: webhookHealthAlerts.id,
+      type: webhookHealthAlerts.type,
+      message: webhookHealthAlerts.message,
+      createdAt: webhookHealthAlerts.createdAt,
+      acknowledgedAt: webhookHealthAlerts.acknowledgedAt,
+      webhookId: webhookHealthAlerts.webhookId,
+      webhookName: webhooks.name,
+    })
+    .from(webhookHealthAlerts)
+    .innerJoin(webhooks, eq(webhookHealthAlerts.webhookId, webhooks.id))
+    .where(eq(webhookHealthAlerts.userId, user.id))
+    .orderBy(desc(webhookHealthAlerts.createdAt))
+    .limit(50);
+
+  const unacked = alerts.filter((a) => !a.acknowledgedAt).length;
+  return { alerts, unacknowledgedCount: unacked };
+}
+
+export async function acknowledgeAlertAction(alertId: string) {
+  const user = await requireAuth();
+
+  await db
+    .update(webhookHealthAlerts)
+    .set({ acknowledgedAt: new Date() })
+    .where(
+      and(
+        eq(webhookHealthAlerts.id, alertId),
+        eq(webhookHealthAlerts.userId, user.id),
+      ),
+    );
+
+  revalidatePath("/webhooks");
+  return { success: true };
+}
+
+export async function acknowledgeAllAlertsAction() {
+  const user = await requireAuth();
+
+  await db
+    .update(webhookHealthAlerts)
+    .set({ acknowledgedAt: new Date() })
+    .where(eq(webhookHealthAlerts.userId, user.id));
+
+  revalidatePath("/webhooks");
+  return { success: true };
 }

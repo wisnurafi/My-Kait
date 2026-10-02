@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Toggle } from "@/components/ui/toggle";
 import { signOut } from "next-auth/react";
 import { deleteAccountAction } from "@/server/actions/messages";
+import { exportUserDataAction } from "@/server/actions/export";
 import { Link } from "@/i18n/routing";
 
 export function SettingsClient({
@@ -20,6 +21,29 @@ export function SettingsClient({
   const [savePayload, setSavePayload] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const result = await exportUserDataAction();
+      if (result.success) {
+        const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `mykait-export-${new Date().toISOString().split("T")[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -72,6 +96,17 @@ export function SettingsClient({
               description={t("savePayloadDesc")}
             />
           </div>
+        </CardBody>
+      </Card>
+
+      {/* Data export */}
+      <Card>
+        <CardBody>
+          <h2 className="font-display text-xl uppercase mb-4">{t("dataExport")}</h2>
+          <p className="text-sm text-fg-secondary mb-4">{t("dataExportDesc")}</p>
+          <Button variant="secondary" onClick={handleExport} disabled={exporting}>
+            {exporting ? t("exporting") : t("exportButton")}
+          </Button>
         </CardBody>
       </Card>
 

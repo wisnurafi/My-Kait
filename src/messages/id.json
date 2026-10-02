@@ -47,7 +47,27 @@
     "shareLinkCopied": "Link disalin!",
     "importCount": "Diimpor {count} kali",
     "useThisTemplate": "Pakai template ini",
-    "loginToImport": "Login dengan Discord untuk mengimpor template ini."
+    "loginToImport": "Login dengan Discord untuk mengimpor template ini.",
+    "importHint": "Impor template ini ke koleksi kamu untuk digunakan dan diedit.",
+    "loginWithDiscord": "Login dengan Discord",
+    "report": "Laporkan",
+    "reportReason": "Alasan laporan",
+    "reportReasonPlaceholder": "Jelaskan mengapa template ini bermasalah…",
+    "reportSubmit": "Kirim laporan",
+    "reportSending": "Mengirim…",
+    "reportCancel": "Batal",
+    "reportSuccess": "Terima kasih, laporanmu sudah kami terima.",
+    "folders": {
+      "title": "Folder",
+      "new": "Folder baru",
+      "all": "Semua template",
+      "unfiled": "Tanpa folder",
+      "namePlaceholder": "Nama folder…",
+      "rename": "Ubah nama folder",
+      "delete": "Hapus folder",
+      "confirmDelete": "Hapus folder \"{name}\"? Template di dalamnya jadi tanpa folder.",
+      "moveTo": "Pindah ke folder"
+    }
   },
   "dashboard": {
     "greeting": "Hai, {name}! 👋",
@@ -64,7 +84,17 @@
     "thisWeek": "Minggu ini",
     "activeWebhooks": "Webhook aktif",
     "templateVars": "Variabel Template",
-    "templateVarsHint": "Gunakan {tanggal}, {waktu}, {hari} di pesan"
+    "templateVarsHint": "Gunakan {tanggal}, {waktu}, {hari} di pesan",
+    "stats": {
+      "title": "Statistik",
+      "perDay": "Pesan per hari",
+      "topWebhooks": "Webhook paling aktif",
+      "successRate": "Tingkat keberhasilan",
+      "sent": "Terkirim",
+      "failed": "Gagal",
+      "noData": "Belum ada data 30 hari terakhir",
+      "last30days": "30 hari terakhir"
+    }
   },
   "settings": {
     "title": "Pengaturan",
@@ -83,7 +113,11 @@
     "cancel": "Batal",
     "danger": "Danger",
     "privacy": "Kebijakan Privasi",
-    "terms": "Syarat & Ketentuan"
+    "terms": "Syarat & Ketentuan",
+    "dataExport": "Ekspor Data",
+    "dataExportDesc": "Download semua data kamu (webhook, template, log) sebagai file JSON.",
+    "exportButton": "Download JSON",
+    "exporting": "Menyiapkan..."
   },
   "landing": {
     "heroTitle": "Buat pesan Discord yang bikin rusuh",
@@ -157,7 +191,11 @@
     "noWebhooks": "Belum ada webhook tersimpan",
     "confirmDelete": "Yakin hapus webhook ini?",
     "testConfirm": "Pesan tes akan terlihat di channel. Lanjutkan?",
-    "maskedUrl": "URL tersembunyi"
+    "maskedUrl": "URL tersembunyi",
+    "healthAlerts": "Peringatan Kesehatan Webhook",
+    "dismissAll": "Abaikan semua",
+    "alertDown": "Mati",
+    "alertRecovered": "Pulih"
   },
   "editor": {
     "title": "Editor Pesan",
@@ -194,6 +232,8 @@
     "sendFailed": "Gagal mengirim: {error}",
     "sending": "Mengirim…",
     "send": "Kirim",
+    "kbdSend": "{mod}+Enter untuk mengirim",
+    "kbdSave": "{mod}+S untuk simpan sebagai template",
     "field": {
       "title": "Title",
       "titleUrl": "Title URL",
@@ -213,7 +253,16 @@
       "footerIcon": "Icon URL",
       "timestamp": "Timestamp",
       "useNow": "Gunakan waktu kirim"
-    }
+    },
+    "mentionRole": "Tag Role",
+    "roleIdPlaceholder": "Tempel Role ID (angka)…",
+    "roleIdInvalid": "Role ID harus berupa angka 10-25 digit",
+    "insertTag": "Sisipkan",
+    "roleMentionHint": "Dapatkan Role ID: Pengaturan Server → Roles → klik kanan role → Copy ID. @everyone/@here bisa langsung diketik.",
+    "multiTarget": "Kirim ke beberapa webhook",
+    "selectAll": "Pilih semua",
+    "clear": "Bersihkan",
+    "selectedCount": "{count} webhook dipilih"
   },
   "logs": {
     "title": "Riwayat Pengiriman",

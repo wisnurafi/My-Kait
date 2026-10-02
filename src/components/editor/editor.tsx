@@ -14,7 +14,7 @@
  * - Undo/redo, autosave draft to localStorage
  */
 
-import { useState, useEffect, useCallback, useTransition, useMemo } from "react";
+import { useState, useEffect, useCallback, useTransition, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -126,7 +126,12 @@ export function Editor({
 }) {
   const t = useTranslations("editor");
   const [pending, startTransition] = useTransition();
-  const [result, setResult] = useState<{ success?: boolean; error?: string; message?: string } | null>(null);
+  const [result, setResult] = useState<{
+    success?: boolean;
+    error?: string;
+    message?: string;
+    results?: Array<{ id: string; name: string; success: boolean; messageId?: string; error?: string }>;
+  } | null>(null);
   const [showJson, setShowJson] = useState(false);
   const [jsonText, setJsonText] = useState("");
   const [showSaveTemplate, setShowSaveTemplate] = useState(false);
@@ -154,6 +159,34 @@ export function Editor({
   });
 
   const [editMessageId, setEditMessageId] = useState<string | null>(null);
+
+  // Keyboard shortcuts: Ctrl/Cmd+Enter = send, Ctrl/Cmd+S = save as template
+  const sendFormRef = useRef<HTMLFormElement>(null);
+  const [modKey, setModKey] = useState("Ctrl");
+
+  useEffect(() => {
+    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+    const platform = nav.userAgentData?.platform ?? nav.platform ?? "";
+    if (/mac/i.test(platform)) setModKey("\u2318");
+  }, []);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const target = e.target as HTMLElement | null;
+      // Don't hijack keys inside the JSON panel or the save-template modal
+      if (target?.closest?.("[data-kbd-off]")) return;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendFormRef.current?.requestSubmit();
+      } else if (e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        setShowSaveTemplate(true);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   // Load draft from localStorage or sessionStorage (for duplicate-to-editor)
   useEffect(() => {
@@ -329,7 +362,7 @@ export function Editor({
           <Button variant="ghost" size="sm" onClick={handleExportJson} className="gap-1.5 uppercase tracking-[0.05em]">
             <Download size={16} /> {t("exportJson")}
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowSaveTemplate(true)} className="gap-1.5 uppercase tracking-[0.05em]">
+          <Button variant="ghost" size="sm" onClick={() => setShowSaveTemplate(true)} title={t("kbdSave", { mod: modKey })} className="gap-1.5 uppercase tracking-[0.05em]">
             <Save size={16} /> {t("saveAs")}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setShowJson(!showJson)} className="gap-1.5 uppercase tracking-[0.05em]">
@@ -340,7 +373,7 @@ export function Editor({
 
       {/* JSON Import/Export panel */}
       {showJson && (
-        <Card className="p-4 bg-surface border-[3px] border-border-ink">
+        <Card data-kbd-off className="p-4 bg-surface border-[3px] border-border-ink">
           <Label>JSON Payload</Label>
           <Textarea
             value={jsonText}
@@ -390,6 +423,11 @@ export function Editor({
                 rows={5}
                 placeholder={t("contentPlaceholder")}
                 maxLength={2000}
+              />
+              <RoleMentionHelper
+                onInsert={(mention) => {
+                  updateState((prev) => ({ ...prev, content: prev.content + mention }));
+                }}
               />
             </Card>
           )}
@@ -500,7 +538,7 @@ export function Editor({
           {/* Send form */}
           <Card className="p-4 bg-surface border-[3px] border-border-ink">
             <h3 className="font-bold text-sm mb-3 uppercase tracking-[0.05em]">{t("sendTo")}</h3>
-            <form onSubmit={handleSend} className="space-y-3">
+            <form ref={sendFormRef} onSubmit={handleSend} className="space-y-3">
               <div>
                 <Label>{t("selectWebhook")}</Label>
                 <Select
@@ -518,8 +556,31 @@ export function Editor({
               </div>
               {!sendConfig.webhookId && webhooks.length > 1 && (
                 <div>
-                  <Label>Kirim ke beberapa webhook (multi-target)</Label>
-                  <div className="space-y-1 max-h-32 overflow-y-auto mt-1">
+                  <div className="flex items-center justify-between">
+                    <Label>{t("multiTarget")}</Label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSendConfig({ ...sendConfig, multiTarget: webhooks.map((w) => w.id) })}
+                        className="text-xs font-bold uppercase tracking-[0.05em] underline"
+                      >
+                        {t("selectAll")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSendConfig({ ...sendConfig, multiTarget: [] })}
+                        className="text-xs font-bold uppercase tracking-[0.05em] underline"
+                      >
+                        {t("clear")}
+                      </button>
+                    </div>
+                  </div>
+                  {sendConfig.multiTarget.length > 0 && (
+                    <p className="text-xs font-mono mt-1">
+                      {t("selectedCount", { count: sendConfig.multiTarget.length })}
+                    </p>
+                  )}
+                  <div className="space-y-1 max-h-36 overflow-y-auto mt-1 border-[2px] border-border-ink p-2 bg-background">
                     {webhooks.map((wh) => (
                       <label key={wh.id} className="flex items-center gap-2 text-sm cursor-pointer">
                         <input
@@ -540,7 +601,10 @@ export function Editor({
                           }}
                           className="w-4 h-4 border-[2px] border-border-ink"
                         />
-                        {wh.name} ({wh.lastStatus})
+                        <span className="flex-1">{wh.name}</span>
+                        <Badge variant={wh.lastStatus === "active" ? "success" : wh.lastStatus === "invalid" ? "danger" : "default"}>
+                          {wh.lastStatus}
+                        </Badge>
                       </label>
                     ))}
                   </div>
@@ -568,7 +632,22 @@ export function Editor({
               {result?.success && (
                 <p className="text-sm text-success font-semibold uppercase tracking-[0.05em]">{result.message}</p>
               )}
-              <Button type="submit" disabled={pending || !canSend} className="w-full gap-2 uppercase tracking-[0.05em]" size="lg">
+              {result?.results && result.results.length > 0 && (
+                <div className="border-[2px] border-border-ink p-2 space-y-1 max-h-40 overflow-y-auto bg-background">
+                  {result.results.map((r) => (
+                    <div key={r.id} className="flex items-center gap-2 text-sm">
+                      <span className={r.success ? "text-success font-bold" : "text-error font-bold"}>
+                        {r.success ? "✓" : "✗"}
+                      </span>
+                      <span className="flex-1 truncate">{r.name}</span>
+                      {!r.success && r.error && (
+                        <span className="text-xs text-error truncate max-w-[50%]">{r.error}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button type="submit" disabled={pending || !canSend} title={t("kbdSend", { mod: modKey })} className="w-full gap-2 uppercase tracking-[0.05em]" size="lg">
                 {pending ? (
                   <span className="inline-block h-5 w-5 animate-spin border-[3px] border-current border-t-transparent" />
                 ) : (
@@ -576,6 +655,9 @@ export function Editor({
                 )}
                 {pending ? t("sending") : editMessageId ? "Edit Pesan" : t("send")}
               </Button>
+              <p className="text-xs text-muted-foreground text-center uppercase tracking-[0.05em]">
+                {t("kbdSend", { mod: modKey })} · {t("kbdSave", { mod: modKey })}
+              </p>
             </form>
           </Card>
         </div>
@@ -583,7 +665,9 @@ export function Editor({
 
       {/* Save as template modal */}
       {showSaveTemplate && (
-        <SaveTemplateModal payload={payload} onClose={() => setShowSaveTemplate(false)} />
+        <div data-kbd-off>
+          <SaveTemplateModal payload={payload} onClose={() => setShowSaveTemplate(false)} />
+        </div>
       )}
     </div>
   );
@@ -925,4 +1009,61 @@ function rebuildFromPayload(payload: Record<string, unknown>): EditorState {
     suppressMentions: "allowed_mentions" in payload,
     embeds,
   };
+}
+
+/* --- Role mention helper --- */
+function RoleMentionHelper({ onInsert }: { onInsert: (mention: string) => void }) {
+  const t = useTranslations("editor");
+  const [roleId, setRoleId] = useState("");
+  const [error, setError] = useState("");
+
+  function handleInsertRole() {
+    const id = roleId.trim();
+    if (!/^\d{10,25}$/.test(id)) {
+      setError(t("roleIdInvalid"));
+      return;
+    }
+    setError("");
+    onInsert(`<@&${id}> `);
+    setRoleId("");
+  }
+
+  return (
+    <div className="mt-3 border-t-[2px] border-border-ink pt-3">
+      <p className="text-xs font-bold uppercase tracking-[0.05em] mb-2">{t("mentionRole")}</p>
+      <div className="flex gap-2">
+        <Input
+          value={roleId}
+          onChange={(e) => {
+            setRoleId(e.target.value);
+            setError("");
+          }}
+          placeholder={t("roleIdPlaceholder")}
+          className="font-mono text-sm"
+          inputMode="numeric"
+        />
+        <Button type="button" variant="secondary" size="sm" onClick={handleInsertRole} className="shrink-0">
+          {t("insertTag")}
+        </Button>
+      </div>
+      {error && <p className="text-xs text-error mt-1">{error}</p>}
+      <div className="flex gap-2 mt-2">
+        <button
+          type="button"
+          onClick={() => onInsert("@everyone ")}
+          className="text-xs font-bold uppercase tracking-[0.05em] underline"
+        >
+          @everyone
+        </button>
+        <button
+          type="button"
+          onClick={() => onInsert("@here ")}
+          className="text-xs font-bold uppercase tracking-[0.05em] underline"
+        >
+          @here
+        </button>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-1">{t("roleMentionHint")}</p>
+    </div>
+  );
 }

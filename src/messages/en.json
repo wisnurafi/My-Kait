@@ -47,7 +47,27 @@
     "shareLinkCopied": "Link copied!",
     "importCount": "Imported {count} times",
     "useThisTemplate": "Use this template",
-    "loginToImport": "Log in with Discord to import this template."
+    "loginToImport": "Log in with Discord to import this template.",
+    "importHint": "Import this template into your collection to use and edit it.",
+    "loginWithDiscord": "Log in with Discord",
+    "report": "Report",
+    "reportReason": "Report reason",
+    "reportReasonPlaceholder": "Explain why this template is problematic…",
+    "reportSubmit": "Submit report",
+    "reportSending": "Sending…",
+    "reportCancel": "Cancel",
+    "reportSuccess": "Thanks, we've received your report.",
+    "folders": {
+      "title": "Folders",
+      "new": "New folder",
+      "all": "All templates",
+      "unfiled": "Unfiled",
+      "namePlaceholder": "Folder name…",
+      "rename": "Rename folder",
+      "delete": "Delete folder",
+      "confirmDelete": "Delete folder \"{name}\"? Templates inside will become unfiled.",
+      "moveTo": "Move to folder"
+    }
   },
   "dashboard": {
     "greeting": "Hey, {name}! 👋",
@@ -64,7 +84,17 @@
     "thisWeek": "This week",
     "activeWebhooks": "Active webhooks",
     "templateVars": "Template Variables",
-    "templateVarsHint": "Use {tanggal}, {waktu}, {hari} in messages"
+    "templateVarsHint": "Use {tanggal}, {waktu}, {hari} in messages",
+    "stats": {
+      "title": "Statistics",
+      "perDay": "Messages per day",
+      "topWebhooks": "Most active webhooks",
+      "successRate": "Success rate",
+      "sent": "Sent",
+      "failed": "Failed",
+      "noData": "No data in the last 30 days",
+      "last30days": "Last 30 days"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -83,7 +113,11 @@
     "cancel": "Cancel",
     "danger": "Danger",
     "privacy": "Privacy Policy",
-    "terms": "Terms of Service"
+    "terms": "Terms of Service",
+    "dataExport": "Export Data",
+    "dataExportDesc": "Download all your data (webhooks, templates, logs) as a JSON file.",
+    "exportButton": "Download JSON",
+    "exporting": "Preparing..."
   },
   "landing": {
     "heroTitle": "Craft Discord messages that hit different",
@@ -157,7 +191,11 @@
     "noWebhooks": "No saved webhooks yet",
     "confirmDelete": "Delete this webhook?",
     "testConfirm": "Test message will be visible in channel. Continue?",
-    "maskedUrl": "URL hidden"
+    "maskedUrl": "URL hidden",
+    "healthAlerts": "Webhook Health Alerts",
+    "dismissAll": "Dismiss all",
+    "alertDown": "Down",
+    "alertRecovered": "Recovered"
   },
   "editor": {
     "title": "Message Editor",
@@ -194,6 +232,8 @@
     "sendFailed": "Failed to send: {error}",
     "sending": "Sending…",
     "send": "Send",
+    "kbdSend": "{mod}+Enter to send",
+    "kbdSave": "{mod}+S to save as template",
     "field": {
       "title": "Title",
       "titleUrl": "Title URL",
@@ -213,7 +253,16 @@
       "footerIcon": "Icon URL",
       "timestamp": "Timestamp",
       "useNow": "Use send time"
-    }
+    },
+    "mentionRole": "Mention Role",
+    "roleIdPlaceholder": "Paste Role ID (numbers)…",
+    "roleIdInvalid": "Role ID must be 10-25 digits",
+    "insertTag": "Insert",
+    "roleMentionHint": "Get Role ID: Server Settings → Roles → right-click role → Copy ID. @everyone/@here can be typed directly.",
+    "multiTarget": "Send to multiple webhooks",
+    "selectAll": "Select all",
+    "clear": "Clear",
+    "selectedCount": "{count} webhooks selected"
   },
   "logs": {
     "title": "Delivery History",
