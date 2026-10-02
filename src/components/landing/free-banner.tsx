@@ -37,7 +37,7 @@ export function FreeBanner() {
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             className="inline-block mb-6"
           >
             <Sparkles size={48} className="text-bg" />
@@ -47,7 +47,7 @@ export function FreeBanner() {
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             transition={{ delay: 0.1 }}
             className="font-display text-5xl md:text-7xl uppercase leading-none"
           >
@@ -58,11 +58,11 @@ export function FreeBanner() {
 
           {/* Description */}
           <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="mt-6 text-lg md:text-xl text-bg/70 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, margin: "-80px" }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="mt-6 text-lg md:text-xl text-bg/90 max-w-2xl mx-auto"
           >
             {t("freeDesc")}
           </motion.p>
@@ -71,7 +71,7 @@ export function FreeBanner() {
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             transition={{ delay: 0.3 }}
             className="mt-10 flex flex-wrap items-center justify-center gap-6"
           >
@@ -92,7 +92,7 @@ export function FreeBanner() {
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             transition={{ delay: 0.4 }}
             className="mt-10"
           >
