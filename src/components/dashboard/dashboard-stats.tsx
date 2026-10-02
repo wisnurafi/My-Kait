@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Link2, SendHorizontal, TrendingUp } from "lucide-react";
 import type { DailyStat, WebhookStat } from "@/server/actions/stats";
 
@@ -41,14 +42,14 @@ export function StatCards({
 }) {
   const t = useTranslations("dashboard");
   const stats = [
-    { label: t("webhooksCount"), value: webhooks, suffix: "", icon: Link2 },
-    { label: t("messagesSent"), value: sent, suffix: "", icon: SendHorizontal },
-    { label: t("successRate"), value: successRate, suffix: "%", icon: TrendingUp },
+    { label: t("webhooksCount"), value: webhooks, suffix: "", icon: Link2, desc: "Jumlah webhook Discord yang tersimpan" },
+    { label: t("messagesSent"), value: sent, suffix: "", icon: SendHorizontal, desc: "Total pesan berhasil terkirim via webhook" },
+    { label: t("successRate"), value: successRate, suffix: "%", icon: TrendingUp, desc: "Persentase pesan terkirim vs total percobaan" },
   ];
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {stats.map((s, i) => (
-        <StatCard key={s.label} label={s.label} value={s.value} suffix={s.suffix} icon={s.icon} index={i} />
+        <StatCard key={s.label} label={s.label} value={s.value} suffix={s.suffix} icon={s.icon} index={i} desc={s.desc} />
       ))}
     </div>
   );
@@ -60,17 +61,25 @@ function StatCard({
   suffix,
   icon: Icon,
   index,
+  desc,
 }: {
   label: string;
   value: number;
   suffix: string;
   icon: typeof Link2;
   index: number;
+  desc: string;
 }) {
   const count = useCountUp(value);
   return (
     <div className="stagger-in" style={{ "--stagger-index": index } as CSSProperties}>
-      <Card className="p-5">
+      <Tooltip content={desc} position="bottom">
+        <Card className="p-5 relative overflow-hidden lift cursor-help">
+          {/* gradient top accent bar */}
+          <div
+            aria-hidden
+            className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-accent via-accent-2 to-accent-3"
+          />
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="label mb-2">{label}</div>
@@ -83,7 +92,8 @@ function StatCard({
             <Icon size={20} className="text-accent" />
           </div>
         </div>
-      </Card>
+        </Card>
+      </Tooltip>
     </div>
   );
 }

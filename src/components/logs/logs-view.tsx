@@ -15,6 +15,7 @@ import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
+import { Tooltip } from "@/components/ui/tooltip";
 import { clearLogsAction, deleteMessageAction } from "@/server/actions/messages";
 import { saveAsTemplateAction } from "@/server/actions/templates";
 import {
@@ -408,9 +409,11 @@ export function LogsView({
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display text-xl font-bold uppercase">Detail</h2>
-              <Button variant="ghost" size="sm" onClick={() => setSelectedLog(null)}>
-                <X size={18} />
-              </Button>
+              <Tooltip content="Tutup detail">
+                <Button variant="ghost" size="sm" onClick={() => setSelectedLog(null)}>
+                  <X size={18} />
+                </Button>
+              </Tooltip>
             </div>
 
             <div className="space-y-5">
@@ -461,51 +464,60 @@ export function LogsView({
               {/* Actions */}
               {selectedLog.payload && (
                 <div className="flex gap-2 flex-wrap">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => loadIntoEditor(selectedLog.payload)}
-                  >
-                    <Copy size={14} /> Duplikasi ke Editor
-                  </Button>
-                  {selectedLog.status === "failed" && (
+                  <Tooltip content="Salin payload ke editor sebagai pesan baru">
                     <Button
-                      variant="primary"
+                      variant="secondary"
                       size="sm"
                       className="gap-1.5"
                       onClick={() => loadIntoEditor(selectedLog.payload)}
                     >
-                      <RefreshCw size={14} /> Kirim Ulang
+                      <Copy size={14} /> Duplikasi ke Editor
                     </Button>
+                  </Tooltip>
+                  {selectedLog.status === "failed" && (
+                    <Tooltip content="Coba kirim ulang pesan yang gagal">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => loadIntoEditor(selectedLog.payload)}
+                      >
+                        <RefreshCw size={14} /> Kirim Ulang
+                      </Button>
+                    </Tooltip>
                   )}
                   {selectedLog.discordMessageId && (
                     <>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="gap-1.5"
-                        onClick={() => loadIntoEditor(selectedLog.payload, selectedLog.id)}
-                      >
-                        <Pencil size={14} /> Edit Pesan
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="gap-1.5"
-                        disabled={!selectedLog.discordMessageId || pending}
-                        onClick={() => setConfirmDeleteOpen(true)}
-                      >
-                        <Trash2 size={14} /> Hapus Pesan
-                      </Button>
+                      <Tooltip content="Ubah pesan yang sudah terkirim di Discord">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="gap-1.5"
+                          onClick={() => loadIntoEditor(selectedLog.payload, selectedLog.id)}
+                        >
+                          <Pencil size={14} /> Edit Pesan
+                        </Button>
+                      </Tooltip>
+                      <Tooltip content="Hapus pesan dari Discord secara permanen">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="gap-1.5"
+                          disabled={!selectedLog.discordMessageId || pending}
+                          onClick={() => setConfirmDeleteOpen(true)}
+                        >
+                          <Trash2 size={14} /> Hapus Pesan
+                        </Button>
+                      </Tooltip>
                     </>
                   )}
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="gap-1.5"
-                    disabled={!selectedLog.payload || pending}
-                    onClick={() => {
+                  <Tooltip content="Simpan payload ini sebagai template baru">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="gap-1.5"
+                      disabled={!selectedLog.payload || pending}
+                      onClick={() => {
                       startTransition(async () => {
                         try {
                           const fd = new FormData();
@@ -524,7 +536,8 @@ export function LogsView({
                     }}
                   >
                     <Save size={14} /> Simpan Template
-                  </Button>
+                    </Button>
+                  </Tooltip>
                 </div>
               )}
 
