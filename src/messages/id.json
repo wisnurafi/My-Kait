@@ -218,6 +218,8 @@
   },
   "editor": {
     "title": "Editor Pesan",
+    "importEmpty": "Template kosong / tidak valid",
+    "importFailed": "Gagal memuat template",
     "mode": {
       "normal": "Pesan biasa",
       "embed": "Embed saja",

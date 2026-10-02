@@ -218,6 +218,8 @@
   },
   "editor": {
     "title": "Message Editor",
+    "importEmpty": "Template is empty / invalid",
+    "importFailed": "Failed to load template",
     "mode": {
       "normal": "Normal message",
       "embed": "Embed only",

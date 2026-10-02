@@ -217,7 +217,7 @@ export function Editor({
       sessionStorage.removeItem("mykait-edit-message-id");
     }
 
-    // Check sessionStorage first (from "Duplikasi ke Editor" action)
+    // Check sessionStorage first (from "Duplikasi ke Editor" action or template Load)
     const importPayload = sessionStorage.getItem("mykait-import-payload");
     if (importPayload) {
       try {
@@ -226,7 +226,22 @@ export function Editor({
         setState(newState);
         setHistory([newState]);
         setHistoryIndex(0);
-      } catch {}
+        // Confirm the load actually brought content; an empty rebuild means
+        // the stored payload had nothing usable (don't fail silently).
+        const isEmpty =
+          !newState.content &&
+          !newState.username &&
+          !newState.avatarUrl &&
+          !newState.threadId &&
+          newState.embeds.length === 0;
+        if (isEmpty) {
+          console.warn("[mykait] import payload parsed but produced empty state", parsed);
+          toast.error(t("importEmpty") ?? "Template kosong / tidak valid");
+        }
+      } catch (err) {
+        console.error("[mykait] failed to load import payload", err);
+        toast.error(t("importFailed") ?? "Gagal memuat template");
+      }
       sessionStorage.removeItem("mykait-import-payload");
       return;
     }
