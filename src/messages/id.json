@@ -1,0 +1,286 @@
+{
+  "common": {
+    "appName": "My Kait",
+    "loading": "Memuat…",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "send": "Kirim",
+    "search": "Cari",
+    "filter": "Filter",
+    "reset": "Reset",
+    "close": "Tutup",
+    "back": "Kembali",
+    "confirm": "Konfirmasi",
+    "duplicate": "Duplikasi",
+    "resend": "Kirim ulang",
+    "logout": "Keluar",
+    "settings": "Pengaturan",
+    "noResults": "Tidak ada hasil",
+    "required": "Wajib diisi",
+    "optional": "Opsional"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "editor": "Editor",
+    "webhooks": "Webhook",
+    "templates": "Template",
+    "logs": "Riwayat",
+    "settings": "Pengaturan"
+  },
+  "templates": {
+    "title": "Template",
+    "searchPlaceholder": "Cari nama template…",
+    "noTemplates": "Belum ada template",
+    "noTemplatesHint": "Simpan pesan dari editor sebagai template",
+    "name": "Nama",
+    "namePlaceholder": "Pengumuman Server A",
+    "description": "Deskripsi",
+    "descriptionPlaceholder": "Template untuk pengumuman rutin",
+    "tags": "Tag",
+    "load": "Muat",
+    "save": "Simpan",
+    "saveAs": "Simpan sebagai Template",
+    "confirmDelete": "Yakin hapus template ini?",
+    "shareLink": "Bagikan",
+    "shareLinkCopied": "Link disalin!",
+    "importCount": "Diimpor {count} kali",
+    "useThisTemplate": "Pakai template ini",
+    "loginToImport": "Login dengan Discord untuk mengimpor template ini."
+  },
+  "dashboard": {
+    "greeting": "Hai, {name}! 👋",
+    "welcome": "Selamat datang di My Kait. Mau kirim pesan apa hari ini?",
+    "webhooksCount": "Webhook tersimpan",
+    "messagesSent": "Pesan terkirim",
+    "successRate": "Tingkat sukses",
+    "createMessage": "Buat Pesan",
+    "manageWebhooks": "Kelola Webhook",
+    "viewLogs": "Lihat Riwayat",
+    "recentActivity": "Aktivitas Terbaru",
+    "noActivity": "Belum ada aktivitas. Mulai kirim pesan pertama!",
+    "failed": "Gagal",
+    "thisWeek": "Minggu ini",
+    "activeWebhooks": "Webhook aktif",
+    "templateVars": "Variabel Template",
+    "templateVarsHint": "Gunakan {tanggal}, {waktu}, {hari} di pesan"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "profile": "Profil",
+    "loginViaDiscord": "Login via Discord",
+    "preferences": "Preferensi",
+    "language": "Bahasa",
+    "logRetention": "Retensi Log",
+    "logRetentionDesc": "Log otomatis dihapus setelah 30 hari",
+    "savePayload": "Simpan payload pesan",
+    "savePayloadDesc": "Simpan isi pesan di log. Matikan untuk privasi.",
+    "deleteAccount": "Hapus Akun",
+    "deleteAccountDesc": "Menghapus semua data: webhook, template, log. Tidak bisa dibatalkan.",
+    "deleteAccountConfirm": "Ketik DELETE untuk konfirmasi",
+    "deleteAccountButton": "Hapus akun saya",
+    "cancel": "Batal",
+    "danger": "Danger",
+    "privacy": "Kebijakan Privasi",
+    "terms": "Syarat & Ketentuan"
+  },
+  "landing": {
+    "heroTitle": "Buat pesan Discord yang bikin rusuh",
+    "heroSubtitle": "Editor pesan webhook paling lengkap. Login pakai Discord, susun pesan, kirim. Tanpa bot, tanpa drama.",
+    "loginButton": "Login dengan Discord",
+    "marquee": "GRATIS,TANPA BOT,TANPA BATASAN,FULL CUSTOMIZATION,KIRIM WEBHOOK,EDIT EMBED,TANPA DAFTAR",
+    "howTitle": "Cara Pakai",
+    "howSubtitle": "Empat langkah. Kurang dari dua menit.",
+    "steps": {
+      "step1": {
+        "title": "Login pakai Discord",
+        "desc": "Satu klik, langsung masuk. Tanpa daftar, tanpa email."
+      },
+      "step2": {
+        "title": "Siapkan link webhook",
+        "desc": "Discord channel settings → Integrations → Webhooks → New Webhook. Salin URL-nya."
+      },
+      "step3": {
+        "title": "Susun pesan di editor",
+        "desc": "Tulis teks, tambah embed, atur warna, lihat preview real-time ala Discord."
+      },
+      "step4": {
+        "title": "Kirim!",
+        "desc": "Pilih webhook, tekan kirim. Pesan langsung muncul di channel."
+      }
+    },
+    "freeTitle": "Gratis.",
+    "freeTitle2": "Tanpa batasan.",
+    "freeDesc": "Tanpa kuota webhook. Tanpa paywall. Tanpa kartu kredit. Kirim sebanyak kalian mau. Simpan webhook sebanyak kalian butuh. Selamanya gratis.",
+    "freeCta": "Mulai sekarang",
+    "footerTagline": "Webhook Studio untuk Discord",
+    "footerRights": "Gratis. Selamanya.",
+    "features": {
+      "editor": {
+        "title": "Editor visual",
+        "desc": "Susun embed dengan live preview ala Discord"
+      },
+      "webhook": {
+        "title": "Webhook aman",
+        "desc": "URL webhook dienkripsi end-to-end"
+      },
+      "template": {
+        "title": "Template",
+        "desc": "Simpan dan bagikan template pesan"
+      },
+      "logs": {
+        "title": "Riwayat lengkap",
+        "desc": "Lacak setiap pengiriman dengan detail"
+      }
+    }
+  },
+  "webhooks": {
+    "title": "Webhook Saya",
+    "add": "Tambah Webhook",
+    "allStatuses": "Semua status",
+    "addName": "Nama custom",
+    "addUrl": "URL Webhook Discord",
+    "addPlaceholder": "https://discord.com/api/webhooks/…",
+    "ping": "Ping",
+    "pingAll": "Cek ulang semua",
+    "sendTest": "Kirim pesan tes",
+    "status": {
+      "active": "Aktif",
+      "invalid": "Tidak valid",
+      "rate_limited": "Rate limited",
+      "unchecked": "Belum dicek"
+    },
+    "searchPlaceholder": "Cari nama webhook…",
+    "lastChecked": "Terakhir dicek",
+    "lastUsed": "Terakhir dipakai",
+    "noWebhooks": "Belum ada webhook tersimpan",
+    "confirmDelete": "Yakin hapus webhook ini?",
+    "testConfirm": "Pesan tes akan terlihat di channel. Lanjutkan?",
+    "maskedUrl": "URL tersembunyi"
+  },
+  "editor": {
+    "title": "Editor Pesan",
+    "mode": {
+      "normal": "Pesan biasa",
+      "embed": "Embed saja",
+      "both": "Pesan + Embed"
+    },
+    "content": "Content",
+    "contentPlaceholder": "Tulis pesan… (mendukung markdown Discord)",
+    "contentCount": "{count}/2000",
+    "embeds": "Embed",
+    "addEmbed": "Tambah Embed",
+    "addField": "Tambah Field",
+    "preview": "Preview",
+    "sendTo": "Kirim ke",
+    "selectWebhook": "Pilih webhook",
+    "manualUrl": "Tempel URL manual",
+    "override": "Override",
+    "username": "Username",
+    "avatarUrl": "Avatar URL",
+    "tts": "TTS",
+    "threadId": "Thread ID",
+    "suppressMentions": "Suppress mentions",
+    "exportJson": "Export JSON",
+    "importJson": "Import JSON",
+    "saveAs": "Simpan Template",
+    "charLimit": "Batas karakter",
+    "totalEmbedChars": "Total karakter embed",
+    "undo": "Undo",
+    "redo": "Redo",
+    "draftSaved": "Draft tersimpan otomatis",
+    "sendSuccess": "Pesan terkirim!",
+    "sendFailed": "Gagal mengirim: {error}",
+    "sending": "Mengirim…",
+    "send": "Kirim",
+    "field": {
+      "title": "Title",
+      "titleUrl": "Title URL",
+      "description": "Description",
+      "color": "Warna",
+      "author": "Author",
+      "authorName": "Nama",
+      "authorIcon": "Icon URL",
+      "thumbnail": "Thumbnail",
+      "image": "Image",
+      "fields": "Fields",
+      "fieldName": "Nama",
+      "fieldValue": "Value",
+      "inline": "Inline",
+      "footer": "Footer",
+      "footerText": "Teks",
+      "footerIcon": "Icon URL",
+      "timestamp": "Timestamp",
+      "useNow": "Gunakan waktu kirim"
+    }
+  },
+  "logs": {
+    "title": "Riwayat Pengiriman",
+    "searchPlaceholder": "Cari isi pesan, webhook…",
+    "filterStatus": "Status",
+    "filterWebhook": "Webhook",
+    "filterMode": "Mode",
+    "filterSource": "Sumber",
+    "filterDate": "Tanggal",
+    "datePresets": {
+      "today": "Hari ini",
+      "7d": "7 hari",
+      "30d": "30 hari",
+      "custom": "Kustom"
+    },
+    "summary": {
+      "sent": "Terkirim",
+      "failed": "Gagal",
+      "successRate": "Tingkat sukses"
+    },
+    "status": {
+      "sent": "Terkirim",
+      "failed": "Gagal",
+      "rate_limited": "Rate limited",
+      "edited": "Diedit",
+      "deleted": "Dihapus"
+    },
+    "source": {
+      "send": "Kirim",
+      "edit": "Edit",
+      "delete": "Hapus",
+      "resend": "Kirim ulang"
+    },
+    "detail": {
+      "payload": "Payload",
+      "response": "Respons Discord",
+      "messageId": "Message ID",
+      "error": "Error",
+      "duration": "Durasi",
+      "actions": "Aksi"
+    },
+    "export": "Export CSV/JSON",
+    "noLogs": "Belum ada riwayat",
+    "clearLogs": "Hapus semua log",
+    "confirmClear": "Yakin hapus semua log?",
+    "sortNewest": "Terbaru",
+    "sortOldest": "Terlama",
+    "activeFilters": "Filter aktif"
+  },
+  "errors": {
+    "unauthorized": "Silakan login dulu",
+    "rateLimited": "Terlalu banyak permintaan. Coba lagi nanti.",
+    "webhookInvalid": "URL webhook tidak valid",
+    "webhookNotFound": "Webhook tidak ditemukan",
+    "payloadTooLarge": "Payload terlalu besar",
+    "discordError": "Error dari Discord: {message}",
+    "networkError": "Error jaringan. Cek koneksi internet.",
+    "generic": "Terjadi kesalahan. Coba lagi.",
+    "webhookRateLimited": "Rate limited oleh Discord. Coba lagi dalam {seconds} detik."
+  },
+  "ping": {
+    "active": "Webhook aktif",
+    "invalid": "Webhook tidak valid",
+    "rateLimited": "Webhook terkena rate limit",
+    "error": "Error saat mengecek",
+    "latency": "Latensi",
+    "history": "Riwayat ping",
+    "noHistory": "Belum ada riwayat pengecekan"
+  }
+}

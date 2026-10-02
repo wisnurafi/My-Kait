@@ -1,0 +1,317 @@
+@import "tailwindcss";
+
+/* ============================================
+   MY KAIT — RawBlock Design System
+   Brutalism. Black on white. No radius. No shadows.
+   Thick borders replace elevation. Content does the work.
+   ============================================ */
+
+/* --- Design Tokens: Light (default) --- */
+:root {
+  /* Core surfaces */
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-sunken: #f0f0f0;
+  --surface-inverted: #000000;
+
+  /* Content */
+  --fg: #000000;
+  --fg-secondary: #666666;
+  --fg-tertiary: #999999;
+
+  /* Borders */
+  --border: #000000;
+  --border-thin: 1px;
+  --border-thick: 3px;
+  --border-heavy: 5px;
+  --border-disabled: #cccccc;
+
+  /* Accent colors (pure, reserved) */
+  --link: #0000ff;
+  --info: #0000ff;
+
+  /* Status colors (pure) */
+  --success: #008000;
+  --warning: #ffa500;
+  --error: #ff0000;
+
+  /* Disabled */
+  --disabled-bg: #f0f0f0;
+  --disabled-fg: #999999;
+
+  /* Hover/input surfaces */
+  --surface-hover: #e8e8e8;
+  --surface-input: #f0f0f0;
+
+  /* Fonts */
+  --font-display: "Archivo Black", system-ui, sans-serif;
+  --font-body: "Work Sans", system-ui, sans-serif;
+  --font-mono: "Space Mono", "Courier New", monospace;
+
+  /* Spacing scale (base 8px, intentionally irregular) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 16px;
+  --sp-4: 24px;
+  --sp-5: 40px;
+  --sp-6: 64px;
+  --sp-7: 80px;
+  --sp-8: 120px;
+}
+
+/* --- Design Tokens: Dark --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #000000;
+    --surface-sunken: #1a1a1a;
+    --surface-inverted: #ffffff;
+
+    --fg: #ffffff;
+    --fg-secondary: #999999;
+    --fg-tertiary: #666666;
+
+    --border: #ffffff;
+    --border-disabled: #444444;
+
+    --disabled-bg: #1a1a1a;
+    --disabled-fg: #666666;
+
+    --surface-hover: #2a2a2a;
+    --surface-input: #1a1a1a;
+  }
+}
+
+/* Explicit dark override */
+[data-theme="dark"] {
+  --bg: #000000;
+  --surface: #000000;
+  --surface-sunken: #1a1a1a;
+  --surface-inverted: #ffffff;
+
+  --fg: #ffffff;
+  --fg-secondary: #999999;
+  --fg-tertiary: #666666;
+
+  --border: #ffffff;
+  --border-disabled: #444444;
+
+  --disabled-bg: #1a1a1a;
+  --disabled-fg: #666666;
+
+  --surface-hover: #2a2a2a;
+  --surface-input: #1a1a1a;
+}
+
+/* Explicit light override */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-sunken: #f0f0f0;
+  --surface-inverted: #000000;
+
+  --fg: #000000;
+  --fg-secondary: #666666;
+  --fg-tertiary: #999999;
+
+  --border: #000000;
+  --border-disabled: #cccccc;
+
+  --disabled-bg: #f0f0f0;
+  --disabled-fg: #999999;
+
+  --surface-hover: #e8e8e8;
+  --surface-input: #f0f0f0;
+}
+
+/* --- Tailwind v4 Theme Mapping --- */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-inverted: var(--surface-inverted);
+
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+
+  --color-border-ink: var(--border);
+  --color-border-disabled: var(--border-disabled);
+
+  --color-link: var(--link);
+  --color-info: var(--info);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+
+  --color-disabled-bg: var(--disabled-bg);
+  --color-disabled-fg: var(--disabled-fg);
+
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-input: var(--surface-input);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+/* --- Base Styles --- */
+* {
+  border-color: var(--border);
+  border-radius: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings — Archivo Black, structural */
+h1 {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 1;
+}
+h2 {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 400;
+  line-height: 1.05;
+}
+h3 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+h4 {
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Links — pure blue, reserved for hyperlinks only.
+   In @layer base so Tailwind utilities (text-fg, text-bg, etc.) can override. */
+@layer base {
+  a {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  a:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* Selection */
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* Scrollbar — raw, no rounding */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-secondary);
+}
+
+/* --- Utility Classes --- */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Border weight utilities */
+.border-thin {
+  border-width: 1px;
+}
+.border-thick {
+  border-width: 3px;
+}
+.border-heavy {
+  border-width: 5px;
+}
+
+/* Focus ring — thick, high-contrast */
+.focus-ring:focus-visible {
+  outline: 3px solid var(--link);
+  outline-offset: 2px;
+}
+
+/* Inverted block — full color inversion */
+.inverted {
+  background: var(--surface-inverted);
+  color: var(--bg);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* --- Native form control dark-mode overrides --- */
+/* Force native select/option to follow theme, not OS defaults */
+select,
+select option {
+  background-color: var(--surface-input);
+  color: var(--fg);
+}
+
+/* Style select dropdown list (Webkit/Blink) */
+select option {
+  color: var(--fg);
+  background-color: var(--surface-input);
+}
+select option:checked,
+select option:hover {
+  background-color: var(--surface-hover);
+}
+
+/* Style select dropdown list (Firefox) */
+select option:checked {
+  background-color: var(--surface-hover) !important;
+  color: var(--fg) !important;
+}
+
+/* Checkbox / radio accent follows theme */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--fg);
+}
+
+/* Placeholder color */
+input::placeholder,
+textarea::placeholder {
+  color: var(--fg-tertiary);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

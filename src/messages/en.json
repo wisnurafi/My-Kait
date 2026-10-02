@@ -1,0 +1,286 @@
+{
+  "common": {
+    "appName": "My Kait",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "send": "Send",
+    "search": "Search",
+    "filter": "Filter",
+    "reset": "Reset",
+    "close": "Close",
+    "back": "Back",
+    "confirm": "Confirm",
+    "duplicate": "Duplicate",
+    "resend": "Resend",
+    "logout": "Log out",
+    "settings": "Settings",
+    "noResults": "No results",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "editor": "Editor",
+    "webhooks": "Webhooks",
+    "templates": "Templates",
+    "logs": "Logs",
+    "settings": "Settings"
+  },
+  "templates": {
+    "title": "Templates",
+    "searchPlaceholder": "Search template name…",
+    "noTemplates": "No templates yet",
+    "noTemplatesHint": "Save a message from the editor as a template",
+    "name": "Name",
+    "namePlaceholder": "Server A Announcement",
+    "description": "Description",
+    "descriptionPlaceholder": "Template for routine announcements",
+    "tags": "Tags",
+    "load": "Load",
+    "save": "Save",
+    "saveAs": "Save as Template",
+    "confirmDelete": "Delete this template?",
+    "shareLink": "Share",
+    "shareLinkCopied": "Link copied!",
+    "importCount": "Imported {count} times",
+    "useThisTemplate": "Use this template",
+    "loginToImport": "Log in with Discord to import this template."
+  },
+  "dashboard": {
+    "greeting": "Hey, {name}! 👋",
+    "welcome": "Welcome to My Kait. What message would you like to send today?",
+    "webhooksCount": "Saved webhooks",
+    "messagesSent": "Messages sent",
+    "successRate": "Success rate",
+    "createMessage": "Create Message",
+    "manageWebhooks": "Manage Webhooks",
+    "viewLogs": "View Logs",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No activity yet. Send your first message!",
+    "failed": "Failed",
+    "thisWeek": "This week",
+    "activeWebhooks": "Active webhooks",
+    "templateVars": "Template Variables",
+    "templateVarsHint": "Use {tanggal}, {waktu}, {hari} in messages"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "loginViaDiscord": "Logged in via Discord",
+    "preferences": "Preferences",
+    "language": "Language",
+    "logRetention": "Log Retention",
+    "logRetentionDesc": "Logs auto-deleted after 30 days",
+    "savePayload": "Save message payload",
+    "savePayloadDesc": "Store message content in logs. Turn off for privacy.",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDesc": "Deletes all data: webhooks, templates, logs. Cannot be undone.",
+    "deleteAccountConfirm": "Type DELETE to confirm",
+    "deleteAccountButton": "Delete my account",
+    "cancel": "Cancel",
+    "danger": "Danger",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "landing": {
+    "heroTitle": "Craft Discord messages that hit different",
+    "heroSubtitle": "The most complete webhook message editor. Log in with Discord, compose, send. No bot, no drama.",
+    "loginButton": "Log in with Discord",
+    "marquee": "FREE,NO BOT,NO LIMITS,FULL CUSTOMIZATION,SEND WEBHOOKS,EDIT EMBEDS,NO SIGNUP",
+    "howTitle": "How It Works",
+    "howSubtitle": "Four steps. Under two minutes.",
+    "steps": {
+      "step1": {
+        "title": "Log in with Discord",
+        "desc": "One click, you're in. No signup, no email."
+      },
+      "step2": {
+        "title": "Get your webhook URL",
+        "desc": "Discord channel settings → Integrations → Webhooks → New Webhook. Copy the URL."
+      },
+      "step3": {
+        "title": "Compose your message",
+        "desc": "Write text, add embeds, set colors, see real-time Discord-style preview."
+      },
+      "step4": {
+        "title": "Send!",
+        "desc": "Pick a webhook, hit send. Your message appears in the channel."
+      }
+    },
+    "freeTitle": "Free.",
+    "freeTitle2": "No limits.",
+    "freeDesc": "No webhook quota. No paywall. No credit card. Send as much as you want. Store as many webhooks as you need. Free forever.",
+    "freeCta": "Get started",
+    "footerTagline": "Webhook Studio for Discord",
+    "footerRights": "Free. Forever.",
+    "features": {
+      "editor": {
+        "title": "Visual editor",
+        "desc": "Build embeds with Discord-style live preview"
+      },
+      "webhook": {
+        "title": "Secure webhooks",
+        "desc": "Webhook URLs encrypted end-to-end"
+      },
+      "template": {
+        "title": "Templates",
+        "desc": "Save and share message templates"
+      },
+      "logs": {
+        "title": "Full history",
+        "desc": "Track every send with detailed logs"
+      }
+    }
+  },
+  "webhooks": {
+    "title": "My Webhooks",
+    "add": "Add Webhook",
+    "allStatuses": "All statuses",
+    "addName": "Custom name",
+    "addUrl": "Discord Webhook URL",
+    "addPlaceholder": "https://discord.com/api/webhooks/…",
+    "ping": "Ping",
+    "pingAll": "Check all",
+    "sendTest": "Send test message",
+    "status": {
+      "active": "Active",
+      "invalid": "Invalid",
+      "rate_limited": "Rate limited",
+      "unchecked": "Unchecked"
+    },
+    "searchPlaceholder": "Search webhook name…",
+    "lastChecked": "Last checked",
+    "lastUsed": "Last used",
+    "noWebhooks": "No saved webhooks yet",
+    "confirmDelete": "Delete this webhook?",
+    "testConfirm": "Test message will be visible in channel. Continue?",
+    "maskedUrl": "URL hidden"
+  },
+  "editor": {
+    "title": "Message Editor",
+    "mode": {
+      "normal": "Normal message",
+      "embed": "Embed only",
+      "both": "Message + Embed"
+    },
+    "content": "Content",
+    "contentPlaceholder": "Type your message… (Discord markdown supported)",
+    "contentCount": "{count}/2000",
+    "embeds": "Embeds",
+    "addEmbed": "Add Embed",
+    "addField": "Add Field",
+    "preview": "Preview",
+    "sendTo": "Send to",
+    "selectWebhook": "Select webhook",
+    "manualUrl": "Paste URL manually",
+    "override": "Override",
+    "username": "Username",
+    "avatarUrl": "Avatar URL",
+    "tts": "TTS",
+    "threadId": "Thread ID",
+    "suppressMentions": "Suppress mentions",
+    "exportJson": "Export JSON",
+    "importJson": "Import JSON",
+    "saveAs": "Save Template",
+    "charLimit": "Character limit",
+    "totalEmbedChars": "Total embed characters",
+    "undo": "Undo",
+    "redo": "Redo",
+    "draftSaved": "Draft auto-saved",
+    "sendSuccess": "Message sent!",
+    "sendFailed": "Failed to send: {error}",
+    "sending": "Sending…",
+    "send": "Send",
+    "field": {
+      "title": "Title",
+      "titleUrl": "Title URL",
+      "description": "Description",
+      "color": "Color",
+      "author": "Author",
+      "authorName": "Name",
+      "authorIcon": "Icon URL",
+      "thumbnail": "Thumbnail",
+      "image": "Image",
+      "fields": "Fields",
+      "fieldName": "Name",
+      "fieldValue": "Value",
+      "inline": "Inline",
+      "footer": "Footer",
+      "footerText": "Text",
+      "footerIcon": "Icon URL",
+      "timestamp": "Timestamp",
+      "useNow": "Use send time"
+    }
+  },
+  "logs": {
+    "title": "Delivery History",
+    "searchPlaceholder": "Search message content, webhook…",
+    "filterStatus": "Status",
+    "filterWebhook": "Webhook",
+    "filterMode": "Mode",
+    "filterSource": "Source",
+    "filterDate": "Date",
+    "datePresets": {
+      "today": "Today",
+      "7d": "7 days",
+      "30d": "30 days",
+      "custom": "Custom"
+    },
+    "summary": {
+      "sent": "Sent",
+      "failed": "Failed",
+      "successRate": "Success rate"
+    },
+    "status": {
+      "sent": "Sent",
+      "failed": "Failed",
+      "rate_limited": "Rate limited",
+      "edited": "Edited",
+      "deleted": "Deleted"
+    },
+    "source": {
+      "send": "Send",
+      "edit": "Edit",
+      "delete": "Delete",
+      "resend": "Resend"
+    },
+    "detail": {
+      "payload": "Payload",
+      "response": "Discord response",
+      "messageId": "Message ID",
+      "error": "Error",
+      "duration": "Duration",
+      "actions": "Actions"
+    },
+    "export": "Export CSV/JSON",
+    "noLogs": "No logs yet",
+    "clearLogs": "Clear all logs",
+    "confirmClear": "Delete all logs?",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
+    "activeFilters": "Active filters"
+  },
+  "errors": {
+    "unauthorized": "Please log in first",
+    "rateLimited": "Too many requests. Try again later.",
+    "webhookInvalid": "Invalid webhook URL",
+    "webhookNotFound": "Webhook not found",
+    "payloadTooLarge": "Payload too large",
+    "discordError": "Discord error: {message}",
+    "networkError": "Network error. Check your connection.",
+    "generic": "Something went wrong. Try again.",
+    "webhookRateLimited": "Rate limited by Discord. Try again in {seconds} seconds."
+  },
+  "ping": {
+    "active": "Webhook is active",
+    "invalid": "Webhook is invalid",
+    "rateLimited": "Webhook is rate limited",
+    "error": "Error checking webhook",
+    "latency": "Latency",
+    "history": "Ping history",
+    "noHistory": "No check history yet"
+  }
+}

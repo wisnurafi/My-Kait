@@ -1,0 +1,72 @@
+/**
+ * Middleware: next-intl locale routing + Auth.js session.
+ * Handles i18n locale prefixing and protects app routes.
+ */
+
+import createMiddleware from "next-intl/middleware";
+import { auth } from "@/lib/auth";
+import { routing } from "@/i18n/routing";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+const intlMiddleware = createMiddleware(routing);
+
+// Public routes that don't require auth
+const publicRoutes = [
+  "/",
+  "/t/[slug]",
+  "/api/auth",
+];
+
+// Auth routes that should not be locale-prefixed
+const authRoutes = ["/api/auth", "/api/cron"];
+
+function isPublicRoute(pathname: string): boolean {
+  // Check if it matches public patterns
+  if (pathname === "/") return true;
+  if (pathname.match(/^\/(id|en)\/?$/)) return true;
+  if (pathname.match(/^\/(id|en)\/t\/[\w-]+\/?$/)) return true;
+  if (pathname.startsWith("/api/auth")) return true;
+  if (pathname.startsWith("/api/cron")) return true;
+  return false;
+}
+
+export default async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Skip auth/api routes from intl processing (except they still get handled)
+  if (authRoutes.some((r) => pathname.startsWith(r))) {
+    return NextResponse.next();
+  }
+
+  // Run next-intl middleware first (handles locale prefixing)
+  const intlResponse = intlMiddleware(req);
+
+  // Check auth for protected routes
+  if (!isPublicRoute(pathname)) {
+    const session = await auth();
+    if (!session) {
+      // Redirect to locale-prefixed home with login intent
+      const locale = pathname.startsWith("/en") ? "en" : "id";
+      const loginUrl = new URL(`/${locale}`, req.url);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // If logged in and on landing page, redirect to dashboard
+  if (isPublicRoute(pathname) && !pathname.startsWith("/api") && !pathname.includes("/t/")) {
+    const session = await auth();
+    if (session) {
+      const locale = pathname.startsWith("/en") ? "en" : "id";
+      const dashboardUrl = new URL(`/${locale}/dashboard`, req.url);
+      return NextResponse.redirect(dashboardUrl);
+    }
+  }
+
+  return intlResponse;
+}
+
+export const config = {
+  // Match all paths except static files and ALL api routes
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+};
