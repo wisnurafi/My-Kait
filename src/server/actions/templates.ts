@@ -8,7 +8,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { templates, templateShares, templateReports } from "@/lib/schema";
-import { eq, and, desc, ilike, sql } from "drizzle-orm";
+import { eq, and, desc, ilike, sql, count, arrayContains } from "drizzle-orm";
 import { requireAuth, auth } from "@/lib/auth";
 import { templateSchema, reportTemplateSchema } from "@/lib/validations";
 import { generateSlug } from "@/lib/utils";
@@ -47,9 +47,19 @@ export async function createTemplateAction(formData: FormData) {
   return { success: true, id: created.id };
 }
 
-/* --- Get templates list --- */
-export async function getTemplates(search?: string, tagFilter?: string, folderId?: string) {
+/* --- Get templates list (paginated) --- */
+export async function getTemplates(opts: {
+  search?: string;
+  tagFilter?: string;
+  folderId?: string;
+  page?: number;
+  perPage?: number;
+} = {}) {
   const user = await requireAuth();
+
+  const { search, tagFilter, folderId } = opts;
+  const page = Math.max(1, opts.page ?? 1);
+  const perPage = Math.min(100, Math.max(1, opts.perPage ?? 12));
 
   const conditions = [eq(templates.userId, user.id)];
 
@@ -63,18 +73,34 @@ export async function getTemplates(search?: string, tagFilter?: string, folderId
     conditions.push(eq(templates.folderId, folderId));
   }
 
+  // Tag filter in SQL (was JS-side) so the total count stays accurate
+  if (tagFilter) {
+    conditions.push(arrayContains(templates.tags, [tagFilter]));
+  }
+
+  const where = and(...conditions);
+
+  const totalResult = await db
+    .select({ total: count() })
+    .from(templates)
+    .where(where);
+  const total = totalResult[0]?.total ?? 0;
+
   const result = await db
     .select()
     .from(templates)
-    .where(and(...conditions))
-    .orderBy(desc(templates.updatedAt));
+    .where(where)
+    .orderBy(desc(templates.updatedAt))
+    .limit(perPage)
+    .offset((page - 1) * perPage);
 
-  // Filter by tag in JS (array filter)
-  if (tagFilter) {
-    return result.filter((t) => t.tags?.includes(tagFilter));
-  }
-
-  return result;
+  return {
+    templates: result,
+    total,
+    page,
+    perPage,
+    totalPages: Math.max(1, Math.ceil(total / perPage)),
+  };
 }
 
 /* --- Get single template --- */

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,8 @@ import {
   LayoutGrid,
   FileQuestion,
   LayoutTemplate,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useState as useReactState } from "react";
 
@@ -66,14 +69,17 @@ export function TemplatesList({
   templates: initial,
   folders,
   activeFolder,
+  pagination,
 }: {
   templates: Template[];
   folders: Folder[];
   activeFolder: string;
+  pagination: { page: number; totalPages: number };
 }) {
   const t = useTranslations("templates");
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [pending, startTransition] = useTransition();
   const [search, setSearch] = useReactState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -157,6 +163,14 @@ export function TemplatesList({
     sessionStorage.setItem("mykait-import-payload", JSON.stringify(template.payload));
     // Use full reload with locale prefix to ensure editor remounts and loads the payload
     window.location.href = `/${locale}/editor`;
+  }
+
+  function goToPage(newPage: number) {
+    // Preserve all current filters (search/tag/folder), only change page
+    const params = new URLSearchParams(searchParams.toString());
+    if (newPage <= 1) params.delete("page");
+    else params.set("page", String(newPage));
+    router.push(`/templates?${params.toString()}`);
   }
 
   function handleSaveEdit(id: string) {
@@ -508,6 +522,33 @@ export function TemplatesList({
               </Card>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between mt-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => goToPage(pagination.page - 1)}
+              disabled={pagination.page <= 1}
+              className="gap-1"
+            >
+              <ChevronLeft size={16} /> Prev
+            </Button>
+            <span className="text-sm text-fg-secondary font-mono">
+              {pagination.page} / {pagination.totalPages}
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => goToPage(pagination.page + 1)}
+              disabled={pagination.page >= pagination.totalPages}
+              className="gap-1"
+            >
+              Next <ChevronRight size={16} />
+            </Button>
           </div>
         )}
       </div>

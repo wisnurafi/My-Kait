@@ -373,7 +373,7 @@ export function Editor({
       pushHistory(newState);
       setShowJson(false);
     } catch {
-      alert("JSON tidak valid");
+      toast.error(t("invalidJson"));
     }
   }
 

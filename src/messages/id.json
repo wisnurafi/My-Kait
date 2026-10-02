@@ -218,6 +218,7 @@
   },
   "editor": {
     "title": "Editor Pesan",
+    "invalidJson": "JSON tidak valid",
     "importEmpty": "Template kosong / tidak valid",
     "importFailed": "Gagal memuat template",
     "mode": {
