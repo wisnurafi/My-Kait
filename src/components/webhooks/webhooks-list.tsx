@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   pingWebhookAction,
   deleteWebhookAction,
@@ -202,16 +203,18 @@ export function WebhooksList({
                     <Zap size={14} />
                     {t("ping")}
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleTestSend(wh.id)}
-                    disabled={pending}
-                    className="gap-1.5"
-                  >
-                    <Send size={14} />
-                    {t("sendTest")}
-                  </Button>
+                  <Tooltip content="Kirim pesan test ke webhook ini untuk memastikan berfungsi">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleTestSend(wh.id)}
+                      disabled={pending}
+                      className="gap-1.5"
+                    >
+                      <Send size={14} />
+                      {t("sendTest")}
+                    </Button>
+                  </Tooltip>
                   <Button
                     variant="ghost"
                     size="sm"
