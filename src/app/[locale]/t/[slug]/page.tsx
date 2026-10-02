@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { DiscordPreview } from "@/components/editor/discord-preview";
 import { ReportButton } from "@/components/templates/report-button";
 import Link from "next/link";
+import { DiscordLoginButton } from "@/components/auth/discord-login-button";
 import { Copy } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { importTemplateAction } from "@/server/actions/templates";
@@ -79,9 +80,9 @@ export default async function SharedTemplatePage({
               <p className="text-sm text-fg-secondary mb-4">
                 {t("loginToImport")}
               </p>
-              <Link href="/api/auth/signin/discord?callbackUrl=/t/[slug]">
-                <Button className="gap-2">{t("loginWithDiscord")}</Button>
-              </Link>
+              <DiscordLoginButton callbackUrl={`/t/${slug}`}>
+                {t("loginWithDiscord")}
+              </DiscordLoginButton>
             </div>
           )}
         </Card>

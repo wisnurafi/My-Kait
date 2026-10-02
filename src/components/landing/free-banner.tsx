@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { motion } from "motion/react";
-import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ShieldOff, Infinity as InfinityIcon, Gift } from "lucide-react";
 
@@ -96,11 +96,9 @@ export function FreeBanner() {
             transition={{ delay: 0.4 }}
             className="mt-10"
           >
-            <Link href="/api/auth/signin/discord?callbackUrl=/id/dashboard">
-              <Button size="lg" className="text-lg gap-3">
-                {t("freeCta")}
-              </Button>
-            </Link>
+            <Button size="lg" className="text-lg gap-3" onClick={() => signIn("discord", { callbackUrl: "/id/dashboard" })}>
+              {t("freeCta")}
+            </Button>
           </motion.div>
         </div>
       </div>

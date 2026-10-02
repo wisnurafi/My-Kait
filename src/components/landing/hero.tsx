@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { HookLogo } from "@/components/hook-logo";
@@ -78,12 +78,10 @@ export function LandingHero() {
           transition={{ delay: 0.7 }}
           className="mt-10"
         >
-          <Link href="/api/auth/signin/discord?callbackUrl=/id/dashboard">
-            <Button size="lg" className="text-lg gap-3">
-              <DiscordIcon />
-              {t("loginButton")}
-            </Button>
-          </Link>
+          <Button size="lg" className="text-lg gap-3" onClick={() => signIn("discord", { callbackUrl: "/id/dashboard" })}>
+            <DiscordIcon />
+            {t("loginButton")}
+          </Button>
         </motion.div>
 
         {/* Scroll hint */}
