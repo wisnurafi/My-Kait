@@ -208,8 +208,17 @@ export function Editor({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // Load draft from localStorage or sessionStorage (for duplicate-to-editor)
+  // Load draft from localStorage or sessionStorage (for duplicate-to-editor).
+  // StrictMode guard: in dev, React mounts effects twice. The first run
+  // consumes the sessionStorage payload (and removes the key); without this
+  // guard the second run would find an empty key and overwrite the loaded
+  // template with a blank draft — the infamous "load template shows nothing"
+  // bug. Refs persist across StrictMode's double-effect, so this is safe.
+  const didInitFromStorage = useRef(false);
   useEffect(() => {
+    if (didInitFromStorage.current) return;
+    didInitFromStorage.current = true;
+
     // Check for edit message mode
     const editId = sessionStorage.getItem("mykait-edit-message-id");
     if (editId) {
