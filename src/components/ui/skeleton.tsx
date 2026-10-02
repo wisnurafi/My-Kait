@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
  * Neon Glass Skeleton — shimmer sweep animation.
  * Compose precise loading states per surface.
  */
-export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("shimmer", className)} aria-hidden />;
+export function Skeleton({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  return <div className={cn("shimmer", className)} style={style} aria-hidden />;
 }
 
 export function SkeletonRow() {
