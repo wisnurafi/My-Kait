@@ -83,7 +83,11 @@
     "cancel": "Cancel",
     "danger": "Danger",
     "privacy": "Privacy Policy",
-    "terms": "Terms of Service"
+    "terms": "Terms of Service",
+    "dataExport": "Export Data",
+    "dataExportDesc": "Download all your data (webhooks, templates, logs) as a JSON file.",
+    "exportButton": "Download JSON",
+    "exporting": "Preparing..."
   },
   "landing": {
     "heroTitle": "Craft Discord messages that hit different",

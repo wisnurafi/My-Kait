@@ -47,6 +47,33 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   const savePayload = formData.get("savePayload") !== "false";
   const multiTargetRaw = String(formData.get("multiTarget") ?? "") || "";
   const multiTargetIds = multiTargetRaw ? multiTargetRaw.split(",").filter(Boolean) : [];
+  const idempotencyKey = String(formData.get("idempotencyKey") ?? "") || undefined;
+
+  // Idempotency check: if this key was already processed, return cached result
+  if (idempotencyKey) {
+    const existing = await db
+      .select()
+      .from(messageLogs)
+      .where(
+        and(
+          eq(messageLogs.userId, user.id),
+          eq(messageLogs.idempotencyKey, idempotencyKey),
+        ),
+      )
+      .limit(1);
+    if (existing.length > 0) {
+      const prev = existing[0];
+      if (prev.status === "sent") {
+        return {
+          success: true,
+          messageId: prev.discordMessageId ?? undefined,
+          message: "Pesan terkirim! (duplikat dicegah)",
+          deduplicated: true,
+        };
+      }
+      return { error: prev.error ?? "Pengiriman sebelumnya gagal" };
+    }
+  }
 
   // Validate
   const parsed = sendRequestSchema.safeParse({
@@ -192,6 +219,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
     discordMessageId: result.messageId,
     error: result.error,
     source: "send",
+    idempotencyKey: idempotencyKey ?? null,
   });
 
   // Update webhook lastUsedAt

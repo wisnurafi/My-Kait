@@ -83,7 +83,11 @@
     "cancel": "Batal",
     "danger": "Danger",
     "privacy": "Kebijakan Privasi",
-    "terms": "Syarat & Ketentuan"
+    "terms": "Syarat & Ketentuan",
+    "dataExport": "Ekspor Data",
+    "dataExportDesc": "Download semua data kamu (webhook, template, log) sebagai file JSON.",
+    "exportButton": "Download JSON",
+    "exporting": "Menyiapkan..."
   },
   "landing": {
     "heroTitle": "Buat pesan Discord yang bikin rusuh",

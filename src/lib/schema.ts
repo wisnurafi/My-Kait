@@ -160,12 +160,17 @@ export const messageLogs = pgTable(
     discordMessageId: text("discord_message_id"),
     error: text("error"),
     source: text("source").notNull().default("send"), // send | edit | delete | resend
+    idempotencyKey: text("idempotency_key"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
     userCreatedIdx: index("message_logs_user_created_idx").on(table.userId, table.createdAt),
     userStatusIdx: index("message_logs_user_status_idx").on(table.userId, table.status),
     webhookIdx: index("message_logs_webhook_id_idx").on(table.webhookId),
+    idempotencyIdx: uniqueIndex("message_logs_idempotency_idx").on(
+      table.userId,
+      table.idempotencyKey,
+    ),
   }),
 );
 
