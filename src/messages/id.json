@@ -211,7 +211,8 @@
     "statsLatency": "latensi median",
     "live": "LIVE",
     "versionNote": "SCHEDULED SENDS — sudah live",
-    "openDashboard": "Buka dashboard"
+    "openDashboard": "Buka dashboard",
+    "toggleTheme": "Ganti tema"
   },
   "webhooks": {
     "title": "Webhook Saya",

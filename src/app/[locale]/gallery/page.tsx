@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { DiscordLoginButton } from "@/components/auth/discord-login-button";
 import { Download, ArrowUpRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PublicThemeManager } from "@/components/landing/theme-toggle";
 
 export default async function GalleryPage({
   params,
@@ -34,6 +35,7 @@ export default async function GalleryPage({
 
   return (
     <div className="min-h-screen">
+      <PublicThemeManager />
       {/* minimal top bar */}
       <header className="border-b border-border-ink">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
