@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 import { templateFolders, templates } from "@/lib/schema";
 import { eq, and, desc, count } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { getActionT } from "@/server/i18n";
 
 /* --- Get folders with template counts --- */
 export async function getFolders() {
@@ -45,10 +46,11 @@ export async function getFolders() {
 /* --- Create folder --- */
 export async function createFolderAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const name = String(formData.get("name") ?? "").trim();
 
-  if (!name) return { error: "Folder name is required" };
-  if (name.length > 60) return { error: "Folder name too long (max 60)" };
+  if (!name) return { error: t("folderNameRequired") };
+  if (name.length > 60) return { error: t("folderNameTooLong") };
 
   // Avoid duplicate names per user
   const existing = await db
@@ -62,7 +64,7 @@ export async function createFolderAction(formData: FormData) {
     )
     .limit(1);
 
-  if (existing.length > 0) return { error: "Folder already exists" };
+  if (existing.length > 0) return { error: t("folderExists") };
 
   const [created] = await db
     .insert(templateFolders)
@@ -76,11 +78,12 @@ export async function createFolderAction(formData: FormData) {
 /* --- Rename folder --- */
 export async function renameFolderAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
 
-  if (!name) return { error: "Folder name is required" };
-  if (name.length > 60) return { error: "Folder name too long (max 60)" };
+  if (!name) return { error: t("folderNameRequired") };
+  if (name.length > 60) return { error: t("folderNameTooLong") };
 
   const existing = await db
     .select({ id: templateFolders.id })
@@ -93,7 +96,7 @@ export async function renameFolderAction(formData: FormData) {
     )
     .limit(1);
 
-  if (existing.length === 0) return { error: "Folder not found" };
+  if (existing.length === 0) return { error: t("folderNotFound") };
 
   await db
     .update(templateFolders)
@@ -107,6 +110,7 @@ export async function renameFolderAction(formData: FormData) {
 /* --- Delete folder (templates inside become unfiled via FK set null) --- */
 export async function deleteFolderAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const id = String(formData.get("id") ?? "");
 
   const existing = await db
@@ -120,7 +124,7 @@ export async function deleteFolderAction(formData: FormData) {
     )
     .limit(1);
 
-  if (existing.length === 0) return { error: "Folder not found" };
+  if (existing.length === 0) return { error: t("folderNotFound") };
 
   await db.delete(templateFolders).where(eq(templateFolders.id, id));
 
@@ -131,6 +135,7 @@ export async function deleteFolderAction(formData: FormData) {
 /* --- Move template to folder (or unfiled when folderId empty) --- */
 export async function moveTemplateToFolderAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const templateId = String(formData.get("templateId") ?? "");
   const folderId = String(formData.get("folderId") ?? "") || null;
 
@@ -146,7 +151,7 @@ export async function moveTemplateToFolderAction(formData: FormData) {
     )
     .limit(1);
 
-  if (template.length === 0) return { error: "Template not found" };
+  if (template.length === 0) return { error: t("templateNotFound") };
 
   // Verify folder ownership when moving into a folder
   if (folderId) {
@@ -161,7 +166,7 @@ export async function moveTemplateToFolderAction(formData: FormData) {
       )
       .limit(1);
 
-    if (folder.length === 0) return { error: "Folder not found" };
+    if (folder.length === 0) return { error: t("folderNotFound") };
   }
 
   await db

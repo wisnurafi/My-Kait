@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 import { webhooks, webhookChecks, webhookHealthAlerts } from "@/lib/schema";
 import { eq, and, desc, ilike } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
+import { getActionT } from "@/server/i18n";
 import { encryptWebhookUrl, decryptWebhookUrl, maskWebhookUrl } from "@/lib/crypto";
 import { validateWebhookUrl, pingWebhook, sendWebhookMessage } from "@/lib/discord";
 import { addWebhookSchema, updateWebhookSchema } from "@/lib/validations";
@@ -19,27 +20,28 @@ type WebhookStatus = "active" | "invalid" | "rate_limited" | "unchecked";
 /* --- Add webhook --- */
 export async function addWebhookAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
   const raw = {
     url: String(formData.get("url") ?? ""),
     name: String(formData.get("name") ?? ""),
   };
 
-  const parsed = addWebhookSchema.safeParse(raw);
+  const parsed = addWebhookSchema(t).safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? t("payloadInvalid") };
   }
 
   // Check rate limit
   const rl = await checkRateLimit("addWebhook", user.id);
   if (!rl.success) {
-    return { error: "Terlalu banyak webhook ditambah. Coba lagi nanti." };
+    return { error: t("rateLimited") };
   }
 
   const { url, name } = parsed.data;
   const validation = validateWebhookUrl(url);
   if (!validation.valid || !validation.webhookId) {
-    return { error: "URL bukan webhook Discord yang valid" };
+    return { error: t("webhookUrlInvalid") };
   }
 
   // Check for duplicate (same discord_webhook_id for this user)
@@ -55,13 +57,13 @@ export async function addWebhookAction(formData: FormData) {
     .limit(1);
 
   if (existing.length > 0) {
-    return { error: "Webhook ini sudah tersimpan" };
+    return { error: t("webhookAlreadySaved") };
   }
 
   // Ping to validate and get channel/guild info
   const pingResult = await pingWebhook(url);
   if (pingResult.status === "invalid") {
-    return { error: pingResult.error ?? "Webhook tidak valid" };
+    return { error: pingResult.error ?? t("webhookInvalid") };
   }
 
   // Encrypt URL
@@ -122,13 +124,14 @@ export async function getWebhooks(search?: string) {
 /* --- Update webhook name --- */
 export async function updateWebhookAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
-  const parsed = updateWebhookSchema.safeParse({
+  const parsed = updateWebhookSchema(t).safeParse({
     id: String(formData.get("id") ?? ""),
     name: String(formData.get("name") ?? ""),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? t("payloadInvalid") };
   }
 
   // Verify ownership
@@ -144,7 +147,7 @@ export async function updateWebhookAction(formData: FormData) {
     .limit(1);
 
   if (existing.length === 0) {
-    return { error: "Webhook tidak ditemukan" };
+    return { error: t("webhookNotFound") };
   }
 
   await db
@@ -159,6 +162,7 @@ export async function updateWebhookAction(formData: FormData) {
 /* --- Delete webhook --- */
 export async function deleteWebhookAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const id = String(formData.get("id") ?? "");
 
   // Verify ownership before delete
@@ -174,7 +178,7 @@ export async function deleteWebhookAction(formData: FormData) {
     .limit(1);
 
   if (existing.length === 0) {
-    return { error: "Webhook tidak ditemukan" };
+    return { error: t("webhookNotFound") };
   }
 
   await db.delete(webhooks).where(eq(webhooks.id, id));
@@ -186,11 +190,12 @@ export async function deleteWebhookAction(formData: FormData) {
 /* --- Ping webhook --- */
 export async function pingWebhookAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const webhookId = String(formData.get("webhookId") ?? "");
 
   const rl = await checkRateLimit("ping", user.id);
   if (!rl.success) {
-    return { error: "Terlalu banyak ping. Coba lagi nanti." };
+    return { error: t("rateLimited") };
   }
 
   // Get webhook
@@ -206,7 +211,7 @@ export async function pingWebhookAction(formData: FormData) {
     .limit(1);
 
   if (wh.length === 0) {
-    return { error: "Webhook tidak ditemukan" };
+    return { error: t("webhookNotFound") };
   }
 
   // Decrypt URL
@@ -244,11 +249,12 @@ export async function pingWebhookAction(formData: FormData) {
 /* --- Send test message --- */
 export async function sendTestMessageAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const webhookId = String(formData.get("webhookId") ?? "");
 
   const rl = await checkRateLimit("send", user.id);
   if (!rl.success) {
-    return { error: "Terlalu banyak pengiriman. Coba lagi nanti." };
+    return { error: t("rateLimited") };
   }
 
   const wh = await db
@@ -263,7 +269,7 @@ export async function sendTestMessageAction(formData: FormData) {
     .limit(1);
 
   if (wh.length === 0) {
-    return { error: "Webhook tidak ditemukan" };
+    return { error: t("webhookNotFound") };
   }
 
   const url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
@@ -280,7 +286,7 @@ export async function sendTestMessageAction(formData: FormData) {
         .set({ lastStatus: "invalid" as WebhookStatus })
         .where(eq(webhooks.id, webhookId));
     }
-    return { error: result.error ?? "Gagal mengirim pesan tes" };
+    return { error: result.error ?? t("testSendFailed") };
   }
 
   // Update last used

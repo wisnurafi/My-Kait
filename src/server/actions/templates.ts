@@ -12,10 +12,12 @@ import { eq, and, desc, ilike, or, sql, count, arrayContains } from "drizzle-orm
 import { requireAuth, auth } from "@/lib/auth";
 import { templateSchema, reportTemplateSchema } from "@/lib/validations";
 import { generateSlug } from "@/lib/utils";
+import { getActionT } from "@/server/i18n";
 
 /* --- Create template --- */
 export async function createTemplateAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
   const raw = {
     name: String(formData.get("name") ?? ""),
@@ -27,9 +29,9 @@ export async function createTemplateAction(formData: FormData) {
     payload: JSON.parse(String(formData.get("payload") ?? "{}")),
   };
 
-  const parsed = templateSchema.safeParse(raw);
+  const parsed = templateSchema(t).safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? t("payloadInvalid") };
   }
 
   const [created] = await db
@@ -106,6 +108,7 @@ export async function getTemplates(opts: {
 /* --- Get single template --- */
 export async function getTemplate(id: string) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
   const result = await db
     .select()
@@ -124,6 +127,7 @@ export async function getTemplate(id: string) {
 /* --- Update template --- */
 export async function updateTemplateAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "");
@@ -133,7 +137,7 @@ export async function updateTemplateAction(formData: FormData) {
     .map((t) => t.trim())
     .filter(Boolean);
 
-  if (!name) return { error: "Nama wajib diisi" };
+  if (!name) return { error: t("nameRequired") };
 
   // Verify ownership
   const existing = await db
@@ -147,7 +151,7 @@ export async function updateTemplateAction(formData: FormData) {
     )
     .limit(1);
 
-  if (existing.length === 0) return { error: "Template tidak ditemukan" };
+  if (existing.length === 0) return { error: t("templateNotFound") };
 
   await db
     .update(templates)
@@ -166,6 +170,7 @@ export async function updateTemplateAction(formData: FormData) {
 /* --- Duplicate template --- */
 export async function duplicateTemplateAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const id = String(formData.get("id") ?? "");
 
   const existing = await db
@@ -179,7 +184,7 @@ export async function duplicateTemplateAction(formData: FormData) {
     )
     .limit(1);
 
-  if (existing.length === 0) return { error: "Template tidak ditemukan" };
+  if (existing.length === 0) return { error: t("templateNotFound") };
 
   await db.insert(templates).values({
     userId: user.id,
@@ -196,6 +201,7 @@ export async function duplicateTemplateAction(formData: FormData) {
 /* --- Delete template --- */
 export async function deleteTemplateAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const id = String(formData.get("id") ?? "");
 
   const existing = await db
@@ -209,7 +215,7 @@ export async function deleteTemplateAction(formData: FormData) {
     )
     .limit(1);
 
-  if (existing.length === 0) return { error: "Template tidak ditemukan" };
+  if (existing.length === 0) return { error: t("templateNotFound") };
 
   await db.delete(templates).where(eq(templates.id, id));
 
@@ -220,6 +226,7 @@ export async function deleteTemplateAction(formData: FormData) {
 /* --- Save current editor state as template --- */
 export async function saveAsTemplateAction(prevState: unknown, formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
 
   const name = String(formData.get("name") ?? "");
   const description = String(formData.get("description") ?? "") || undefined;
@@ -232,14 +239,14 @@ export async function saveAsTemplateAction(prevState: unknown, formData: FormDat
   try {
     payload = JSON.parse(String(formData.get("payload") ?? "{}"));
   } catch {
-    return { error: "Payload tidak valid" };
+    return { error: t("payloadInvalid") };
   }
 
-  if (!name) return { error: "Nama wajib diisi" };
+  if (!name) return { error: t("nameRequired") };
 
-  const parsed = templateSchema.safeParse({ name, description, tags, payload });
+  const parsed = templateSchema(t).safeParse({ name, description, tags, payload });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { error: parsed.error.issues[0]?.message ?? t("payloadInvalid") };
   }
 
   await db.insert(templates).values({
@@ -251,12 +258,13 @@ export async function saveAsTemplateAction(prevState: unknown, formData: FormDat
   });
 
   revalidatePath("/templates");
-  return { success: true, message: "Template disimpan!" };
+  return { success: true, message: t("templateSaved") };
 }
 
 /* --- Create share link --- */
 export async function createShareLinkAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const templateId = String(formData.get("templateId") ?? "");
 
   // Verify ownership
@@ -271,7 +279,7 @@ export async function createShareLinkAction(formData: FormData) {
     )
     .limit(1);
 
-  if (existing.length === 0) return { error: "Template tidak ditemukan" };
+  if (existing.length === 0) return { error: t("templateNotFound") };
 
   // Check if already has an active share
   const existingShare = await db
@@ -303,6 +311,7 @@ export async function createShareLinkAction(formData: FormData) {
 /* --- Revoke share link --- */
 export async function revokeShareLinkAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const shareId = String(formData.get("shareId") ?? "");
 
   await db
@@ -346,6 +355,7 @@ export async function getShareLinks(templateId: string) {
 
 /* --- Get shared template by slug (public) --- */
 export async function getSharedTemplateBySlug(slug: string) {
+  const t = await getActionT("errors");
   const result = await db
     .select({
       id: templates.id,
@@ -372,6 +382,7 @@ export async function getSharedTemplateBySlug(slug: string) {
 /* --- Import template from share --- */
 export async function importTemplateAction(formData: FormData) {
   const user = await requireAuth();
+  const t = await getActionT("errors");
   const shareId = String(formData.get("shareId") ?? "");
 
   // Get the shared template
@@ -389,7 +400,7 @@ export async function importTemplateAction(formData: FormData) {
     )
     .limit(1);
 
-  if (shared.length === 0) return { error: "Template tidak ditemukan" };
+  if (shared.length === 0) return { error: t("templateNotFound") };
 
   // Get template data
   const template = await db
@@ -398,7 +409,7 @@ export async function importTemplateAction(formData: FormData) {
     .where(eq(templates.id, shared[0].templateId))
     .limit(1);
 
-  if (template.length === 0) return { error: "Template tidak ditemukan" };
+  if (template.length === 0) return { error: t("templateNotFound") };
 
   // Create a copy for the user
   const [created] = await db
@@ -427,12 +438,13 @@ export async function reportTemplateAction(
   _prevState: unknown,
   formData: FormData,
 ) {
-  const parsed = reportTemplateSchema.safeParse({
+  const t = await getActionT("errors");
+  const parsed = reportTemplateSchema(t).safeParse({
     templateId: String(formData.get("templateId") ?? ""),
     reason: String(formData.get("reason") ?? "").trim(),
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Input tidak valid" };
+    return { error: parsed.error.issues[0]?.message ?? t("payloadInvalid") };
   }
 
   // Template must exist (prevents orphan reports)
@@ -442,7 +454,7 @@ export async function reportTemplateAction(
     .where(eq(templates.id, parsed.data.templateId))
     .limit(1);
   if (!template) {
-    return { error: "Template tidak ditemukan" };
+    return { error: t("templateNotFound") };
   }
 
   // Anonymous allowed — attach reporter id when logged in
