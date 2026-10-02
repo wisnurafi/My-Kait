@@ -161,7 +161,11 @@
     "noWebhooks": "Belum ada webhook tersimpan",
     "confirmDelete": "Yakin hapus webhook ini?",
     "testConfirm": "Pesan tes akan terlihat di channel. Lanjutkan?",
-    "maskedUrl": "URL tersembunyi"
+    "maskedUrl": "URL tersembunyi",
+    "healthAlerts": "Peringatan Kesehatan Webhook",
+    "dismissAll": "Abaikan semua",
+    "alertDown": "Mati",
+    "alertRecovered": "Pulih"
   },
   "editor": {
     "title": "Editor Pesan",
@@ -217,7 +221,11 @@
       "footerIcon": "Icon URL",
       "timestamp": "Timestamp",
       "useNow": "Gunakan waktu kirim"
-    }
+    },
+    "multiTarget": "Kirim ke beberapa webhook",
+    "selectAll": "Pilih semua",
+    "clear": "Bersihkan",
+    "selectedCount": "{count} webhook dipilih"
   },
   "logs": {
     "title": "Riwayat Pengiriman",

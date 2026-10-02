@@ -93,7 +93,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   
   // Multi-target: send to multiple webhooks
   if (multiTargetIds.length > 1) {
-    const results: Array<{ name: string; success: boolean; error?: string }> = [];
+    const results: Array<{ id: string; name: string; success: boolean; messageId?: string; error?: string }> = [];
     
     for (const targetId of multiTargetIds) {
       const wh = await db
@@ -108,6 +108,11 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
         .limit(1);
 
       if (wh.length === 0) continue;
+      // Skip webhooks marked as invalid
+      if (wh[0].lastStatus === "invalid") {
+        results.push({ id: wh[0].id, name: wh[0].name, success: false, error: "Webhook tidak valid" });
+        continue;
+      }
       
       const targetUrl = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
       const processedPayload = substitutePayloadVariables(payload);
@@ -140,7 +145,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
         await db.update(webhooks).set({ lastStatus: "invalid" }).where(eq(webhooks.id, wh[0].id));
       }
 
-      results.push({ name: wh[0].name, success: result.success, error: result.error });
+      results.push({ id: wh[0].id, name: wh[0].name, success: result.success, messageId: result.messageId, error: result.error });
     }
 
     revalidatePath("/logs");
@@ -151,6 +156,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
     return {
       success: true,
       message: `${successCount}/${results.length} pesan terkirim!`,
+      results,
     };
   }
 

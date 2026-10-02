@@ -161,7 +161,11 @@
     "noWebhooks": "No saved webhooks yet",
     "confirmDelete": "Delete this webhook?",
     "testConfirm": "Test message will be visible in channel. Continue?",
-    "maskedUrl": "URL hidden"
+    "maskedUrl": "URL hidden",
+    "healthAlerts": "Webhook Health Alerts",
+    "dismissAll": "Dismiss all",
+    "alertDown": "Down",
+    "alertRecovered": "Recovered"
   },
   "editor": {
     "title": "Message Editor",
@@ -217,7 +221,11 @@
       "footerIcon": "Icon URL",
       "timestamp": "Timestamp",
       "useNow": "Use send time"
-    }
+    },
+    "multiTarget": "Send to multiple webhooks",
+    "selectAll": "Select all",
+    "clear": "Clear",
+    "selectedCount": "{count} webhooks selected"
   },
   "logs": {
     "title": "Delivery History",
