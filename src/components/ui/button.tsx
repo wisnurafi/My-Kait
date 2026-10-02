@@ -1,7 +1,6 @@
 /**
- * RawBlock Button — brutalist, no radius, no shadow.
- * Thick borders, uppercase tracking, full color inversion on hover.
- * Active state uses heavier border.
+ * Neon Glass Button — gradient primary with glow, glass secondary.
+ * GPU-only micro-interactions (translate/scale/brightness).
  */
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -10,25 +9,25 @@ type Variant = "primary" | "secondary" | "ghost" | "destructive";
 type Size = "sm" | "md" | "lg" | "icon";
 
 const variantClasses: Record<Variant, string> = {
-  // Black fill, white text. Hover: full inversion (white bg, black text).
+  // Blurple→cyan gradient, white text, glow. Hover: lift + brighter glow.
   primary:
-    "bg-fg text-bg border-fg hover:bg-surface hover:text-fg",
-  // White fill, black text. Hover: full inversion (black bg, white text).
+    "text-white border-transparent bg-[linear-gradient(120deg,var(--accent-primary),#4a5ae0_55%,var(--accent-secondary))] hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(88,101,242,0.5)]",
+  // Glass fill. Hover: border glow + lift.
   secondary:
-    "bg-surface text-fg border-fg hover:bg-fg hover:text-bg",
-  // Transparent, no border, underline. Hover: text blue.
+    "bg-surface text-fg border-border-ink backdrop-blur-md hover:bg-surface-hover hover:border-border-strong hover:-translate-y-0.5",
+  // Transparent, subtle. Hover: accent text + surface.
   ghost:
-    "bg-transparent text-fg border-transparent underline underline-offset-2 hover:text-link",
-  // Error fill, white text. Hover: black bg, error text.
+    "bg-transparent text-fg-secondary border-transparent hover:text-fg hover:bg-surface-hover",
+  // Rose gradient. Hover: lift + glow.
   destructive:
-    "bg-error text-white border-fg hover:bg-fg hover:text-error",
+    "text-white border-transparent bg-[linear-gradient(120deg,#f43f5e,#e11d48)] hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(244,63,94,0.45)]",
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: "h-8 px-4 text-xs",
-  md: "h-11 px-6 text-sm",
-  lg: "h-14 px-10 text-lg",
-  icon: "h-10 w-10 text-sm",
+  sm: "h-9 px-4 text-xs rounded-lg",
+  md: "h-11 px-6 text-sm rounded-xl",
+  lg: "h-14 px-10 text-base rounded-xl",
+  icon: "h-10 w-10 text-sm rounded-xl",
 };
 
 export interface ButtonProps
@@ -45,10 +44,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center gap-2 font-bold",
-          "uppercase tracking-[0.05em] cursor-pointer select-none",
-          "border-[3px] transition-colors duration-100",
-          "active:border-[5px]",
-          "disabled:bg-disabled-bg disabled:text-disabled-fg disabled:border-disabled disabled:cursor-not-allowed disabled:active:border-[3px]",
+          "tracking-wide cursor-pointer select-none border",
+          "transition-all duration-150 ease-out press",
+          "disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:brightness-100 disabled:hover:shadow-none",
           "focus-ring",
           variantClasses[variant],
           sizeClasses[size],
@@ -58,7 +56,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading ? (
-          <span className="inline-block h-4 w-4 animate-spin border-2 border-current border-t-transparent" />
+          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
         ) : (
           children
         )}

@@ -1,133 +1,128 @@
 @import "tailwindcss";
 
 /* ============================================
-   MY KAIT — RawBlock Design System
-   Brutalism. Black on white. No radius. No shadows.
-   Thick borders replace elevation. Content does the work.
+   MY KAIT — Neon Glass Design System
+   Dark-first. Vibrant gradients. Glassmorphism.
+   GPU-only animations (transform/opacity).
    ============================================ */
 
-/* --- Design Tokens: Light (default) --- */
+/* --- Design Tokens: Dark (default, dark-first) --- */
 :root {
   /* Core surfaces */
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-sunken: #f0f0f0;
-  --surface-inverted: #000000;
+  --bg: #07070f;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-solid: #101019;
+  --surface-sunken: #040409;
+  --surface-inverted: #f4f4fb;
 
   /* Content */
-  --fg: #000000;
-  --fg-secondary: #666666;
-  --fg-tertiary: #999999;
+  --fg: #f4f4fb;
+  --fg-secondary: #a6a6c6;
+  --fg-tertiary: #63637f;
 
   /* Borders */
-  --border: #000000;
-  --border-thin: 1px;
-  --border-thick: 3px;
-  --border-heavy: 5px;
-  --border-disabled: #cccccc;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-disabled: rgba(255, 255, 255, 0.06);
 
-  /* Accent colors (pure, reserved) */
-  --link: #0000ff;
-  --info: #0000ff;
+  /* Accent colors — vibrant gradient trio */
+  --accent-primary: #5865f2; /* Discord blurple */
+  --accent-primary-bright: #7a86ff;
+  --accent-secondary: #22d3ee; /* electric cyan */
+  --accent-tertiary: #f472b6; /* hot pink */
+  --accent-lime: #a3e635;
 
-  /* Status colors (pure) */
-  --success: #008000;
-  --warning: #ffa500;
-  --error: #ff0000;
+  /* Status colors */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --error: #fb7185;
+  --info: #818cf8;
+  --link: #818cf8;
 
   /* Disabled */
-  --disabled-bg: #f0f0f0;
-  --disabled-fg: #999999;
+  --disabled-bg: rgba(255, 255, 255, 0.04);
+  --disabled-fg: #55556f;
 
   /* Hover/input surfaces */
-  --surface-hover: #e8e8e8;
-  --surface-input: #f0f0f0;
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --surface-input: rgba(255, 255, 255, 0.05);
+
+  /* Glow shadows */
+  --glow-primary: 0 0 24px rgba(88, 101, 242, 0.45);
+  --glow-cyan: 0 0 24px rgba(34, 211, 238, 0.35);
+  --glow-pink: 0 0 24px rgba(244, 114, 182, 0.35);
+  --glow-success: 0 0 20px rgba(52, 211, 153, 0.35);
+  --glow-error: 0 0 20px rgba(251, 113, 133, 0.35);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
 
   /* Fonts */
   --font-display: "Archivo Black", system-ui, sans-serif;
   --font-body: "Work Sans", system-ui, sans-serif;
   --font-mono: "Space Mono", "Courier New", monospace;
-
-  /* Spacing scale (base 8px, intentionally irregular) */
-  --sp-1: 4px;
-  --sp-2: 8px;
-  --sp-3: 16px;
-  --sp-4: 24px;
-  --sp-5: 40px;
-  --sp-6: 64px;
-  --sp-7: 80px;
-  --sp-8: 120px;
 }
 
-/* --- Design Tokens: Dark --- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-    --surface: #000000;
-    --surface-sunken: #1a1a1a;
-    --surface-inverted: #ffffff;
-
-    --fg: #ffffff;
-    --fg-secondary: #999999;
-    --fg-tertiary: #666666;
-
-    --border: #ffffff;
-    --border-disabled: #444444;
-
-    --disabled-bg: #1a1a1a;
-    --disabled-fg: #666666;
-
-    --surface-hover: #2a2a2a;
-    --surface-input: #1a1a1a;
-  }
-}
-
-/* Explicit dark override */
-[data-theme="dark"] {
-  --bg: #000000;
-  --surface: #000000;
-  --surface-sunken: #1a1a1a;
-  --surface-inverted: #ffffff;
-
-  --fg: #ffffff;
-  --fg-secondary: #999999;
-  --fg-tertiary: #666666;
-
-  --border: #ffffff;
-  --border-disabled: #444444;
-
-  --disabled-bg: #1a1a1a;
-  --disabled-fg: #666666;
-
-  --surface-hover: #2a2a2a;
-  --surface-input: #1a1a1a;
-}
-
-/* Explicit light override */
+/* --- Design Tokens: Light --- */
 [data-theme="light"] {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-sunken: #f0f0f0;
-  --surface-inverted: #000000;
+  --bg: #f4f4fa;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-solid: #ffffff;
+  --surface-sunken: #e9e9f3;
+  --surface-inverted: #0b0b14;
 
-  --fg: #000000;
-  --fg-secondary: #666666;
-  --fg-tertiary: #999999;
+  --fg: #12121e;
+  --fg-secondary: #55556f;
+  --fg-tertiary: #8a8aa5;
 
-  --border: #000000;
-  --border-disabled: #cccccc;
+  --border: rgba(18, 18, 30, 0.1);
+  --border-strong: rgba(18, 18, 30, 0.18);
+  --border-disabled: rgba(18, 18, 30, 0.06);
 
-  --disabled-bg: #f0f0f0;
-  --disabled-fg: #999999;
+  --disabled-bg: rgba(18, 18, 30, 0.04);
+  --disabled-fg: #a0a0b8;
 
-  --surface-hover: #e8e8e8;
-  --surface-input: #f0f0f0;
+  --surface-hover: rgba(18, 18, 30, 0.05);
+  --surface-input: rgba(255, 255, 255, 0.85);
+
+  --glow-primary: 0 0 24px rgba(88, 101, 242, 0.28);
+  --glow-cyan: 0 0 24px rgba(34, 211, 238, 0.22);
+  --glow-pink: 0 0 24px rgba(244, 114, 182, 0.22);
+  --glow-success: 0 0 20px rgba(52, 211, 153, 0.22);
+  --glow-error: 0 0 20px rgba(251, 113, 133, 0.22);
+}
+
+/* Explicit dark override (same as root) */
+[data-theme="dark"] {
+  --bg: #07070f;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-solid: #101019;
+  --surface-sunken: #040409;
+  --surface-inverted: #f4f4fb;
+
+  --fg: #f4f4fb;
+  --fg-secondary: #a6a6c6;
+  --fg-tertiary: #63637f;
+
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-disabled: rgba(255, 255, 255, 0.06);
+
+  --disabled-bg: rgba(255, 255, 255, 0.04);
+  --disabled-fg: #55556f;
+
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --surface-input: rgba(255, 255, 255, 0.05);
 }
 
 /* --- Tailwind v4 Theme Mapping --- */
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-solid: var(--surface-solid);
   --color-sunken: var(--surface-sunken);
   --color-inverted: var(--surface-inverted);
 
@@ -136,7 +131,14 @@
   --color-fg-tertiary: var(--fg-tertiary);
 
   --color-border-ink: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-border-disabled: var(--border-disabled);
+
+  --color-accent: var(--accent-primary);
+  --color-accent-bright: var(--accent-primary-bright);
+  --color-accent-2: var(--accent-secondary);
+  --color-accent-3: var(--accent-tertiary);
+  --color-accent-lime: var(--accent-lime);
 
   --color-link: var(--link);
   --color-info: var(--info);
@@ -156,11 +158,6 @@
 }
 
 /* --- Base Styles --- */
-* {
-  border-color: var(--border);
-  border-radius: 0;
-}
-
 body {
   background: var(--bg);
   color: var(--fg);
@@ -169,136 +166,296 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Ambient gradient wash behind everything */
+  background-image:
+    radial-gradient(900px 500px at 10% -5%, rgba(88, 101, 242, 0.14), transparent 60%),
+    radial-gradient(800px 500px at 95% 10%, rgba(34, 211, 238, 0.09), transparent 60%),
+    radial-gradient(700px 600px at 50% 110%, rgba(244, 114, 182, 0.08), transparent 60%);
+  background-attachment: fixed;
 }
 
-/* Headings — Archivo Black, structural */
-h1 {
-  font-family: var(--font-display);
-  font-size: 64px;
-  font-weight: 400;
-  line-height: 1;
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(900px 500px at 10% -5%, rgba(88, 101, 242, 0.1), transparent 60%),
+    radial-gradient(800px 500px at 95% 10%, rgba(34, 211, 238, 0.07), transparent 60%),
+    radial-gradient(700px 600px at 50% 110%, rgba(244, 114, 182, 0.06), transparent 60%);
 }
-h2 {
-  font-family: var(--font-display);
-  font-size: 48px;
-  font-weight: 400;
-  line-height: 1.05;
-}
+
+/* Headings */
+h1,
+h2,
 h3 {
   font-family: var(--font-display);
-  font-size: 32px;
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+h1 {
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+h2 {
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+}
+h3 {
+  font-size: clamp(1.15rem, 2.5vw, 1.6rem);
 }
 h4 {
   font-family: var(--font-body);
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
-/* Links — pure blue, reserved for hyperlinks only.
-   In @layer base so Tailwind utilities (text-fg, text-bg, etc.) can override. */
 @layer base {
   a {
     color: var(--link);
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    text-decoration: none;
   }
   a:hover {
-    text-decoration-thickness: 2px;
+    color: var(--accent-primary-bright);
   }
 }
 
 /* Selection */
 ::selection {
-  background: var(--fg);
-  color: var(--bg);
+  background: var(--accent-primary);
+  color: #fff;
 }
 
-/* Scrollbar — raw, no rounding */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg);
-  border-left: 1px solid var(--border);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--fg-secondary);
+  background: rgba(255, 255, 255, 0.24);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(18, 18, 30, 0.16);
 }
 
-/* --- Utility Classes --- */
-.font-display {
-  font-family: var(--font-display);
+/* --- Signature Utility Classes --- */
+
+/* Glassmorphism panel */
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
-.font-mono {
+
+/* Gradient border card */
+.gradient-border {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(var(--surface-solid), var(--surface-solid)) padding-box,
+    linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary)) border-box;
+  border: 1px solid transparent;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(100deg, var(--accent-primary-bright), var(--accent-secondary) 55%, var(--accent-tertiary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Animated gradient background (for orbs/blobs) */
+.animated-gradient {
+  background: linear-gradient(120deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary), var(--accent-primary));
+  background-size: 300% 300%;
+  animation: gradient-shift 12s ease infinite;
+}
+
+/* Glow helpers */
+.glow-primary {
+  box-shadow: var(--glow-primary);
+}
+.glow-success {
+  box-shadow: var(--glow-success);
+}
+.glow-error {
+  box-shadow: var(--glow-error);
+}
+
+/* Status dot with pulse */
+.status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.status-dot.pulsing::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  background: inherit;
+  opacity: 0.5;
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+/* Terminal-style panel */
+.terminal {
+  background: #05050c;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   font-family: var(--font-mono);
 }
-
-/* Border weight utilities */
-.border-thin {
-  border-width: 1px;
-}
-.border-thick {
-  border-width: 3px;
-}
-.border-heavy {
-  border-width: 5px;
+[data-theme="light"] .terminal {
+  background: #0b0b14;
 }
 
-/* Focus ring — thick, high-contrast */
+/* Shimmer skeleton */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-hover);
+  border-radius: var(--radius-sm);
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
+  animation: shimmer-slide 1.6s ease-in-out infinite;
+}
+
+/* Focus ring */
 .focus-ring:focus-visible {
-  outline: 3px solid var(--link);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
 
-/* Inverted block — full color inversion */
-.inverted {
-  background: var(--surface-inverted);
-  color: var(--bg);
+/* Micro-interaction helpers (GPU only) */
+.lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.lift:hover {
+  transform: translateY(-3px);
+}
+.press {
+  transition: transform 0.12s ease;
+}
+.press:active {
+  transform: scale(0.97);
 }
 
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
+/* Stagger entrance (apply with --stagger-index custom prop) */
+.stagger-in {
+  opacity: 0;
+  animation: slide-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--stagger-index, 0) * 60ms);
 }
 
-/* --- Native form control dark-mode overrides --- */
-/* Force native select/option to follow theme, not OS defaults */
+/* --- Keyframes (transform/opacity only) --- */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes shimmer-slide {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+.animate-fade-in {
+  animation: fade-in 0.4s ease both;
+}
+
+/* --- Native form control overrides --- */
 select,
 select option {
-  background-color: var(--surface-input);
+  background-color: var(--surface-solid);
   color: var(--fg);
 }
-
-/* Style select dropdown list (Webkit/Blink) */
-select option {
-  color: var(--fg);
-  background-color: var(--surface-input);
-}
-select option:checked,
-select option:hover {
-  background-color: var(--surface-hover);
-}
-
-/* Style select dropdown list (Firefox) */
-select option:checked {
-  background-color: var(--surface-hover) !important;
-  color: var(--fg) !important;
-}
-
-/* Checkbox / radio accent follows theme */
 input[type="checkbox"],
 input[type="radio"] {
-  accent-color: var(--fg);
+  accent-color: var(--accent-primary);
 }
-
-/* Placeholder color */
 input::placeholder,
 textarea::placeholder {
   color: var(--fg-tertiary);
@@ -314,4 +471,8 @@ textarea::placeholder {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+html {
+  scroll-behavior: smooth;
 }

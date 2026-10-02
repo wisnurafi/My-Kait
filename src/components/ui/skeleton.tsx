@@ -1,30 +1,107 @@
 import { cn } from "@/lib/utils";
 
 /**
- * RawBlock Skeleton — sunken fill, no radius, no shadow.
+ * Neon Glass Skeleton — shimmer sweep animation.
+ * Compose precise loading states per surface.
  */
 export function Skeleton({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "animate-pulse bg-sunken",
-        className,
-      )}
-    />
-  );
+  return <div className={cn("shimmer", className)} aria-hidden />;
 }
 
 export function SkeletonRow() {
   return (
-    <div className="p-4 flex items-center justify-between gap-3 border-b-[1px] border-border-ink">
+    <div className="p-4 flex items-center justify-between gap-3 border-b border-border-ink">
       <div className="flex items-center gap-3 flex-1">
-        <Skeleton className="h-6 w-16" />
-        <div className="space-y-1.5 flex-1">
-          <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-8 w-8 !rounded-full" />
+        <div className="space-y-2 flex-1">
+          <Skeleton className="h-4 w-40" />
           <Skeleton className="h-3 w-24" />
         </div>
       </div>
-      <Skeleton className="h-4 w-20" />
+      <Skeleton className="h-6 w-20 !rounded-full" />
+    </div>
+  );
+}
+
+/** Stat card skeleton (dashboard) */
+export function SkeletonStatCard() {
+  return (
+    <div className="glass p-5 space-y-3">
+      <Skeleton className="h-4 w-24" />
+      <Skeleton className="h-9 w-20" />
+    </div>
+  );
+}
+
+/** Template/webhook card skeleton */
+export function SkeletonCard() {
+  return (
+    <div className="glass p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-6 w-16 !rounded-full" />
+      </div>
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="h-3 w-2/3" />
+      <div className="flex gap-2 pt-1">
+        <Skeleton className="h-8 w-20 rounded-lg" />
+        <Skeleton className="h-8 w-20 rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+/** Chart skeleton (dashboard stats) */
+export function SkeletonChart() {
+  return (
+    <div className="glass p-5 space-y-4">
+      <Skeleton className="h-5 w-40" />
+      <div className="flex items-end gap-1.5 h-32">
+        {Array.from({ length: 14 }).map((_, i) => (
+          <Skeleton
+            key={i}
+            className="flex-1"
+            // deterministic pseudo-random heights (no hydration mismatch)
+            style={{ height: `${30 + ((i * 37) % 70)}%` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Editor skeleton */
+export function SkeletonEditor() {
+  return (
+    <div className="space-y-4">
+      <div className="glass p-5 space-y-3">
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-28 w-full rounded-xl" />
+      </div>
+      <div className="glass p-5 space-y-3">
+        <Skeleton className="h-4 w-36" />
+        <Skeleton className="h-11 w-full rounded-xl" />
+        <Skeleton className="h-12 w-full rounded-xl" />
+      </div>
+    </div>
+  );
+}
+
+/** Table skeleton (logs) */
+export function SkeletonTable({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="glass overflow-hidden">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="p-4 flex items-center gap-3 border-b border-border-ink last:border-0">
+          <Skeleton className="h-6 w-6 !rounded-full" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-3 w-1/4" />
+          </div>
+          <Skeleton className="h-6 w-24 !rounded-full" />
+          <Skeleton className="h-4 w-28" />
+        </div>
+      ))}
     </div>
   );
 }

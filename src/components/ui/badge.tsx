@@ -1,10 +1,6 @@
 /**
- * RawBlock Badge — status chip style.
- * Square, 2px border, uppercase, tracking, no radius, no shadow.
- *
- * Variants map to status colors:
- *   active → green, warning → orange, error → red, default → black.
- * Also supports status colors used across the app: success, warning, error, info.
+ * Neon Glass Badge — rounded pills with soft tinted backgrounds.
+ * `pulse` adds a glowing pulse dot (great for "active" webhook status).
  */
 import { cn } from "@/lib/utils";
 
@@ -18,47 +14,61 @@ type BadgeVariant =
   | "info";
 
 const variantClasses: Record<BadgeVariant, string> = {
-  // White fill, black text, black border
-  default: "bg-surface text-fg border-border-ink",
-  // White fill, green text, green border
-  active: "bg-surface text-success border-success",
-  success: "bg-surface text-success border-success",
-  // White fill, orange text, orange border
-  warning: "bg-surface text-warning border-warning",
-  // White fill, red text, red border
-  danger: "bg-surface text-error border-error",
-  error: "bg-surface text-error border-error",
-  // White fill, blue text, blue border
-  info: "bg-surface text-link border-link",
+  default: "bg-surface-hover text-fg-secondary border-border-ink",
+  active: "bg-[rgba(52,211,153,0.12)] text-success border-[rgba(52,211,153,0.35)]",
+  success: "bg-[rgba(52,211,153,0.12)] text-success border-[rgba(52,211,153,0.35)]",
+  warning: "bg-[rgba(251,191,36,0.12)] text-warning border-[rgba(251,191,36,0.35)]",
+  danger: "bg-[rgba(251,113,133,0.12)] text-error border-[rgba(251,113,133,0.35)]",
+  error: "bg-[rgba(251,113,133,0.12)] text-error border-[rgba(251,113,133,0.35)]",
+  info: "bg-[rgba(88,101,242,0.14)] text-accent-bright border-[rgba(88,101,242,0.4)]",
+};
+
+const dotColors: Record<BadgeVariant, string> = {
+  default: "bg-fg-tertiary",
+  active: "bg-success",
+  success: "bg-success",
+  warning: "bg-warning",
+  danger: "bg-error",
+  error: "bg-error",
+  info: "bg-accent",
 };
 
 export function Badge({
   children,
   variant = "default",
   className,
+  pulse = false,
+  dot = false,
 }: {
   children: React.ReactNode;
   variant?: BadgeVariant;
   className?: string;
+  /** Pulsing glow dot — use for live/active states */
+  pulse?: boolean;
+  /** Static status dot */
+  dot?: boolean;
 }) {
+  const showDot = pulse || dot;
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 px-2.5 py-0.5",
-        "text-[11px] font-bold uppercase tracking-[0.05em] leading-none",
-        "border-2",
+        "inline-flex items-center gap-1.5 px-3 py-1",
+        "text-[11px] font-bold uppercase tracking-[0.06em] leading-none",
+        "rounded-full border backdrop-blur-sm",
         variantClasses[variant],
         className,
       )}
     >
+      {showDot && (
+        <span className={cn("status-dot", dotColors[variant], pulse && "pulsing")} />
+      )}
       {children}
     </span>
   );
 }
 
 /**
- * RawBlock Filter Chip — toggleable filter.
- * White fill, black text, 2px border. Active: black bg, white text.
+ * Filter Chip — toggleable pill filter.
  */
 export function FilterChip({
   children,
@@ -76,11 +86,11 @@ export function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "px-3 py-1 text-[10px] font-bold uppercase tracking-[0.05em] leading-none",
-        "border-2 border-border-ink cursor-pointer transition-colors duration-100",
+        "px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.06em] leading-none",
+        "rounded-full border cursor-pointer transition-all duration-150 press",
         active
-          ? "bg-fg text-bg"
-          : "bg-surface text-fg hover:bg-sunken",
+          ? "bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] text-white border-transparent shadow-[0_4px_16px_rgba(88,101,242,0.4)]"
+          : "bg-surface text-fg-secondary border-border-ink hover:text-fg hover:border-border-strong",
         className,
       )}
     >
