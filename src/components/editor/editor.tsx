@@ -160,6 +160,24 @@ export function Editor({
 
   const [editMessageId, setEditMessageId] = useState<string | null>(null);
 
+  // Reset editor to empty state after successful send
+  const resetEditor = useCallback(() => {
+    const empty: EditorState = {
+      mode: "normal",
+      content: "",
+      username: "",
+      avatarUrl: "",
+      tts: false,
+      threadId: "",
+      suppressMentions: false,
+      embeds: [],
+    };
+    setState(empty);
+    setHistory([empty]);
+    setHistoryIndex(0);
+    localStorage.removeItem(DRAFT_KEY);
+  }, []);
+
   // Keyboard shortcuts: Ctrl/Cmd+Enter = send, Ctrl/Cmd+S = save as template
   const sendFormRef = useRef<HTMLFormElement>(null);
   const [modKey, setModKey] = useState("Ctrl");
@@ -294,6 +312,9 @@ export function Editor({
 
       const res = await sendMessageAction(null, formData);
       setResult(res);
+      if (res?.success) {
+        resetEditor();
+      }
     });
   }
 

@@ -232,9 +232,10 @@ export function TemplatesList({
     <div className="flex gap-6 flex-col lg:flex-row">
       {/* Folder sidebar */}
       <aside className="w-full lg:w-60 shrink-0">
-        <div className="lg:sticky lg:top-4 space-y-1">
+        <div className="lg:sticky lg:top-4 space-y-1 bg-surface border-[3px] border-border-ink p-3">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="font-display text-sm uppercase text-fg-secondary">
+            <h2 className="font-display text-sm uppercase flex items-center gap-1.5">
+              <Folder size={14} />
               {t("folders.title")}
             </h2>
             <Button

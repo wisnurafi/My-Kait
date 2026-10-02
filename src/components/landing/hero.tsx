@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { HookLogo } from "@/components/hook-logo";
 import { ScrollHint } from "@/components/landing/scroll-hint";
 import { LandingThemeToggle } from "@/components/landing/theme-toggle";
+import { LandingLocaleToggle } from "@/components/landing/locale-toggle";
 
 export function LandingHero() {
   const t = useTranslations("landing");
@@ -25,6 +26,7 @@ export function LandingHero() {
 
       {/* Theme toggle */}
       <LandingThemeToggle />
+      <LandingLocaleToggle />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
         {/* Logo — drop in from top with bounce */}
