@@ -45,11 +45,11 @@ export function FreeBanner() {
 
           {/* Title */}
           <motion.h2
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
-            transition={{ delay: 0.1 }}
-            className="font-display text-5xl md:text-7xl uppercase leading-none"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, margin: "-80px" }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="font-display text-5xl md:text-7xl uppercase leading-none text-bg"
           >
             {t("freeTitle")}
             <br />
