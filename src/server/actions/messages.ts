@@ -348,10 +348,13 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
   const result = await editWebhookMessage(url, log[0].discordMessageId, payload);
 
   // Log the edit
+  // Copy manualUrlEncrypted so delete works via the edit log too
   await db.insert(messageLogs).values({
     userId: user.id,
     webhookId: effectiveWebhookId,
     webhookNameSnapshot: webhookName,
+    manualUrlEncrypted: log[0].manualUrlEncrypted,
+    manualUrlKeyVersion: log[0].manualUrlKeyVersion,
     mode: log[0].mode,
     payload,
     status: result.success ? "edited" : "failed",
@@ -424,6 +427,8 @@ export async function deleteMessageAction(prevState: unknown, formData: FormData
     userId: user.id,
     webhookId: effectiveWebhookId,
     webhookNameSnapshot: webhookName,
+    manualUrlEncrypted: log[0].manualUrlEncrypted,
+    manualUrlKeyVersion: log[0].manualUrlKeyVersion,
     mode: log[0].mode,
     status: result.success ? "deleted" : "failed",
     httpStatus: result.httpStatus,
