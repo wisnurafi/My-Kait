@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo_Black, Work_Sans, Space_Mono } from "next/font/google";
+import { Nunito, Nunito_Sans, JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -7,23 +7,24 @@ import "../globals.css";
 import { routing, type Locale } from "@/i18n/routing";
 import { AuthProvider } from "@/components/auth-provider";
 
-const display = Archivo_Black({
+const display = Nunito({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["700", "800", "900"],
   display: "swap",
 });
 
-const body = Work_Sans({
+const body = Nunito_Sans({
   variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
-const mono = Space_Mono({
+const mono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "700"],
   display: "swap",
 });
 

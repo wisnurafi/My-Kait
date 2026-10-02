@@ -44,7 +44,7 @@ export function Navbar() {
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 text-sm font-bold uppercase tracking-[0.05em] no-underline rounded-xl transition-all duration-200",
                   isActive
-                    ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_18px_rgba(88,101,242,0.5)]"
+                    ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_18px_rgba(122,158,126,0.5)]"
                     : "text-fg-secondary hover:text-fg hover:bg-white/[0.05] hover:translate-x-1",
                 )}
               >
@@ -85,7 +85,7 @@ export function Navbar() {
                 className={cn(
                   "rounded-full p-1.5 transition-all duration-200",
                   isActive &&
-                    "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_14px_rgba(88,101,242,0.55)]",
+                    "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_14px_rgba(122,158,126,0.55)]",
                 )}
               >
                 <item.icon size={18} />

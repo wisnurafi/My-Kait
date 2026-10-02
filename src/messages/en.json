@@ -175,7 +175,9 @@
       "logs": {
         "title": "Full history",
         "desc": "Track every send with detailed logs"
-      }
+      },
+      "title": "Featured",
+      "subtitle": "Everything you need to manage Discord webhooks comfortably."
     }
   },
   "webhooks": {

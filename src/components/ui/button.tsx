@@ -1,6 +1,6 @@
 /**
- * Neon Glass Button — gradient primary with glow, glass secondary.
- * GPU-only micro-interactions (translate/scale/brightness).
+ * Cozy Button — warm sage primary, soft terracotta destructive.
+ * Rounded, gentle shadows. GPU-only micro-interactions.
  */
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -9,25 +9,25 @@ type Variant = "primary" | "secondary" | "ghost" | "destructive";
 type Size = "sm" | "md" | "lg" | "icon";
 
 const variantClasses: Record<Variant, string> = {
-  // Blurple→cyan gradient, white text, glow. Hover: lift + brighter glow.
+  // Sage green fill, cream text, soft shadow. Hover: lift + deepen.
   primary:
-    "text-white border-transparent bg-[linear-gradient(120deg,var(--accent-primary),#4a5ae0_55%,var(--accent-secondary))] hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(88,101,242,0.5)]",
-  // Glass fill. Hover: border glow + lift.
+    "text-[#fffdf9] border-transparent bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-primary-deep))] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(122,158,126,0.35)] hover:brightness-105",
+  // Warm surface, soft border. Hover: lift + warm tint.
   secondary:
-    "bg-surface text-fg border-border-ink backdrop-blur-md hover:bg-surface-hover hover:border-border-strong hover:-translate-y-0.5",
-  // Transparent, subtle. Hover: accent text + surface.
+    "bg-surface text-fg border-border hover:bg-surface-hover hover:border-border-strong hover:-translate-y-0.5 hover:shadow-md",
+  // Transparent, subtle. Hover: sage text + soft bg.
   ghost:
-    "bg-transparent text-fg-secondary border-transparent hover:text-fg hover:bg-surface-hover",
-  // Rose gradient. Hover: lift + glow.
+    "bg-transparent text-fg-secondary border-transparent hover:text-accent-deep hover:bg-accent-soft",
+  // Soft terracotta. Hover: lift + soft shadow.
   destructive:
-    "text-white border-transparent bg-[linear-gradient(120deg,#f43f5e,#e11d48)] hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(244,63,94,0.45)]",
+    "text-[#fffdf9] border-transparent bg-[linear-gradient(135deg,var(--accent-secondary),var(--accent-secondary-deep))] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(217,142,115,0.35)] hover:brightness-105",
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: "h-9 px-4 text-xs rounded-lg",
-  md: "h-11 px-6 text-sm rounded-xl",
-  lg: "h-14 px-10 text-base rounded-xl",
-  icon: "h-10 w-10 text-sm rounded-xl",
+  sm: "h-9 px-4 text-xs rounded-xl",
+  md: "h-11 px-6 text-sm rounded-2xl",
+  lg: "h-14 px-10 text-base rounded-2xl",
+  icon: "h-10 w-10 text-sm rounded-2xl",
 };
 
 export interface ButtonProps
@@ -44,8 +44,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center gap-2 font-bold",
-          "tracking-wide cursor-pointer select-none border",
-          "transition-all duration-150 ease-out press",
+          "font-display cursor-pointer select-none border",
+          "transition-all duration-150 ease-out press shadow-sm",
           "disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:brightness-100 disabled:hover:shadow-none",
           "focus-ring",
           variantClasses[variant],

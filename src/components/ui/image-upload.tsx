@@ -68,19 +68,19 @@ export function ImageUpload({
   return (
     <div className="space-y-1.5">
       {label && (
-        <label className="block font-display text-[14px] uppercase mb-1">{label}</label>
+        <label className="block font-display font-bold text-[14px] mb-1">{label}</label>
       )}
 
       {/* Mode tabs */}
-      <div className="flex gap-0 mb-1.5">
+      <div className="flex gap-1 mb-1.5">
         <button
           type="button"
           onClick={() => setMode("url")}
           className={cn(
-            "flex items-center gap-1 px-2 py-1 text-xs font-bold uppercase tracking-[0.05em] border-[2px] border-border-ink cursor-pointer transition-colors duration-100",
+            "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full border cursor-pointer transition-all duration-150",
             mode === "url"
-              ? "bg-fg text-bg"
-              : "bg-surface text-fg hover:bg-sunken",
+              ? "bg-accent text-[#fffdf9] border-transparent shadow-sm"
+              : "bg-surface text-fg-secondary border-border hover:text-fg hover:border-border-strong",
           )}
         >
           <LinkIcon size={12} /> URL
@@ -89,10 +89,10 @@ export function ImageUpload({
           type="button"
           onClick={() => setMode("upload")}
           className={cn(
-            "flex items-center gap-1 px-2 py-1 text-xs font-bold uppercase tracking-[0.05em] border-[2px] border-border-ink border-l-0 cursor-pointer transition-colors duration-100",
+            "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full border cursor-pointer transition-all duration-150",
             mode === "upload"
-              ? "bg-fg text-bg"
-              : "bg-surface text-fg hover:bg-sunken",
+              ? "bg-accent text-[#fffdf9] border-transparent shadow-sm"
+              : "bg-surface text-fg-secondary border-border hover:text-fg hover:border-border-strong",
           )}
         >
           <Upload size={12} /> Upload
@@ -123,7 +123,7 @@ export function ImageUpload({
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center justify-center h-11 px-4 text-sm border-[3px] border-dashed border-border-ink cursor-pointer hover:bg-surface-hover transition-colors"
+          className="flex items-center justify-center h-11 px-4 text-sm rounded-2xl border-2 border-dashed border-border-strong cursor-pointer hover:bg-surface-hover hover:border-accent transition-colors"
         >
           {uploading ? (
             <>

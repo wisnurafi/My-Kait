@@ -3,8 +3,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * RawBlock Toggle — square, thick border, inversion on check.
- * No radius, no shadow.
+ * Cozy Toggle — rounded pill, sage when on, soft shadow.
  */
 export function Toggle({
   checked,
@@ -25,16 +24,15 @@ export function Toggle({
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative w-12 h-7 border-[3px] border-border-ink cursor-pointer",
-          "transition-colors duration-100",
-          "active:translate-y-0.5",
-          checked ? "bg-fg" : "bg-sunken",
+          "relative w-12 h-7 rounded-full border border-border cursor-pointer shadow-sm",
+          "transition-colors duration-200",
+          checked ? "bg-accent border-transparent" : "bg-sunken",
         )}
       >
         <span
           className={cn(
-            "absolute top-0.5 w-4 h-4 border-2 border-border-ink transition-all duration-100",
-            checked ? "left-6 bg-bg" : "left-0.5 bg-surface",
+            "absolute top-0.5 w-5 h-5 rounded-full bg-surface shadow transition-all duration-200",
+            checked ? "left-[22px]" : "left-0.5",
           )}
         />
       </button>

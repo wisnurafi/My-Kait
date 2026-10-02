@@ -45,7 +45,7 @@ export function SaveTemplateModal({
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4 border-b border-border-ink pb-3">
             <h2 className="flex items-center gap-2 font-display text-xl uppercase">
-              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary))] text-white shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary))] text-white shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
                 <Save size={14} />
               </span>
               {t("saveAs")}

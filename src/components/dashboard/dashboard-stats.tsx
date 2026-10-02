@@ -84,7 +84,7 @@ function StatCard({
             </div>
             <div className="text-sm text-fg-secondary mt-1">{label}</div>
           </div>
-          <div className="rounded-xl p-2.5 bg-[rgba(88,101,242,0.12)] border border-[rgba(88,101,242,0.35)] glow-primary shrink-0">
+          <div className="rounded-xl p-2.5 bg-[rgba(122,158,126,0.12)] border border-[rgba(122,158,126,0.35)] glow-primary shrink-0">
             <Icon size={20} className="text-accent-bright" />
           </div>
         </div>
@@ -111,12 +111,12 @@ function DailyChart({ daily }: { daily: DailyStat[] }) {
           <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={t("stats.perDay")}>
             <defs>
               <linearGradient id="daily-sent" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22d3ee" />
-                <stop offset="100%" stopColor="#5865f2" />
+                <stop offset="0%" stopColor="#7fa8c9" />
+                <stop offset="100%" stopColor="#7a9e7e" />
               </linearGradient>
               <linearGradient id="daily-fail" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fb7185" />
-                <stop offset="100%" stopColor="#be123c" />
+                <stop offset="0%" stopColor="#d98e73" />
+                <stop offset="100%" stopColor="#b96f54" />
               </linearGradient>
             </defs>
             {daily.map((d, i) => {
@@ -158,7 +158,7 @@ function DailyChart({ daily }: { daily: DailyStat[] }) {
               {t("stats.sent")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-b from-error to-[#be123c]" />
+              <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-b from-error to-[#b96f54]" />
               {t("stats.failed")}
             </span>
           </div>
@@ -191,7 +191,7 @@ function WebhookChart({ webhooks }: { webhooks: WebhookStat[] }) {
               </div>
               <div className="h-5 rounded-full bg-sunken border border-border-ink overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-accent to-accent-2 shadow-[0_0_12px_rgba(88,101,242,0.45)]"
+                  className="h-full rounded-full bg-gradient-to-r from-accent to-accent-2 shadow-[0_0_12px_rgba(122,158,126,0.45)]"
                   style={{ width: `${(w.total / max) * 100}%` }}
                 />
               </div>
@@ -217,8 +217,8 @@ function SuccessDonut({ rate, sent, failed }: { rate: number; sent: number; fail
         <svg width={140} height={140} viewBox="0 0 140 140">
           <defs>
             <linearGradient id="donut-grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#5865f2" />
-              <stop offset="100%" stopColor="#22d3ee" />
+              <stop offset="0%" stopColor="#7a9e7e" />
+              <stop offset="100%" stopColor="#7fa8c9" />
             </linearGradient>
           </defs>
           <circle cx={70} cy={70} r={R} fill="none" strokeWidth={14}

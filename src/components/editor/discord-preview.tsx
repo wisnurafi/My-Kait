@@ -18,7 +18,7 @@ const discordDark = {
   surface: "#1e1f22",
   fg: "#dbdee1",
   muted: "#949ba4",
-  accent: "#5865f2",
+  accent: "#7a9e7e",
   embedBg: "#2b2d31",
   embedBorder: "#1e1f22",
 };
@@ -28,7 +28,7 @@ const discordLight = {
   surface: "#f2f3f5",
   fg: "#060607",
   muted: "#5d5f66",
-  accent: "#5865f2",
+  accent: "#7a9e7e",
   embedBg: "#f2f3f5",
   embedBorder: "#e0e1e5",
 };
@@ -64,7 +64,7 @@ export function DiscordPreview({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-ink">
         <span className="flex items-center gap-2 text-xs font-bold text-fg-secondary uppercase tracking-[0.05em]">
-          <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))] text-white shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+          <span className="grid size-6 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))] text-white shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
             <MessageSquare size={12} />
           </span>
           Discord Preview

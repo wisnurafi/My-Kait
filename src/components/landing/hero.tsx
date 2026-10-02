@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { signIn } from "next-auth/react";
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
+import { useRef } from "react";
 import { Webhook, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HookLogo } from "@/components/hook-logo";
@@ -12,11 +13,20 @@ import { LandingLocaleToggle } from "@/components/landing/locale-toggle";
 
 export function LandingHero() {
   const t = useTranslations("landing");
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  // Parallax: orbs drift slower, content fades up on scroll
+  const orbsY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Gradient orbs — blurred, floating, GPU-only (transform animation) */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Gradient orbs — blurred, floating, parallax on scroll */}
+      <motion.div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ y: orbsY }}>
         <div className="animated-gradient absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full blur-[100px] opacity-30 animate-float-slow" />
         <div
           className="absolute top-1/4 -right-40 w-[560px] h-[560px] rounded-full blur-[100px] opacity-25 animate-float-slow"
@@ -34,7 +44,7 @@ export function LandingHero() {
             animationDelay: "-4.8s",
           }}
         />
-      </div>
+      </motion.div>
 
       {/* Background grid lines — radial mask fade so it dissolves at edges */}
       <div
@@ -128,7 +138,10 @@ export function LandingHero() {
       <LandingThemeToggle />
       <LandingLocaleToggle />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+      <motion.div
+        className="relative z-10 max-w-4xl mx-auto px-6 text-center"
+        style={{ y: contentY, opacity: contentOpacity }}
+      >
         {/* Logo — drop in from top with bounce, soft blurple glow */}
         <motion.div
           initial={{ y: -100, opacity: 0 }}
@@ -136,7 +149,7 @@ export function LandingHero() {
           transition={{ type: "spring", stiffness: 80, delay: 0.1 }}
           className="inline-block mb-8"
         >
-          <div className="drop-shadow-[0_0_36px_rgba(88,101,242,0.5)]">
+          <div className="drop-shadow-[0_0_36px_rgba(122,158,126,0.5)]">
             <HookLogo size={80} />
           </div>
         </motion.div>
@@ -188,7 +201,7 @@ export function LandingHero() {
 
         {/* Scroll hint */}
         <ScrollHint />
-      </div>
+      </motion.div>
     </section>
   );
 }

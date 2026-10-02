@@ -235,7 +235,7 @@ export function TemplatesList({
       onClick={() => selectFolder(id)}
       className={`w-full flex items-center gap-2 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.06em] rounded-full border text-left transition-all duration-150 press cursor-pointer ${
         activeFolder === id
-          ? "bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] text-white border-transparent shadow-[0_4px_16px_rgba(88,101,242,0.4)]"
+          ? "bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] text-white border-transparent shadow-[0_4px_16px_rgba(122,158,126,0.4)]"
           : "border-transparent text-fg-secondary hover:text-fg hover:bg-surface-hover hover:border-border-ink"
       }`}
     >
@@ -419,7 +419,7 @@ export function TemplatesList({
                   <div>
                     {/* Card header with gradient icon chip */}
                     <div className="flex items-start gap-3 mb-2">
-                      <div className="shrink-0 w-10 h-10 rounded-xl bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] flex items-center justify-center shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+                      <div className="shrink-0 w-10 h-10 rounded-xl bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] flex items-center justify-center shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
                         <LayoutTemplate size={18} className="text-white" />
                       </div>
                       <div className="min-w-0 flex-1">
