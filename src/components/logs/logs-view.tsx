@@ -479,7 +479,7 @@ export function LogsView({
                       <RefreshCw size={14} /> Kirim Ulang
                     </Button>
                   )}
-                  {selectedLog.discordMessageId && selectedLog.webhookId && (
+                  {selectedLog.discordMessageId && (
                     <>
                       <Button
                         variant="secondary"
@@ -489,15 +489,17 @@ export function LogsView({
                       >
                         <Pencil size={14} /> Edit Pesan
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="gap-1.5"
-                        disabled={!selectedLog.discordMessageId || pending}
-                        onClick={() => setConfirmDeleteOpen(true)}
-                      >
-                        <Trash2 size={14} /> Hapus Pesan
-                      </Button>
+                      {selectedLog.webhookId && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="gap-1.5"
+                          disabled={!selectedLog.discordMessageId || pending}
+                          onClick={() => setConfirmDeleteOpen(true)}
+                        >
+                          <Trash2 size={14} /> Hapus Pesan
+                        </Button>
+                      )}
                     </>
                   )}
                   <Button

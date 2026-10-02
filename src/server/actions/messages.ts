@@ -262,6 +262,7 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
 
   const logId = String(formData.get("logId") ?? "");
   const payloadStr = String(formData.get("payload") ?? "");
+  const overrideWebhookId = String(formData.get("webhookId") ?? "") || undefined;
   let payload;
   try {
     payload = JSON.parse(payloadStr);
@@ -281,8 +282,14 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
     )
     .limit(1);
 
-  if (log.length === 0 || !log[0].discordMessageId || !log[0].webhookId) {
+  if (log.length === 0 || !log[0].discordMessageId) {
     return { error: "Pesan tidak ditemukan atau tidak bisa diedit" };
+  }
+
+  // Use log's webhookId, or override from form (for manual URL sends)
+  const effectiveWebhookId = log[0].webhookId ?? overrideWebhookId;
+  if (!effectiveWebhookId) {
+    return { error: "Pilih webhook untuk mengedit pesan ini" };
   }
 
   // Get webhook URL
@@ -291,7 +298,7 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
     .from(webhooks)
     .where(
       and(
-        eq(webhooks.id, log[0].webhookId),
+        eq(webhooks.id, effectiveWebhookId),
         eq(webhooks.userId, user.id),
       ),
     )
@@ -307,7 +314,7 @@ export async function editMessageAction(prevState: unknown, formData: FormData) 
   // Log the edit
   await db.insert(messageLogs).values({
     userId: user.id,
-    webhookId: log[0].webhookId,
+    webhookId: effectiveWebhookId,
     webhookNameSnapshot: wh[0].name,
     mode: log[0].mode,
     payload,
