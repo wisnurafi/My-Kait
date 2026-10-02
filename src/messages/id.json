@@ -48,6 +48,15 @@
     "importCount": "Diimpor {count} kali",
     "useThisTemplate": "Pakai template ini",
     "loginToImport": "Login dengan Discord untuk mengimpor template ini.",
+    "importHint": "Impor template ini ke koleksi kamu untuk digunakan dan diedit.",
+    "loginWithDiscord": "Login dengan Discord",
+    "report": "Laporkan",
+    "reportReason": "Alasan laporan",
+    "reportReasonPlaceholder": "Jelaskan mengapa template ini bermasalah…",
+    "reportSubmit": "Kirim laporan",
+    "reportSending": "Mengirim…",
+    "reportCancel": "Batal",
+    "reportSuccess": "Terima kasih, laporanmu sudah kami terima.",
     "folders": {
       "title": "Folder",
       "new": "Folder baru",
@@ -240,7 +249,12 @@
       "footerIcon": "Icon URL",
       "timestamp": "Timestamp",
       "useNow": "Gunakan waktu kirim"
-    }
+    },
+    "mentionRole": "Tag Role",
+    "roleIdPlaceholder": "Tempel Role ID (angka)…",
+    "roleIdInvalid": "Role ID harus berupa angka 10-25 digit",
+    "insertTag": "Sisipkan",
+    "roleMentionHint": "Dapatkan Role ID: Pengaturan Server → Roles → klik kanan role → Copy ID. @everyone/@here bisa langsung diketik."
   },
   "logs": {
     "title": "Riwayat Pengiriman",

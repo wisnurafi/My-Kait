@@ -424,6 +424,11 @@ export function Editor({
                 placeholder={t("contentPlaceholder")}
                 maxLength={2000}
               />
+              <RoleMentionHelper
+                onInsert={(mention) => {
+                  updateState((prev) => ({ ...prev, content: prev.content + mention }));
+                }}
+              />
             </Card>
           )}
 
@@ -1004,4 +1009,61 @@ function rebuildFromPayload(payload: Record<string, unknown>): EditorState {
     suppressMentions: "allowed_mentions" in payload,
     embeds,
   };
+}
+
+/* --- Role mention helper --- */
+function RoleMentionHelper({ onInsert }: { onInsert: (mention: string) => void }) {
+  const t = useTranslations("editor");
+  const [roleId, setRoleId] = useState("");
+  const [error, setError] = useState("");
+
+  function handleInsertRole() {
+    const id = roleId.trim();
+    if (!/^\d{10,25}$/.test(id)) {
+      setError(t("roleIdInvalid"));
+      return;
+    }
+    setError("");
+    onInsert(`<@&${id}> `);
+    setRoleId("");
+  }
+
+  return (
+    <div className="mt-3 border-t-[2px] border-border-ink pt-3">
+      <p className="text-xs font-bold uppercase tracking-[0.05em] mb-2">{t("mentionRole")}</p>
+      <div className="flex gap-2">
+        <Input
+          value={roleId}
+          onChange={(e) => {
+            setRoleId(e.target.value);
+            setError("");
+          }}
+          placeholder={t("roleIdPlaceholder")}
+          className="font-mono text-sm"
+          inputMode="numeric"
+        />
+        <Button type="button" variant="secondary" size="sm" onClick={handleInsertRole} className="shrink-0">
+          {t("insertTag")}
+        </Button>
+      </div>
+      {error && <p className="text-xs text-error mt-1">{error}</p>}
+      <div className="flex gap-2 mt-2">
+        <button
+          type="button"
+          onClick={() => onInsert("@everyone ")}
+          className="text-xs font-bold uppercase tracking-[0.05em] underline"
+        >
+          @everyone
+        </button>
+        <button
+          type="button"
+          onClick={() => onInsert("@here ")}
+          className="text-xs font-bold uppercase tracking-[0.05em] underline"
+        >
+          @here
+        </button>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-1">{t("roleMentionHint")}</p>
+    </div>
+  );
 }

@@ -48,6 +48,15 @@
     "importCount": "Imported {count} times",
     "useThisTemplate": "Use this template",
     "loginToImport": "Log in with Discord to import this template.",
+    "importHint": "Import this template into your collection to use and edit it.",
+    "loginWithDiscord": "Log in with Discord",
+    "report": "Report",
+    "reportReason": "Report reason",
+    "reportReasonPlaceholder": "Explain why this template is problematic…",
+    "reportSubmit": "Submit report",
+    "reportSending": "Sending…",
+    "reportCancel": "Cancel",
+    "reportSuccess": "Thanks, we've received your report.",
     "folders": {
       "title": "Folders",
       "new": "New folder",
@@ -240,7 +249,12 @@
       "footerIcon": "Icon URL",
       "timestamp": "Timestamp",
       "useNow": "Use send time"
-    }
+    },
+    "mentionRole": "Mention Role",
+    "roleIdPlaceholder": "Paste Role ID (numbers)…",
+    "roleIdInvalid": "Role ID must be 10-25 digits",
+    "insertTag": "Insert",
+    "roleMentionHint": "Get Role ID: Server Settings → Roles → right-click role → Copy ID. @everyone/@here can be typed directly."
   },
   "logs": {
     "title": "Delivery History",
