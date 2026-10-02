@@ -10,6 +10,7 @@
  *   </Dialog>
  */
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ export function Dialog({
   children: React.ReactNode;
   className?: string;
 }) {
+  const t = useTranslations("common");
   // Lock body scroll + Escape to close
   useEffect(() => {
     if (!open) return;
@@ -71,7 +73,7 @@ export function Dialog({
           >
             <button
               onClick={onClose}
-              aria-label="Close"
+              aria-label={t("close")}
               className="absolute top-3 right-3 p-1.5 rounded-lg text-fg-tertiary hover:text-fg hover:bg-surface-hover transition-colors cursor-pointer"
             >
               <X size={18} />
@@ -120,6 +122,7 @@ export function ConfirmDialog({
   loading?: boolean;
   danger?: boolean;
 }) {
+  const t = useTranslations("common");
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{title}</DialogTitle>
@@ -129,7 +132,7 @@ export function ConfirmDialog({
           onClick={onClose}
           className="h-10 px-5 text-sm font-semibold rounded-lg border border-border-ink bg-surface text-fg-secondary hover:text-fg hover:border-border-strong transition-colors cursor-pointer"
         >
-          Cancel
+          {t("cancel")}
         </button>
         <button
           onClick={onConfirm}

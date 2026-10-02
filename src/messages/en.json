@@ -19,7 +19,12 @@
     "settings": "Settings",
     "noResults": "No results",
     "required": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "prev": "Prev",
+    "next": "Next",
+    "uploadTab": "Upload",
+    "uploading": "Uploading…",
+    "dropHint": "Drop an image or click to upload (max 8MB)"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -28,7 +33,8 @@
     "webhooks": "Webhooks",
     "templates": "Templates",
     "logs": "Logs",
-    "settings": "Settings"
+    "settings": "Settings",
+    "logout": "Log out"
   },
   "templates": {
     "title": "Templates",
@@ -80,7 +86,10 @@
       "renamed": "Folder renamed",
       "deleted": "Folder deleted",
       "moveTo": "Move to folder"
-    }
+    },
+    "previewTitle": "Preview",
+    "tagsPlaceholder": "tag1, tag2",
+    "importTagsPlaceholder": "tag1, tag2, tag3"
   },
   "dashboard": {
     "greeting": "Hey, {name}! 👋",
@@ -113,7 +122,12 @@
       "noData": "No data in the last 30 days",
       "last30days": "Last 30 days"
     },
-    "successRateHint": "Sent messages out of total attempts"
+    "successRateHint": "Sent messages out of total attempts",
+    "tableStatus": "Status",
+    "tableTarget": "Target",
+    "tableMode": "Mode",
+    "tableLatency": "Latency",
+    "tableTime": "Time"
   },
   "settings": {
     "title": "Settings",
@@ -248,7 +262,10 @@
     "alertDown": "Down",
     "alertRecovered": "Recovered",
     "editWebhook": "Edit webhook",
-    "deleteWebhook": "Delete webhook"
+    "deleteWebhook": "Delete webhook",
+    "expand": "History",
+    "collapse": "Close",
+    "addNamePlaceholder": "Server A announcements"
   },
   "editor": {
     "title": "Message Editor",
@@ -266,7 +283,12 @@
     "embeds": "Embeds",
     "addEmbed": "Add Embed",
     "addField": "Add Field",
-    "preview": "Preview",
+    "preview": {
+      "live": "live preview — discord",
+      "dark": "Dark",
+      "light": "Light",
+      "empty": "Empty message — start typing in the editor"
+    },
     "sendTo": "Send to",
     "selectWebhook": "Select webhook",
     "manualUrl": "Paste URL manually",
@@ -318,7 +340,17 @@
     "multiTarget": "Send to multiple webhooks",
     "selectAll": "Select all",
     "clear": "Clear",
-    "selectedCount": "{count} webhooks selected"
+    "selectedCount": "{count} webhooks selected",
+    "editModeBanner": "Edit mode — message will be PATCHed, not sent as new",
+    "cancelEdit": "Cancel Edit",
+    "jsonPayload": "JSON Payload",
+    "importBtn": "Import",
+    "copyBtn": "Copy",
+    "usernamePlaceholder": "Custom username",
+    "avatarPlaceholder": "https://… or upload",
+    "threadIdPlaceholder": "Thread ID (optional)",
+    "selectWebhookPlaceholder": "— Select webhook —",
+    "sendEdit": "Edit Message"
   },
   "logs": {
     "title": "Delivery History",
@@ -359,7 +391,20 @@
       "error": "Error",
       "duration": "Duration",
       "actions": "Actions",
-      "close": "Close detail"
+      "close": "Close detail",
+      "title": "Detail",
+      "logId": "Log ID",
+      "time": "Time",
+      "duplicate": "Duplicate to Editor",
+      "resend": "Resend",
+      "editMessage": "Edit Message",
+      "deleteMessage": "Delete Message",
+      "confirmDeleteMessage": "Delete this message from Discord?",
+      "saveTemplate": "Save Template",
+      "preview": "Preview",
+      "fromLog": "(from log)",
+      "templateSaved": "Template saved successfully",
+      "templateSaveFailed": "Failed to save template"
     },
     "export": "Export CSV/JSON",
     "noLogs": "No logs yet",
@@ -367,7 +412,20 @@
     "confirmClear": "Delete all logs?",
     "sortNewest": "Newest",
     "sortOldest": "Oldest",
-    "activeFilters": "Active filters"
+    "activeFilters": "Active filters",
+    "filterAll": "All",
+    "mode": {
+      "normal": "Normal",
+      "embed": "Embed",
+      "both": "Message + Embed"
+    },
+    "sortLabel": "Sort",
+    "toast": {
+      "clearSuccess": "All logs cleared",
+      "clearFailed": "Failed to clear logs",
+      "deleted": "Message deleted from Discord",
+      "loadedToEditor": "Payload loaded into editor"
+    }
   },
   "errors": {
     "unauthorized": "Please log in first",
@@ -416,5 +474,36 @@
     "hintNavigate": "navigate",
     "hintSelect": "select",
     "hintClose": "close"
+  },
+  "privacy": {
+    "eyebrow": "Legal",
+    "title": "Privacy Policy",
+    "s1t": "Data We Collect",
+    "s1d": "We store: Discord ID, username, avatar, webhook URLs (encrypted), message templates, and delivery logs.",
+    "s2t": "Webhook Security",
+    "s2d": "Webhook URLs are encrypted with AES-256-GCM at the application level. Plaintext is never sent to the browser, logged, or sent to error trackers.",
+    "s3t": "Data Retention",
+    "s3d": "Delivery logs are automatically deleted after 30 days. You can delete all your data anytime via Settings → Delete Account.",
+    "s4t": "Message Content",
+    "s4d": "We do not read or moderate your message content. Content is only stored in logs if you enable the \"Save message payload\" option.",
+    "s5t": "Cookies",
+    "s5d": "We use session cookies (HttpOnly, Secure) for authentication. No third-party tracking.",
+    "s6t": "Your Rights",
+    "s6d": "You can export and delete all your data. Contact us if you have questions."
+  },
+  "terms": {
+    "eyebrow": "Legal",
+    "title": "Terms & Conditions",
+    "useT": "Usage",
+    "useD": "My Kait is a tool for sending Discord messages via webhooks. You are responsible for the content you send.",
+    "forbidT": "Prohibited",
+    "forbid1": "Do not send spam or unsolicited bulk messages",
+    "forbid2": "Do not send content that violates Discord's ToS",
+    "forbid3": "Do not use for harassment or fraud",
+    "forbid4": "Do not attempt to access other people's webhooks",
+    "respT": "Liability",
+    "respD": "My Kait is provided \"as is\" without warranties. We are not liable for misuse or resulting damages.",
+    "changeT": "Changes",
+    "changeD": "These terms may change at any time. Continued use constitutes acceptance of changes."
   }
 }

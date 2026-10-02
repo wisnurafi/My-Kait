@@ -7,6 +7,7 @@
  */
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
 import { MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ export function DiscordPreview({
   avatarUrl?: string;
 }) {
   const [theme, setTheme] = useState<DiscordTheme>("dark");
+  const t = useTranslations("editor");
   const c = theme === "dark" ? discordDark : discordLight;
 
   const content = payload.content as string | undefined;
@@ -60,7 +62,7 @@ export function DiscordPreview({
       <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-border-ink">
         <span className="flex items-center gap-2.5">
           <span className="status-dot bg-success pulsing" aria-hidden="true" />
-          <span className="label">live preview — discord</span>
+          <span className="label">{t("preview.live")}</span>
         </span>
         <div className="inline-flex items-center bg-sunken border border-border-ink rounded-lg p-0.5">
           <button
@@ -73,7 +75,7 @@ export function DiscordPreview({
                 : "text-fg-tertiary hover:text-fg-secondary"
             )}
           >
-            Dark
+            {t("preview.dark")}
           </button>
           <button
             onClick={() => setTheme("light")}
@@ -85,7 +87,7 @@ export function DiscordPreview({
                 : "text-fg-tertiary hover:text-fg-secondary"
             )}
           >
-            Light
+            {t("preview.light")}
           </button>
         </div>
       </div>
@@ -98,7 +100,7 @@ export function DiscordPreview({
         {showEmpty ? (
           <div className="flex flex-col items-center justify-center gap-2 h-[200px]" style={{ color: c.muted }}>
             <MessageSquare size={28} className="opacity-50" />
-            <span className="text-sm">Pesan kosong — mulai mengetik di editor</span>
+            <span className="text-sm">{t("preview.empty")}</span>
           </div>
         ) : (
           <motion.div

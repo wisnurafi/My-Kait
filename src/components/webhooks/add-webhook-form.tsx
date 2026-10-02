@@ -50,7 +50,7 @@ export function AddWebhookForm() {
               name="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Pengumuman Server A"
+              placeholder={t("addNamePlaceholder")}
               required
             />
           </div>

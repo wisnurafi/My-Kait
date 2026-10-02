@@ -19,7 +19,12 @@
     "settings": "Pengaturan",
     "noResults": "Tidak ada hasil",
     "required": "Wajib diisi",
-    "optional": "Opsional"
+    "optional": "Opsional",
+    "prev": "Prev",
+    "next": "Next",
+    "uploadTab": "Unggah",
+    "uploading": "Mengunggah…",
+    "dropHint": "Drop image atau klik untuk upload (max 8MB)"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -28,7 +33,8 @@
     "webhooks": "Webhook",
     "templates": "Template",
     "logs": "Riwayat",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "logout": "Keluar"
   },
   "templates": {
     "title": "Template",
@@ -80,7 +86,10 @@
       "renamed": "Nama folder diubah",
       "deleted": "Folder dihapus",
       "moveTo": "Pindah ke folder"
-    }
+    },
+    "previewTitle": "Preview",
+    "tagsPlaceholder": "tag1, tag2",
+    "importTagsPlaceholder": "tag1, tag2, tag3"
   },
   "dashboard": {
     "greeting": "Hai, {name}! 👋",
@@ -113,7 +122,12 @@
       "noData": "Belum ada data 30 hari terakhir",
       "last30days": "30 hari terakhir"
     },
-    "successRateHint": "Rasio pesan terkirim dari total percobaan"
+    "successRateHint": "Rasio pesan terkirim dari total percobaan",
+    "tableStatus": "Status",
+    "tableTarget": "Target",
+    "tableMode": "Mode",
+    "tableLatency": "Latensi",
+    "tableTime": "Waktu"
   },
   "settings": {
     "title": "Pengaturan",
@@ -248,7 +262,10 @@
     "alertDown": "Mati",
     "alertRecovered": "Pulih",
     "editWebhook": "Edit webhook",
-    "deleteWebhook": "Hapus webhook"
+    "deleteWebhook": "Hapus webhook",
+    "expand": "Riwayat",
+    "collapse": "Tutup",
+    "addNamePlaceholder": "Pengumuman Server A"
   },
   "editor": {
     "title": "Editor Pesan",
@@ -266,7 +283,12 @@
     "embeds": "Embed",
     "addEmbed": "Tambah Embed",
     "addField": "Tambah Field",
-    "preview": "Preview",
+    "preview": {
+      "live": "live preview — discord",
+      "dark": "Dark",
+      "light": "Light",
+      "empty": "Pesan kosong — mulai mengetik di editor"
+    },
     "sendTo": "Kirim ke",
     "selectWebhook": "Pilih webhook",
     "manualUrl": "Tempel URL manual",
@@ -318,7 +340,17 @@
     "multiTarget": "Kirim ke beberapa webhook",
     "selectAll": "Pilih semua",
     "clear": "Bersihkan",
-    "selectedCount": "{count} webhook dipilih"
+    "selectedCount": "{count} webhook dipilih",
+    "editModeBanner": "Mode Edit — pesan akan di-PATCH, bukan kirim baru",
+    "cancelEdit": "Batal Edit",
+    "jsonPayload": "JSON Payload",
+    "importBtn": "Import",
+    "copyBtn": "Copy",
+    "usernamePlaceholder": "Custom username",
+    "avatarPlaceholder": "https://… atau upload",
+    "threadIdPlaceholder": "Thread ID (opsional)",
+    "selectWebhookPlaceholder": "— Pilih webhook —",
+    "sendEdit": "Edit Pesan"
   },
   "logs": {
     "title": "Riwayat Pengiriman",
@@ -359,7 +391,20 @@
       "error": "Error",
       "duration": "Durasi",
       "actions": "Aksi",
-      "close": "Tutup detail"
+      "close": "Tutup detail",
+      "title": "Detail",
+      "logId": "Log ID",
+      "time": "Waktu",
+      "duplicate": "Duplikasi ke Editor",
+      "resend": "Kirim Ulang",
+      "editMessage": "Edit Pesan",
+      "deleteMessage": "Hapus Pesan",
+      "confirmDeleteMessage": "Hapus pesan ini dari Discord?",
+      "saveTemplate": "Simpan Template",
+      "preview": "Preview",
+      "fromLog": "(dari log)",
+      "templateSaved": "Template berhasil disimpan",
+      "templateSaveFailed": "Gagal menyimpan template"
     },
     "export": "Export CSV/JSON",
     "noLogs": "Belum ada riwayat",
@@ -367,7 +412,20 @@
     "confirmClear": "Yakin hapus semua log?",
     "sortNewest": "Terbaru",
     "sortOldest": "Terlama",
-    "activeFilters": "Filter aktif"
+    "activeFilters": "Filter aktif",
+    "filterAll": "Semua",
+    "mode": {
+      "normal": "Normal",
+      "embed": "Embed",
+      "both": "Pesan + Embed"
+    },
+    "sortLabel": "Urutan",
+    "toast": {
+      "clearSuccess": "Semua log berhasil dihapus",
+      "clearFailed": "Gagal menghapus log",
+      "deleted": "Pesan dihapus dari Discord",
+      "loadedToEditor": "Payload dimuat ke editor"
+    }
   },
   "errors": {
     "unauthorized": "Silakan login dulu",
@@ -416,5 +474,36 @@
     "hintNavigate": "navigasi",
     "hintSelect": "pilih",
     "hintClose": "tutup"
+  },
+  "privacy": {
+    "eyebrow": "Legal",
+    "title": "Kebijakan Privasi",
+    "s1t": "Data yang Dikumpulkan",
+    "s1d": "Kami menyimpan: ID Discord, username, avatar, URL webhook (terenkripsi), template pesan, dan log pengiriman.",
+    "s2t": "Keamanan Webhook",
+    "s2d": "URL webhook dienkripsi dengan AES-256-GCM di level aplikasi. Plaintext tidak pernah dikirim ke browser, di-log, atau masuk error tracker.",
+    "s3t": "Retensi Data",
+    "s3d": "Log pengiriman otomatis dihapus setelah 30 hari. Anda dapat menghapus semua data kapan saja melalui Settings → Hapus Akun.",
+    "s4t": "Konten Pesan",
+    "s4d": "Kami tidak membaca atau memoderasi isi pesan Anda. Konten hanya disimpan di log jika Anda mengaktifkan opsi \"Simpan payload pesan\".",
+    "s5t": "Cookies",
+    "s5d": "Kami menggunakan cookie sesi (HttpOnly, Secure) untuk autentikasi. Tidak ada tracking third-party.",
+    "s6t": "Hak Anda",
+    "s6d": "Anda dapat mengekspor dan menghapus semua data Anda. Hubungi kami jika ada pertanyaan."
+  },
+  "terms": {
+    "eyebrow": "Legal",
+    "title": "Syarat & Ketentuan",
+    "useT": "Penggunaan",
+    "useD": "My Kait adalah alat untuk mengirim pesan Discord lewat webhook. Anda bertanggung jawab atas konten yang dikirim.",
+    "forbidT": "Larangan",
+    "forbid1": "Dilarang mengirim spam atau pesan massal yang tidak diinginkan",
+    "forbid2": "Dilarang mengirim konten yang melanggar ToS Discord",
+    "forbid3": "Dilarang menyalahgunakan untuk harassment atau penipuan",
+    "forbid4": "Dilarang mencoba mengakses webhook orang lain",
+    "respT": "Tanggung Jawab",
+    "respD": "My Kait disediakan \"apa adanya\" tanpa jaminan. Kami tidak bertanggung jawab atas penyalahgunaan atau kerugian yang timbul.",
+    "changeT": "Perubahan",
+    "changeD": "Syarat ini dapat berubah sewaktu-waktu. Penggunaan berlanjut dianggap menyetujui perubahan."
   }
 }

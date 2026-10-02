@@ -110,11 +110,11 @@ export default async function DashboardPage({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border-ink">
-                    <th className="label text-left font-medium px-5 py-3">Status</th>
-                    <th className="label text-left font-medium px-4 py-3">Target</th>
-                    <th className="label text-left font-medium px-4 py-3">Mode</th>
-                    <th className="label text-left font-medium px-4 py-3">Latency</th>
-                    <th className="label text-right font-medium px-5 py-3">Time</th>
+                    <th className="label text-left font-medium px-5 py-3">{t("tableStatus")}</th>
+                    <th className="label text-left font-medium px-4 py-3">{t("tableTarget")}</th>
+                    <th className="label text-left font-medium px-4 py-3">{t("tableMode")}</th>
+                    <th className="label text-left font-medium px-4 py-3">{t("tableLatency")}</th>
+                    <th className="label text-right font-medium px-5 py-3">{t("tableTime")}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -242,11 +242,11 @@ export function Editor({
           newState.embeds.length === 0;
         if (isEmpty) {
           console.warn("[mykait] import payload parsed but produced empty state", parsed);
-          toast.error(t("importEmpty") ?? "Template kosong / tidak valid");
+          toast.error(t("importEmpty"));
         }
       } catch (err) {
         console.error("[mykait] failed to load import payload", err);
-        toast.error(t("importFailed") ?? "Gagal memuat template");
+        toast.error(t("importFailed"));
       }
       sessionStorage.removeItem("mykait-import-payload");
       return;
@@ -400,10 +400,10 @@ export function Editor({
         <div className="panel flex items-center justify-between gap-3 px-4 py-3 animate-fade-in !border-warning/40">
           <span className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-warning">
             <span className="status-dot bg-warning" aria-hidden="true" />
-            Mode Edit — pesan akan di-PATCH, bukan kirim baru
+            {t("editModeBanner")}
           </span>
           <Button variant="ghost" size="sm" onClick={() => setEditMessageId(null)} className="font-mono text-[11px] uppercase tracking-[0.14em]">
-            Batal Edit
+            {t("cancelEdit")}
           </Button>
         </div>
       )}
@@ -462,7 +462,7 @@ export function Editor({
       {/* JSON Import/Export panel */}
       {showJson && (
         <div data-kbd-off className="panel p-5 animate-fade-in">
-          <Label>JSON Payload</Label>
+          <Label>{t("jsonPayload")}</Label>
           <Textarea
             value={jsonText}
             onChange={(e) => setJsonText(e.target.value)}
@@ -471,8 +471,8 @@ export function Editor({
             placeholder='{"content":"...","embeds":[...]}'
           />
           <div className="flex gap-2 mt-3">
-            <Button size="sm" onClick={handleImportJson}>Import</Button>
-            <Button size="sm" variant="secondary" onClick={() => { navigator.clipboard.writeText(jsonText); }}>Copy</Button>
+            <Button size="sm" onClick={handleImportJson}>{t("importBtn")}</Button>
+            <Button size="sm" variant="secondary" onClick={() => { navigator.clipboard.writeText(jsonText); }}>{t("copyBtn")}</Button>
           </div>
         </div>
       )}
@@ -580,7 +580,7 @@ export function Editor({
                 <Input
                   value={state.username}
                   onChange={(e) => updateState((prev) => ({ ...prev, username: e.target.value }))}
-                  placeholder="Custom username"
+                  placeholder={t("usernamePlaceholder")}
                 />
               </div>
               <div>
@@ -588,7 +588,7 @@ export function Editor({
                 <ImageUpload
                   value={state.avatarUrl}
                   onChange={(url) => updateState((prev) => ({ ...prev, avatarUrl: url }))}
-                  placeholder="https://… atau upload"
+                  placeholder={t("avatarPlaceholder")}
                 />
               </div>
             </div>
@@ -608,7 +608,7 @@ export function Editor({
                 <Input
                   value={state.threadId}
                   onChange={(e) => updateState((prev) => ({ ...prev, threadId: e.target.value }))}
-                  placeholder="Thread ID (opsional)"
+                  placeholder={t("threadIdPlaceholder")}
                 />
               </div>
             </div>
@@ -635,7 +635,7 @@ export function Editor({
                   value={sendConfig.webhookId}
                   onChange={(e) => setSendConfig({ ...sendConfig, webhookId: e.target.value })}
                 >
-                  <option value="">— Pilih webhook —</option>
+                  <option value="">{t("selectWebhookPlaceholder")}</option>
                   {webhooks.map((wh) => (
                     <option key={wh.id} value={wh.id}>
                       {wh.name} ({wh.lastStatus})
@@ -745,7 +745,7 @@ export function Editor({
                 ) : (
                   <Send size={20} />
                 )}
-                {pending ? t("sending") : editMessageId ? "Edit Pesan" : t("send")}
+                {pending ? t("sending") : editMessageId ? t("sendEdit") : t("send")}
               </Button>
               <p className="text-center font-mono text-[11px] uppercase tracking-[0.14em] text-fg-tertiary">
                 {t("kbdSend", { mod: modKey })} · {t("kbdSave", { mod: modKey })}

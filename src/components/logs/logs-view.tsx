@@ -6,7 +6,7 @@
  */
 
 import { useState, useTransition, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { Badge, FilterChip } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -80,6 +80,8 @@ export function LogsView({
   currentFilters: Record<string, string | undefined>;
 }) {
   const t = useTranslations("logs");
+  const tc = useTranslations("common");
+  const locale = useLocale();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [selectedLog, setSelectedLog] = useState<(typeof logsData.logs)[0] | null>(null);
@@ -125,9 +127,9 @@ export function LogsView({
     startTransition(async () => {
       try {
         await clearLogsAction();
-        toast.success("Semua log berhasil dihapus");
+        toast.success(t("toast.clearSuccess"));
       } catch {
-        toast.error("Gagal menghapus log");
+        toast.error(t("toast.clearFailed"));
       }
     });
   }
@@ -143,7 +145,7 @@ export function LogsView({
       if (res && "error" in res && res.error) {
         toast.error(res.error);
       } else {
-        toast.success("Pesan dihapus dari Discord");
+        toast.success(t("toast.deleted"));
       }
       setSelectedLog(null);
     });
@@ -153,7 +155,7 @@ export function LogsView({
     const json = JSON.stringify(payload ?? {});
     sessionStorage.setItem("mykait-import-payload", json);
     if (editLogId) sessionStorage.setItem("mykait-edit-message-id", editLogId);
-    toast.success("Payload dimuat ke editor");
+    toast.success(t("toast.loadedToEditor"));
     router.push("/editor");
   }
 
@@ -227,12 +229,12 @@ export function LogsView({
                 value={currentFilters.status ?? ""}
                 onChange={(e) => updateFilter("status", e.target.value)}
               >
-                <option value="">Semua</option>
-                <option value="sent">Terkirim</option>
-                <option value="failed">Gagal</option>
-                <option value="rate_limited">Rate limited</option>
-                <option value="edited">Diedit</option>
-                <option value="deleted">Dihapus</option>
+                <option value="">{t("filterAll")}</option>
+                <option value="sent">{t("status.sent")}</option>
+                <option value="failed">{t("status.failed")}</option>
+                <option value="rate_limited">{t("status.rate_limited")}</option>
+                <option value="edited">{t("status.edited")}</option>
+                <option value="deleted">{t("status.deleted")}</option>
               </Select>
             </div>
             <div>
@@ -241,7 +243,7 @@ export function LogsView({
                 value={currentFilters.webhookId ?? ""}
                 onChange={(e) => updateFilter("webhookId", e.target.value)}
               >
-                <option value="">Semua</option>
+                <option value="">{t("filterAll")}</option>
                 {webhooks.map((wh) => (
                   <option key={wh.id} value={wh.id}>{wh.name}</option>
                 ))}
@@ -253,10 +255,10 @@ export function LogsView({
                 value={currentFilters.mode ?? ""}
                 onChange={(e) => updateFilter("mode", e.target.value)}
               >
-                <option value="">Semua</option>
-                <option value="normal">Normal</option>
-                <option value="embed">Embed</option>
-                <option value="both">Pesan + Embed</option>
+                <option value="">{t("filterAll")}</option>
+                <option value="normal">{t("mode.normal")}</option>
+                <option value="embed">{t("mode.embed")}</option>
+                <option value="both">{t("mode.both")}</option>
               </Select>
             </div>
             <div>
@@ -271,13 +273,13 @@ export function LogsView({
               </Select>
             </div>
             <div>
-              <Label>Urutan</Label>
+              <Label>{t("sortLabel")}</Label>
               <Select
                 value={currentFilters.sort ?? "newest"}
                 onChange={(e) => updateFilter("sort", e.target.value)}
               >
-                <option value="newest">Terbaru</option>
-                <option value="oldest">Terlama</option>
+                <option value="newest">{t("sortNewest")}</option>
+                <option value="oldest">{t("sortOldest")}</option>
               </Select>
             </div>
           </div>
@@ -293,7 +295,7 @@ export function LogsView({
                 className="pl-9 font-mono"
               />
             </div>
-            <Button variant="secondary" size="sm" onClick={applySearch}>Cari</Button>
+            <Button variant="secondary" size="sm" onClick={applySearch}>{tc("search")}</Button>
             <div className="flex items-center gap-2 flex-wrap">
               {currentFilters.status && (
                 <FilterChip active onClick={() => updateFilter("status", "")} className="inline-flex items-center gap-1.5">
@@ -302,7 +304,7 @@ export function LogsView({
               )}
               {currentFilters.mode && (
                 <FilterChip active onClick={() => updateFilter("mode", "")} className="inline-flex items-center gap-1.5">
-                  {currentFilters.mode} <X size={11} />
+                  {t(`mode.${currentFilters.mode as "normal" | "embed" | "both"}`)} <X size={11} />
                 </FilterChip>
               )}
               {currentFilters.search && (
@@ -312,7 +314,7 @@ export function LogsView({
               )}
               {(currentFilters.status || currentFilters.webhookId || currentFilters.mode || currentFilters.search) && (
                 <Button variant="ghost" size="sm" onClick={() => router.push("?")} className="gap-1">
-                  <X size={14} /> Reset
+                  <X size={14} /> {tc("reset")}
                 </Button>
               )}
             </div>
@@ -341,10 +343,10 @@ export function LogsView({
                       <div className="min-w-0">
                         <div className="font-semibold text-sm truncate">{log.webhookNameSnapshot}</div>
                         <div className="font-mono text-xs text-fg-tertiary mt-0.5">
-                          {new Date(log.createdAt).toLocaleString("id-ID")} · #{log.id.slice(0, 8)}
+                          {new Date(log.createdAt).toLocaleString(locale)} · #{log.id.slice(0, 8)}
                         </div>
                         <div className="text-xs text-fg-secondary mt-0.5">
-                          {log.mode} · {log.source}
+                          {t(`mode.${log.mode as "normal" | "embed" | "both"}`)} · {t(`source.${log.source as "send" | "edit" | "delete" | "resend"}`)}
                           {log.httpStatus && ` · HTTP ${log.httpStatus}`}
                           {log.latencyMs != null && ` · ${log.latencyMs}ms`}
                         </div>
@@ -357,7 +359,7 @@ export function LogsView({
                       className="gap-1.5"
                     >
                       <Eye size={14} />
-                      Detail
+                      {t("detail.title")}
                     </Button>
                   </div>
                 </Card>
@@ -375,7 +377,7 @@ export function LogsView({
                 disabled={logsData.page <= 1}
                 className="gap-1"
               >
-                <ChevronLeft size={16} /> Prev
+                <ChevronLeft size={16} /> {tc("prev")}
               </Button>
               <span className="text-sm text-fg-secondary font-mono">
                 {logsData.page} / {logsData.totalPages}
@@ -387,7 +389,7 @@ export function LogsView({
                 disabled={logsData.page >= logsData.totalPages}
                 className="gap-1"
               >
-                Next <ChevronRight size={16} />
+                {tc("next")} <ChevronRight size={16} />
               </Button>
             </div>
           )}
@@ -408,7 +410,7 @@ export function LogsView({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display text-xl font-bold uppercase">Detail</h2>
+              <h2 className="font-display text-xl font-bold uppercase">{t("detail.title")}</h2>
               <Tooltip content={t("detail.close")} position="bottom">
                 <Button variant="ghost" size="sm" onClick={() => setSelectedLog(null)}>
                   <X size={18} />
@@ -424,17 +426,17 @@ export function LogsView({
                   <span className="font-mono text-xs text-fg-tertiary truncate">{selectedLog.discordMessageId ?? "—"}</span>
                 </div>
                 <div className="flex justify-between items-center gap-3">
-                  <span className="text-fg-secondary">Log ID</span>
+                  <span className="text-fg-secondary">{t("detail.logId")}</span>
                   <span className="font-mono text-xs text-fg-tertiary truncate">{selectedLog.id}</span>
                 </div>
                 <div className="flex justify-between items-center gap-3">
-                  <span className="text-fg-secondary">Waktu</span>
+                  <span className="text-fg-secondary">{t("detail.time")}</span>
                   <span className="font-mono text-xs text-fg-tertiary">
-                    {new Date(selectedLog.createdAt).toLocaleString("id-ID")}
+                    {new Date(selectedLog.createdAt).toLocaleString(locale)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center gap-3">
-                  <span className="text-fg-secondary">Status</span>
+                  <span className="text-fg-secondary">{t("filterStatus")}</span>
                   <Badge variant={statusConfig[selectedLog.status].variant} dot>
                     {t(`status.${selectedLog.status}`)}
                   </Badge>
@@ -470,7 +472,7 @@ export function LogsView({
                     className="gap-1.5"
                     onClick={() => loadIntoEditor(selectedLog.payload)}
                   >
-                    <Copy size={14} /> Duplikasi ke Editor
+                    <Copy size={14} /> {t("detail.duplicate")}
                   </Button>
                   {selectedLog.status === "failed" && (
                     <Button
@@ -479,7 +481,7 @@ export function LogsView({
                       className="gap-1.5"
                       onClick={() => loadIntoEditor(selectedLog.payload)}
                     >
-                      <RefreshCw size={14} /> Kirim Ulang
+                      <RefreshCw size={14} /> {t("detail.resend")}
                     </Button>
                   )}
                   {selectedLog.discordMessageId && (
@@ -490,7 +492,7 @@ export function LogsView({
                         className="gap-1.5"
                         onClick={() => loadIntoEditor(selectedLog.payload, selectedLog.id)}
                       >
-                        <Pencil size={14} /> Edit Pesan
+                        <Pencil size={14} /> {t("detail.editMessage")}
                       </Button>
                       <Button
                         variant="destructive"
@@ -499,7 +501,7 @@ export function LogsView({
                         disabled={!selectedLog.discordMessageId || pending}
                         onClick={() => setConfirmDeleteOpen(true)}
                       >
-                        <Trash2 size={14} /> Hapus Pesan
+                        <Trash2 size={14} /> {t("detail.deleteMessage")}
                       </Button>
                     </>
                   )}
@@ -512,21 +514,21 @@ export function LogsView({
                       startTransition(async () => {
                         try {
                           const fd = new FormData();
-                          fd.set("name", `${selectedLog.webhookNameSnapshot} (dari log)`);
+                          fd.set("name", `${selectedLog.webhookNameSnapshot} ${t("detail.fromLog")}`);
                           fd.set("payload", JSON.stringify(selectedLog.payload ?? {}));
                           const res = await saveAsTemplateAction(null, fd);
                           if (res && "error" in res && res.error) {
                             toast.error(res.error);
                           } else {
-                            toast.success("Template berhasil disimpan");
+                            toast.success(t("detail.templateSaved"));
                           }
                         } catch {
-                          toast.error("Gagal menyimpan template");
+                          toast.error(t("detail.templateSaveFailed"));
                         }
                       });
                     }}
                   >
-                    <Save size={14} /> Simpan Template
+                    <Save size={14} /> {t("detail.saveTemplate")}
                   </Button>
                 </div>
               )}
@@ -546,7 +548,7 @@ export function LogsView({
               {/* Payload preview */}
               {selectedLog.payload && (
                 <div>
-                  <h3 className="font-display text-sm uppercase mb-2">Preview</h3>
+                  <h3 className="font-display text-sm uppercase mb-2">{t("detail.preview")}</h3>
                   <DiscordPreview
                     payload={selectedLog.payload ?? {}}
                     username="My Kait"
@@ -575,9 +577,9 @@ export function LogsView({
         open={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
         onConfirm={doDeleteMessage}
-        title="Hapus Pesan"
-        message="Hapus pesan ini dari Discord?"
-        confirmLabel="Hapus Pesan"
+        title={t("detail.deleteMessage")}
+        message={t("detail.confirmDeleteMessage")}
+        confirmLabel={t("detail.deleteMessage")}
         loading={pending}
         danger
       />

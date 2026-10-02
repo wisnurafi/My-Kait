@@ -64,7 +64,7 @@ export default async function SharedTemplatePage({
 
         {/* Preview */}
         <Card className="p-5">
-          <h2 className="font-display uppercase text-sm mb-3">Preview</h2>
+          <h2 className="font-display uppercase text-sm mb-3">{t("previewTitle")}</h2>
           <DiscordPreview payload={shared.payload as Record<string, unknown>} username="My Kait" />
         </Card>
 

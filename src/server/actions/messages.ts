@@ -8,7 +8,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { webhooks, messageLogs } from "@/lib/schema";
-import { eq, and, desc, gte, lte, ilike, sql, count } from "drizzle-orm";
+import { eq, and, desc, gte, lte, ilike, sql, count, inArray } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { decryptWebhookUrl, encryptWebhookUrl } from "@/lib/crypto";
 import {
@@ -520,14 +520,15 @@ export async function getLogs(filters: {
     .limit(perPage)
     .offset((page - 1) * perPage);
 
-  // Summary
+  // Summary — delivery outcomes only. 'deleted' rows are an audit trail,
+  // not delivery failures, so they're excluded from the success rate.
   const sentCount = await db
     .select({ total: count() })
     .from(messageLogs)
     .where(
       and(
         eq(messageLogs.userId, user.id),
-        eq(messageLogs.status, "sent"),
+        inArray(messageLogs.status, ["sent", "edited"]),
       ),
     );
   const failedCount = await db
@@ -536,9 +537,13 @@ export async function getLogs(filters: {
     .where(
       and(
         eq(messageLogs.userId, user.id),
-        eq(messageLogs.status, "failed"),
+        inArray(messageLogs.status, ["failed", "rate_limited"]),
       ),
     );
+
+  const sentTotal = sentCount[0]?.total ?? 0;
+  const failedTotal = failedCount[0]?.total ?? 0;
+  const deliveredTotal = sentTotal + failedTotal;
 
   return {
     logs,
@@ -547,9 +552,10 @@ export async function getLogs(filters: {
     perPage,
     totalPages: Math.ceil(total / perPage),
     summary: {
-      sent: sentCount[0]?.total ?? 0,
-      failed: failedCount[0]?.total ?? 0,
-      successRate: total > 0 ? Math.round(((sentCount[0]?.total ?? 0) / total) * 100) : 0,
+      sent: sentTotal,
+      failed: failedTotal,
+      successRate:
+        deliveredTotal > 0 ? Math.round((sentTotal / deliveredTotal) * 100) : 0,
     },
   };
 }
