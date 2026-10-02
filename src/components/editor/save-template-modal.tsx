@@ -3,13 +3,13 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogTitle, DialogBody } from "@/components/ui/dialog";
 import { saveAsTemplateAction } from "@/server/actions/templates";
 import { toast } from "@/components/ui/toast";
-import { X, Save } from "lucide-react";
+import { Save } from "lucide-react";
 
 export function SaveTemplateModal({
   payload,
@@ -40,50 +40,45 @@ export function SaveTemplateModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in" style={{ backgroundColor: "rgba(3,3,10,0.7)" }} onClick={onClose}>
-      <div className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-4 border-b border-border-ink pb-3">
-            <h2 className="flex items-center gap-2 font-display text-xl uppercase">
-              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary))] text-white shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
-                <Save size={14} />
-              </span>
-              {t("saveAs")}
-            </h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X size={18} />
-            </Button>
+    <Dialog open onClose={onClose}>
+      <DialogTitle>
+        <span className="flex items-center gap-2.5">
+          <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent">
+            <Save size={14} />
+          </span>
+          {t("saveAs")}
+        </span>
+      </DialogTitle>
+      <DialogBody>
+        <form onSubmit={handleSubmit} data-kbd-off className="space-y-4">
+          <div>
+            <Label required>{t("name")}</Label>
+            <Input name="name" placeholder={t("namePlaceholder")} required />
           </div>
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div>
-              <Label required>{t("name")}</Label>
-              <Input name="name" placeholder={t("namePlaceholder")} required />
-            </div>
-            <div>
-              <Label>{t("description")}</Label>
-              <Textarea name="description" rows={2} placeholder={t("descriptionPlaceholder")} />
-            </div>
-            <div>
-              <Label>{t("tags")}</Label>
-              <Input name="tags" placeholder="tag1, tag2, tag3" />
-            </div>
-            {result?.error && (
-              <p className="text-sm text-error font-semibold uppercase tracking-[0.05em]">{result.error}</p>
+          <div>
+            <Label>{t("description")}</Label>
+            <Textarea name="description" rows={2} placeholder={t("descriptionPlaceholder")} />
+          </div>
+          <div>
+            <Label>{t("tags")}</Label>
+            <Input name="tags" placeholder="tag1, tag2, tag3" />
+          </div>
+          {result?.error && (
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-error">{result.error}</p>
+          )}
+          {result?.success && (
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-success">{result.message}</p>
+          )}
+          <Button type="submit" disabled={pending} className="w-full gap-2">
+            {pending ? (
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-[3px] border-current border-t-transparent" />
+            ) : (
+              <Save size={18} />
             )}
-            {result?.success && (
-              <p className="text-sm text-success font-semibold uppercase tracking-[0.05em]">{result.message}</p>
-            )}
-            <Button type="submit" disabled={pending} className="w-full gap-2 uppercase tracking-[0.05em]">
-              {pending ? (
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-[3px] border-current border-t-transparent" />
-              ) : (
-                <Save size={18} />
-              )}
-              {t("save")}
-            </Button>
-          </form>
-        </Card>
-      </div>
-    </div>
+            {t("save")}
+          </Button>
+        </form>
+      </DialogBody>
+    </Dialog>
   );
 }

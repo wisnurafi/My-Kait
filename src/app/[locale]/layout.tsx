@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito, Nunito_Sans, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -7,17 +7,17 @@ import "../globals.css";
 import { routing, type Locale } from "@/i18n/routing";
 import { AuthProvider } from "@/components/auth-provider";
 
-const display = Nunito({
+const display = Space_Grotesk({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["700", "800", "900"],
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
-const body = Nunito_Sans({
+const body = Inter({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -33,7 +33,10 @@ export const metadata: Metadata = {
   description:
     "Susun dan kirim pesan Discord lewat webhook. Editor visual, live preview, tanpa bot.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "48x48" },
+    ],
   },
 };
 

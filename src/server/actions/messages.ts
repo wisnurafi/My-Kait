@@ -503,7 +503,7 @@ export async function getLogs(filters: {
 
   const sort = filters.sort ?? "newest";
   const page = filters.page ?? 1;
-  const perPage = filters.perPage ?? 20;
+  const perPage = filters.perPage ?? 12;
 
   const totalResult = await db
     .select({ total: count() })

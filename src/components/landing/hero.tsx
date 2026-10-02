@@ -1,215 +1,564 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { signIn } from "next-auth/react";
-import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
-import { Webhook, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { signIn, useSession } from "next-auth/react";
+import { Link } from "@/i18n/routing";
 import { HookLogo } from "@/components/hook-logo";
-import { ScrollHint } from "@/components/landing/scroll-hint";
-import { LandingThemeToggle } from "@/components/landing/theme-toggle";
+import { Mascot } from "@/components/mascot";
 import { LandingLocaleToggle } from "@/components/landing/locale-toggle";
+import { LandingThemeToggle } from "@/components/landing/theme-toggle";
 
-export function LandingHero() {
-  const t = useTranslations("landing");
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-  // Parallax: orbs drift slower, content fades up on scroll
-  const orbsY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, 80]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+interface PublicStats {
+  totalMessages: number;
+  deliveryRate: number;
+  medianLatencyMs: number | null;
+}
+
+function compact(n: number): string {
+  if (n >= 1000) {
+    const v = (n / 1000).toFixed(1).replace(/\.0$/, "");
+    return `${v}K`;
+  }
+  return String(n);
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero background canvas — ambient drifting dots + lime mouse trail   */
+/* ------------------------------------------------------------------ */
+function HeroCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const hero = canvas.parentElement;
+    if (!hero) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let w = 0;
+    let h = 0;
+    let mx = -9999;
+    let my = -9999;
+    let gx = -9999;
+    let gy = -9999;
+    let raf = 0;
+
+    interface Dot {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      r: number;
+      lime: boolean;
+    }
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      life: number;
+      decay: number;
+      r: number;
+    }
+    const dots: Dot[] = [];
+    const trail: Particle[] = [];
+
+    const resize = () => {
+      w = canvas.width = hero.offsetWidth;
+      h = canvas.height = hero.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    for (let i = 0; i < 42; i++) {
+      dots.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.00022,
+        vy: (Math.random() - 0.5) * 0.00022,
+        r: Math.random() * 1.6 + 0.5,
+        lime: Math.random() < 0.18,
+      });
+    }
+
+    const onMove = (e: PointerEvent) => {
+      const rect = hero.getBoundingClientRect();
+      const nx = e.clientX - rect.left;
+      const ny = e.clientY - rect.top;
+      for (let i = 0; i < 3; i++) {
+        if (trail.length > 130) trail.shift();
+        trail.push({
+          x: nx + (Math.random() - 0.5) * 14,
+          y: ny + (Math.random() - 0.5) * 14,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5 - 0.25,
+          life: 1,
+          decay: 0.014 + Math.random() * 0.012,
+          r: Math.random() * 2 + 0.8,
+        });
+      }
+      mx = nx;
+      my = ny;
+    };
+    const onLeave = () => {
+      mx = -9999;
+      my = -9999;
+    };
+    hero.addEventListener("pointermove", onMove);
+    hero.addEventListener("pointerleave", onLeave);
+
+    const frame = () => {
+      ctx.clearRect(0, 0, w, h);
+
+      for (const d of dots) {
+        d.x += d.vx;
+        d.y += d.vy;
+        if (d.x < 0) d.x = 1;
+        if (d.x > 1) d.x = 0;
+        if (d.y < 0) d.y = 1;
+        if (d.y > 1) d.y = 0;
+        const dx = d.x * w - mx;
+        const dy = d.y * h - my;
+        const near = Math.max(0, 1 - Math.hypot(dx, dy) / 220);
+        const a = (d.lime ? 0.16 : 0.07) + near * 0.25;
+        ctx.beginPath();
+        ctx.arc(d.x * w, d.y * h, d.r + near * 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = d.lime
+          ? `rgba(163,230,53,${a.toFixed(3)})`
+          : `rgba(255,255,255,${a.toFixed(3)})`;
+        ctx.fill();
+      }
+
+      gx += (mx - gx) * 0.08;
+      gy += (my - gy) * 0.08;
+      if (mx > -9999) {
+        const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 260);
+        grad.addColorStop(0, "rgba(163,230,53,0.055)");
+        grad.addColorStop(1, "rgba(163,230,53,0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(gx - 260, gy - 260, 520, 520);
+      }
+
+      for (let i = trail.length - 1; i >= 0; i--) {
+        const p = trail[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+        if (p.life <= 0) {
+          trail.splice(i, 1);
+          continue;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(163,230,53,${(p.life * 0.5).toFixed(3)})`;
+        ctx.fill();
+      }
+
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      hero.removeEventListener("pointermove", onMove);
+      hero.removeEventListener("pointerleave", onLeave);
+    };
+  }, []);
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Gradient orbs — blurred, floating, parallax on scroll */}
-      <motion.div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ y: orbsY }}>
-        <div className="animated-gradient absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full blur-[100px] opacity-30 animate-float-slow" />
-        <div
-          className="absolute top-1/4 -right-40 w-[560px] h-[560px] rounded-full blur-[100px] opacity-25 animate-float-slow"
-          style={{
-            background:
-              "radial-gradient(circle, var(--accent-secondary), transparent 65%)",
-            animationDelay: "-2.4s",
-          }}
-        />
-        <div
-          className="absolute bottom-0 left-1/3 w-[420px] h-[420px] rounded-full blur-[100px] opacity-20 animate-float-slow"
-          style={{
-            background:
-              "radial-gradient(circle, var(--accent-tertiary), transparent 65%)",
-            animationDelay: "-4.8s",
-          }}
-        />
-      </motion.div>
-
-      {/* Background grid lines — radial mask fade so it dissolves at edges */}
-      <div
-        className="absolute inset-0 opacity-[0.05] mask-[radial-gradient(ellipse_75%_65%_at_50%_40%,black_30%,transparent_75%)]"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--fg) 1px, transparent 1px), linear-gradient(90deg, var(--fg) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-
-      {/* Floating webhook cards — subtle, hidden on mobile */}
-      <div
-        className="absolute inset-0 pointer-events-none hidden lg:block"
-        aria-hidden="true"
-      >
-        {/* Webhook URL chip */}
-        <motion.div
-          initial={{ opacity: 0, x: -24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 1.0, duration: 0.6 }}
-          className="absolute left-[6%] top-[24%]"
-        >
-          <div className="animate-float-slow -rotate-6">
-            <div className="glass px-4 py-3 font-mono text-xs">
-              <div className="flex items-center gap-2">
-                <span className="status-dot pulsing bg-success" />
-                <span className="font-bold text-fg">POST</span>
-                <span className="text-fg-tertiary">/hooks/discord</span>
-              </div>
-              <div className="mt-1.5 text-fg-tertiary">200 OK · 84ms</div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Discord message preview */}
-        <motion.div
-          initial={{ opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 1.15, duration: 0.6 }}
-          className="absolute right-[5%] top-[20%]"
-        >
-          <div
-            className="animate-float-slow rotate-3"
-            style={{ animationDelay: "-2.5s" }}
-          >
-            <div className="glass p-4 w-60 text-left">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-accent glow-primary flex items-center justify-center shrink-0">
-                  <Webhook size={18} className="text-white" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold leading-tight">My Kait</div>
-                  <div className="text-[11px] text-fg-tertiary font-mono">
-                    BOT · now
-                  </div>
-                </div>
-              </div>
-              <p className="mt-2.5 text-sm text-fg-secondary">
-                Order #1024 received
-              </p>
-              <div className="mt-2 rounded-lg bg-sunken border-l-2 border-accent px-3 py-2 font-mono text-[11px] text-fg-tertiary">
-                {"embeds: [{...}]"}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Terminal send chip */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.3, duration: 0.6 }}
-          className="absolute left-[9%] bottom-[22%]"
-        >
-          <div
-            className="animate-float-slow rotate-2"
-            style={{ animationDelay: "-5s" }}
-          >
-            <div className="terminal px-4 py-2.5 font-mono text-[11px] flex items-center gap-2">
-              <Zap size={13} className="text-accent-2 shrink-0" />
-              <span className="text-fg-secondary">
-                kait send --template promo
-              </span>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Theme toggle */}
-      <LandingThemeToggle />
-      <LandingLocaleToggle />
-
-      <motion.div
-        className="relative z-10 max-w-4xl mx-auto px-6 text-center"
-        style={{ y: contentY, opacity: contentOpacity }}
-      >
-        {/* Logo — drop in from top with bounce, soft blurple glow */}
-        <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 80, delay: 0.1 }}
-          className="inline-block mb-8"
-        >
-          <div className="drop-shadow-[0_0_36px_rgba(122,158,126,0.5)]">
-            <HookLogo size={80} />
-          </div>
-        </motion.div>
-
-        {/* Tagline badge above title */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mb-6"
-        >
-          <span className="glass inline-block rounded-full px-4 py-1.5 font-bold text-xs uppercase tracking-[0.1em] font-mono text-fg-secondary">
-            {t("footerRights")}
-          </span>
-        </motion.div>
-
-        {/* Title */}
-        <motion.h1
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] uppercase gradient-text"
-        >
-          {t("heroTitle")}
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 text-lg md:text-xl text-fg-secondary max-w-2xl mx-auto"
-        >
-          {t("heroSubtitle")}
-        </motion.p>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="mt-10"
-        >
-          <Button size="lg" className="text-lg gap-3" onClick={() => signIn("discord", { callbackUrl: "/id/dashboard" })}>
-            <DiscordIcon />
-            {t("loginButton")}
-          </Button>
-        </motion.div>
-
-        {/* Scroll hint */}
-        <ScrollHint />
-      </motion.div>
-    </section>
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-[1]"
+    />
   );
 }
 
-function DiscordIcon() {
+/* ------------------------------------------------------------------ */
+/* Composer demo — animated form fill: type message, type title, send   */
+/* ------------------------------------------------------------------ */
+type DemoPhase = "typing" | "sending" | "sent";
+
+function ComposerDemo() {
+  const t = useTranslations("landing");
+  const msgRef = useRef<HTMLSpanElement | null>(null);
+  const titleRef = useRef<HTMLSpanElement | null>(null);
+  const cursorRef = useRef<HTMLSpanElement | null>(null);
+  const msgFieldRef = useRef<HTMLDivElement | null>(null);
+  const titleFieldRef = useRef<HTMLDivElement | null>(null);
+  const [phase, setPhase] = useState<DemoPhase>("typing");
+  const [activeField, setActiveField] = useState<"msg" | "title" | null>("msg");
+
+  const demoMsg = t("demoMessageText");
+  const demoTitle = t("demoTitleText");
+
+  useEffect(() => {
+    let cancelled = false;
+    const wait = (ms: number) =>
+      new Promise<void>((resolve) => setTimeout(resolve, ms));
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    async function typeInto(
+      el: HTMLSpanElement | null,
+      field: HTMLDivElement | null,
+      text: string,
+      key: "msg" | "title",
+    ) {
+      if (!el || !field || !cursorRef.current) return;
+      setActiveField(key);
+      field.appendChild(cursorRef.current);
+      cursorRef.current.style.display = "";
+      for (const ch of text) {
+        if (cancelled) return;
+        el.textContent += ch;
+        await wait(26 + Math.random() * 34);
+      }
+      setActiveField(null);
+    }
+
+    async function loop() {
+      if (reduced) {
+        if (msgRef.current) msgRef.current.textContent = demoMsg;
+        if (titleRef.current) titleRef.current.textContent = demoTitle;
+        if (cursorRef.current) cursorRef.current.style.display = "none";
+        setActiveField(null);
+        setPhase("sent");
+        return;
+      }
+      while (!cancelled) {
+        if (msgRef.current) msgRef.current.textContent = "";
+        if (titleRef.current) titleRef.current.textContent = "";
+        setPhase("typing");
+        await wait(800);
+        if (cancelled) return;
+        await typeInto(msgRef.current, msgFieldRef.current, demoMsg, "msg");
+        if (cancelled) return;
+        await wait(380);
+        if (cancelled) return;
+        await typeInto(
+          titleRef.current,
+          titleFieldRef.current,
+          demoTitle,
+          "title",
+        );
+        if (cancelled) return;
+        await wait(550);
+        if (cancelled) return;
+        setPhase("sending");
+        if (cursorRef.current) cursorRef.current.style.display = "none";
+        await wait(1150);
+        if (cancelled) return;
+        setPhase("sent");
+        await wait(3600);
+        if (cancelled) return;
+      }
+    }
+
+    const anchor = msgFieldRef.current;
+    if (anchor && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            void loop();
+            io.disconnect();
+          }
+        });
+      });
+      io.observe(anchor);
+      return () => {
+        cancelled = true;
+        io.disconnect();
+      };
+    }
+    void loop();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fieldClass = (key: "msg" | "title") =>
+    `rounded-lg border bg-sunken px-3.5 py-3 text-[13.5px] leading-relaxed text-fg transition-colors duration-200 ${
+      key === "msg" ? "min-h-[66px]" : "min-h-[22px]"
+    } ${
+      activeField === key
+        ? "border-accent shadow-[0_0_0_3px_var(--accent-primary-soft)]"
+        : "border-border-ink"
+    }`;
+
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127c-.598.349-1.22.644-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.056c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028ZM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418Zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418Z" />
-    </svg>
+    <div className="relative mx-auto mt-16 w-full max-w-[680px]">
+      <div
+        className="absolute -top-[58px] right-10 z-10 sm:right-14"
+        style={{ filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.45))" }}
+      >
+        <Mascot size={92} />
+      </div>
+      <div className="panel p-[22px] text-left shadow-[0_30px_80px_rgba(0,0,0,0.55)]">
+        <div className="mb-[18px] flex items-center justify-between border-b border-border-ink pb-3.5">
+          <span className="label">{t("demoComposer")}</span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-success/35 bg-success-soft px-2.5 py-1 font-mono text-[10.5px] tracking-[0.06em] text-success">
+            <span
+              className="status-dot"
+              style={{ background: "var(--success)" }}
+            />
+            #announcements
+          </span>
+        </div>
+        <div className="mb-4">
+          <label className="label mb-2 block">{t("demoMessage")}</label>
+          <div ref={msgFieldRef} className={fieldClass("msg")}>
+            <span ref={msgRef} />
+            <span ref={cursorRef} className="tcursor" />
+          </div>
+        </div>
+        <div>
+          <label className="label mb-2 block">{t("demoEmbedTitle")}</label>
+          <div ref={titleFieldRef} className={fieldClass("title")}>
+            <span ref={titleRef} />
+          </div>
+        </div>
+        <div className="mt-[18px] flex items-center gap-3.5">
+          <button
+            type="button"
+            tabIndex={-1}
+            className={`inline-flex min-w-[118px] items-center justify-center gap-2 rounded-lg border px-5 py-2.5 font-mono text-[13px] font-semibold transition-colors duration-200 ${
+              phase === "sent"
+                ? "border-success bg-success text-[#0a0a0b]"
+                : "border-accent bg-accent text-[#0a0a0b]"
+            }`}
+          >
+            {phase === "sending" ? (
+              <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#0a0a0b]/30 border-t-[#0a0a0b]" />
+            ) : phase === "sent" ? (
+              t("demoSent")
+            ) : (
+              t("demoSend")
+            )}
+          </button>
+          <span
+            className={`font-mono text-xs text-fg-secondary transition-opacity duration-300 ${
+              phase === "sent" ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <span className="font-semibold text-success">✓</span>{" "}
+            {t("demoDelivered")} ·{" "}
+            <span className="text-fg-tertiary">id 1293…8842</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Stats strip — live platform numbers from /api/stats                  */
+/* ------------------------------------------------------------------ */
+function StatsStrip() {
+  const t = useTranslations("landing");
+  const [stats, setStats] = useState<PublicStats | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/stats")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: PublicStats | null) => {
+        if (alive && d) setStats(d);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const cells: { value: React.ReactNode; label: string; live?: boolean }[] = [
+    {
+      value: stats ? (
+        compact(stats.totalMessages)
+      ) : (
+        <span className="shimmer mx-auto block h-7 w-24" />
+      ),
+      label: t("statsSent"),
+      live: true,
+    },
+    {
+      value: stats ? (
+        `${stats.deliveryRate.toFixed(1)}%`
+      ) : (
+        <span className="shimmer mx-auto block h-7 w-20" />
+      ),
+      label: t("statsRate"),
+    },
+    {
+      value: stats ? (
+        stats.medianLatencyMs != null ? (
+          <>
+            {stats.medianLatencyMs}
+            <span className="text-[15px] text-fg-tertiary">ms</span>
+          </>
+        ) : (
+          "—"
+        )
+      ) : (
+        <span className="shimmer mx-auto block h-7 w-20" />
+      ),
+      label: t("statsLatency"),
+    },
+  ];
+
+  return (
+    <div className="relative z-10 mt-16 border-t border-border-ink">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 divide-y divide-border-ink sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        {cells.map((c) => (
+          <div key={c.label} className="px-6 py-6 text-center">
+            <div className="font-mono text-[26px] font-semibold tabular-nums text-fg">
+              {c.live && stats && (
+                <span
+                  className="status-dot pulsing mr-2 inline-block align-middle"
+                  style={{ background: "var(--accent-primary)" }}
+                  title={t("live")}
+                />
+              )}
+              {c.value}
+            </div>
+            <div className="label mt-1.5">{c.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Landing hero                                                        */
+/* ------------------------------------------------------------------ */
+export function LandingHero() {
+  const t = useTranslations("landing");
+  const locale = useLocale();
+  const { status } = useSession();
+  const loggedIn = status === "authenticated";
+  const login = () =>
+    signIn("discord", { callbackUrl: `/${locale}/dashboard` });
+
+  const ctaPrimaryClass =
+    "inline-flex items-center gap-2 rounded-lg border border-accent bg-accent px-4 py-2 font-mono text-[13px] font-semibold text-[#0a0a0b] transition-colors hover:brightness-110";
+
+  return (
+    <>
+      {/* Minimal nav */}
+      <header className="sticky top-0 z-40 border-b border-border-ink bg-bg">
+        <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+          <Link href="/" className="flex items-center gap-2.5">
+            <HookLogo size={30} />
+            <span className="font-display text-[17px] font-bold tracking-wide text-fg">
+              MY KAIT
+            </span>
+          </Link>
+          <div className="hidden items-center gap-7 md:flex">
+            <a
+              href="#features"
+              className="text-[13.5px] font-medium text-fg-secondary transition-colors hover:text-fg"
+            >
+              {t("navFeatures")}
+            </a>
+            <a
+              href="#how"
+              className="text-[13.5px] font-medium text-fg-secondary transition-colors hover:text-fg"
+            >
+              {t("navHow")}
+            </a>
+            <Link
+              href="/gallery"
+              className="text-[13.5px] font-medium text-fg-secondary transition-colors hover:text-fg"
+            >
+              {t("navTemplates")}
+            </Link>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <LandingLocaleToggle />
+            <LandingThemeToggle />
+            {loggedIn ? (
+              <Link href="/dashboard" className={ctaPrimaryClass}>
+                {t("openDashboard")}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={login}
+                className={ctaPrimaryClass}
+              >
+                {t("loginDiscord")}
+              </button>
+            )}
+          </div>
+        </nav>
+      </header>
+
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div
+          className="dotgrid dotgrid-fade absolute inset-0"
+          aria-hidden="true"
+        />
+        <HeroCanvas />
+        <div className="relative z-[2] mx-auto max-w-6xl px-6 pt-[90px] text-center">
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-border-strong bg-surface px-4 py-1.5 font-mono text-[11.5px] tracking-[0.08em] text-fg-secondary">
+            <span
+              className="status-dot pulsing"
+              style={{ background: "var(--accent-primary)" }}
+            />
+            <span>
+              v1.0.0 <span className="text-fg-tertiary">·</span>{" "}
+              <span className="font-semibold text-accent">
+                {t("versionNote")}
+              </span>
+            </span>
+          </div>
+
+          <h1 className="mx-auto mt-[22px] max-w-[860px] font-display text-5xl font-bold leading-[1.04] tracking-[-0.02em] text-fg md:text-[64px]">
+            {t("heroTitleA")}
+            <br />
+            {t("heroTitleB1")}
+            <span className="text-accent">{t("heroTitleB2")}</span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-[560px] text-[17px] text-fg-secondary">
+            {t("heroSubtitle")}
+          </p>
+          <div className="mt-[34px] flex flex-wrap items-center justify-center gap-3">
+            {loggedIn ? (
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-lg border border-accent bg-accent px-5 py-2.5 font-mono text-[13px] font-semibold text-[#0a0a0b] transition-colors hover:brightness-110"
+              >
+                {t("openDashboard")}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={login}
+                className="inline-flex items-center gap-2 rounded-lg border border-accent bg-accent px-5 py-2.5 font-mono text-[13px] font-semibold text-[#0a0a0b] transition-colors hover:brightness-110"
+              >
+                {t("ctaStart")}
+              </button>
+            )}
+            <Link
+              href="/gallery"
+              className="inline-flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-5 py-2.5 font-mono text-[13px] font-semibold text-fg transition-colors hover:border-fg-tertiary"
+            >
+              {t("ctaTemplates")}
+            </Link>
+          </div>
+
+          <ComposerDemo />
+        </div>
+        <StatsStrip />
+      </section>
+    </>
   );
 }

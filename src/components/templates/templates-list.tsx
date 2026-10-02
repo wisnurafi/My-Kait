@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,8 @@ import {
   LayoutGrid,
   FileQuestion,
   LayoutTemplate,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useState as useReactState } from "react";
 
@@ -66,13 +69,17 @@ export function TemplatesList({
   templates: initial,
   folders,
   activeFolder,
+  pagination,
 }: {
   templates: Template[];
   folders: Folder[];
   activeFolder: string;
+  pagination: { page: number; totalPages: number };
 }) {
   const t = useTranslations("templates");
+  const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [pending, startTransition] = useTransition();
   const [search, setSearch] = useReactState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -154,7 +161,16 @@ export function TemplatesList({
     const template = initial.find((t) => t.id === id);
     if (!template) return;
     sessionStorage.setItem("mykait-import-payload", JSON.stringify(template.payload));
-    router.push("/editor");
+    // Use full reload with locale prefix to ensure editor remounts and loads the payload
+    window.location.href = `/${locale}/editor`;
+  }
+
+  function goToPage(newPage: number) {
+    // Preserve all current filters (search/tag/folder), only change page
+    const params = new URLSearchParams(searchParams.toString());
+    if (newPage <= 1) params.delete("page");
+    else params.set("page", String(newPage));
+    router.push(`/templates?${params.toString()}`);
   }
 
   function handleSaveEdit(id: string) {
@@ -233,9 +249,9 @@ export function TemplatesList({
     <button
       key={id}
       onClick={() => selectFolder(id)}
-      className={`w-full flex items-center gap-2 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.06em] rounded-full border text-left transition-all duration-150 press cursor-pointer ${
+      className={`w-full flex items-center gap-2 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.06em] rounded-lg border text-left transition-colors duration-150 press cursor-pointer ${
         activeFolder === id
-          ? "bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] text-white border-transparent shadow-[0_4px_16px_rgba(122,158,126,0.4)]"
+          ? "bg-accent-soft text-accent border-accent/40"
           : "border-transparent text-fg-secondary hover:text-fg hover:bg-surface-hover hover:border-border-ink"
       }`}
     >
@@ -251,9 +267,9 @@ export function TemplatesList({
     <div className="flex gap-8 flex-col lg:flex-row">
       {/* Folder sidebar */}
       <aside className="w-full lg:w-64 shrink-0">
-        <div className="lg:sticky lg:top-4 space-y-1 glass p-4">
+        <div className="lg:sticky lg:top-4 space-y-1 panel p-4">
           <div className="flex items-center justify-between mb-2 gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-1.5 truncate text-fg-secondary">
+            <h2 className="label flex items-center gap-1.5 truncate">
               <Folder size={14} className="shrink-0" />
               <span className="truncate">{t("folders.title")}</span>
             </h2>
@@ -345,9 +361,12 @@ export function TemplatesList({
 
       {/* Main content */}
       <div className="flex-1 min-w-0 space-y-6">
-        <h1 className="font-display text-3xl uppercase">
-          <span className="gradient-text">{t("title")}</span>
-        </h1>
+        <div className="flex items-start justify-between gap-4 flex-wrap stagger-in">
+          <div>
+            <div className="label mb-2">{t("title")}</div>
+            <h2 className="uppercase">{t("title")}</h2>
+          </div>
+        </div>
 
         {/* Search */}
         <div className="flex gap-2 flex-wrap items-center">
@@ -376,7 +395,9 @@ export function TemplatesList({
         {/* Templates grid */}
         {initial.length === 0 ? (
           <Card className="p-12 text-center animate-fade-in">
-            <div className="text-5xl mb-4">📋</div>
+            <div className="mx-auto mb-4 w-12 h-12 rounded-lg bg-accent-soft border border-accent/40 flex items-center justify-center">
+              <LayoutTemplate size={22} className="text-accent" />
+            </div>
             <p className="text-fg-secondary text-lg">{t("noTemplates")}</p>
             <p className="text-sm text-fg-tertiary mt-2">{t("noTemplatesHint")}</p>
           </Card>
@@ -417,10 +438,10 @@ export function TemplatesList({
                   </div>
                 ) : (
                   <div>
-                    {/* Card header with gradient icon chip */}
+                    {/* Card header */}
                     <div className="flex items-start gap-3 mb-2">
-                      <div className="shrink-0 w-10 h-10 rounded-xl bg-[linear-gradient(120deg,var(--accent-primary),var(--accent-secondary))] flex items-center justify-center shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
-                        <LayoutTemplate size={18} className="text-white" />
+                      <div className="shrink-0 w-10 h-10 rounded-lg bg-accent-soft border border-accent/40 flex items-center justify-center">
+                        <LayoutTemplate size={18} className="text-accent" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="font-display text-lg uppercase leading-tight truncate">{template.name}</h3>
@@ -446,13 +467,13 @@ export function TemplatesList({
                           value={template.folderId ?? "unfiled"}
                           onChange={(e) => handleMoveTemplate(template.id, e.target.value)}
                           disabled={pending}
-                          className="h-9 text-xs font-bold uppercase tracking-[0.05em] !font-sans"
+                          className="h-9 text-xs font-bold uppercase tracking-[0.05em]"
                           title={t("folders.moveTo")}
                         >
                           <option value="unfiled">{t("folders.unfiled")}</option>
                           {folders.map((f) => (
                             <option key={f.id} value={f.id}>
-                              📁 {f.name}
+                              {f.name}
                             </option>
                           ))}
                         </Select>
@@ -476,7 +497,7 @@ export function TemplatesList({
                       </Button>
                     </div>
                     {shareSlug && (
-                      <div className="mt-3 p-2 bg-sunken/60 border border-border-ink rounded-xl">
+                      <div className="mt-3 p-2 bg-sunken border border-border-ink rounded-lg">
                         <div className="flex items-center gap-2">
                           <Input
                             readOnly
@@ -506,6 +527,33 @@ export function TemplatesList({
               </Card>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="panel px-4 py-3 flex items-center justify-between mt-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => goToPage(pagination.page - 1)}
+              disabled={pagination.page <= 1}
+              className="gap-1"
+            >
+              <ChevronLeft size={16} /> Prev
+            </Button>
+            <span className="text-sm text-fg-secondary font-mono">
+              {pagination.page} / {pagination.totalPages}
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => goToPage(pagination.page + 1)}
+              disabled={pagination.page >= pagination.totalPages}
+              className="gap-1"
+            >
+              Next <ChevronRight size={16} />
+            </Button>
           </div>
         )}
       </div>

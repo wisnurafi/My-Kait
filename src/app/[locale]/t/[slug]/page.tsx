@@ -6,11 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DiscordPreview } from "@/components/editor/discord-preview";
 import { ReportButton } from "@/components/templates/report-button";
+import { ImportTemplateButton } from "@/components/templates/import-template-button";
 import Link from "next/link";
 import { DiscordLoginButton } from "@/components/auth/discord-login-button";
-import { Copy } from "lucide-react";
+import { LandingLocaleToggle } from "@/components/landing/locale-toggle";
+import {
+  LandingThemeToggle,
+  PublicThemeManager,
+} from "@/components/landing/theme-toggle";
 import { auth } from "@/lib/auth";
-import { importTemplateAction } from "@/server/actions/templates";
 
 export default async function SharedTemplatePage({
   params,
@@ -28,6 +32,7 @@ export default async function SharedTemplatePage({
 
   return (
     <div className="min-h-screen p-6 animate-fade-in">
+      <PublicThemeManager />
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
@@ -39,9 +44,13 @@ export default async function SharedTemplatePage({
               <p className="text-fg-secondary mt-1">{shared.description}</p>
             )}
           </div>
-          <Link href="/">
-            <Button variant="ghost" size="sm">My Kait</Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <LandingLocaleToggle />
+            <LandingThemeToggle />
+            <Link href="/">
+              <Button variant="ghost" size="sm">My Kait</Button>
+            </Link>
+          </div>
         </div>
 
         {/* Tags */}
@@ -66,16 +75,7 @@ export default async function SharedTemplatePage({
               <p className="text-sm text-fg-secondary mb-3">
                 {t("importHint")}
               </p>
-              <form action={async (formData) => {
-                "use server";
-                formData.set("shareId", shared.shareId);
-                await importTemplateAction(formData);
-              }}>
-                <input type="hidden" name="shareId" value={shared.shareId} />
-                <Button type="submit" className="gap-2">
-                  <Copy size={18} /> {t("useThisTemplate")}
-                </Button>
-              </form>
+              <ImportTemplateButton shareId={shared.shareId} />
             </div>
           ) : (
             <div className="text-center py-4">

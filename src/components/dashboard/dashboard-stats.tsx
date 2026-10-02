@@ -30,7 +30,7 @@ function useCountUp(target: number, duration = 800) {
   return value;
 }
 
-/* --- 3 count cards: glass + gradient top accent bar + glowing icon --- */
+/* --- 3 count cards: mono big number, micro label, plain icon box --- */
 export function StatCards({
   webhooks,
   sent,
@@ -75,21 +75,21 @@ function StatCard({
     <div className="stagger-in" style={{ "--stagger-index": index } as CSSProperties}>
       <Tooltip content={desc} position="bottom">
         <Card className="p-5 relative overflow-hidden lift cursor-help">
-        {/* gradient top accent bar */}
-        <div
-          aria-hidden
-          className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-accent via-accent-2 to-accent-3"
-        />
+          {/* gradient top accent bar */}
+          <div
+            aria-hidden
+            className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-accent via-accent-2 to-accent-3"
+          />
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="font-display text-4xl tabular-nums">
+            <div className="label mb-2">{label}</div>
+            <div className="font-mono text-4xl tabular-nums text-fg">
               {count}
-              {suffix}
+              <span className="text-lg text-fg-tertiary">{suffix}</span>
             </div>
-            <div className="text-sm text-fg-secondary mt-1">{label}</div>
           </div>
-          <div className="rounded-xl p-2.5 bg-[rgba(122,158,126,0.12)] border border-[rgba(122,158,126,0.35)] glow-primary shrink-0">
-            <Icon size={20} className="text-accent-bright" />
+          <div className="rounded-lg p-2.5 bg-sunken border border-border-ink shrink-0">
+            <Icon size={20} className="text-accent" />
           </div>
         </div>
         </Card>
@@ -98,7 +98,7 @@ function StatCard({
   );
 }
 
-/* --- Messages per day: SVG stacked bar chart --- */
+/* --- Messages per day: SVG stacked bar chart (solid colors) --- */
 function DailyChart({ daily }: { daily: DailyStat[] }) {
   const t = useTranslations("dashboard");
   const max = Math.max(1, ...daily.map((d) => d.total));
@@ -107,23 +107,13 @@ function DailyChart({ daily }: { daily: DailyStat[] }) {
   const barW = W / daily.length;
 
   return (
-    <Card className="p-5" elevated>
-      <h3 className="font-display text-lg uppercase mb-4">{t("stats.perDay")}</h3>
+    <Card className="p-5">
+      <h3 className="text-lg mb-4">{t("stats.perDay")}</h3>
       {daily.every((d) => d.total === 0) ? (
         <p className="text-sm text-fg-secondary py-8 text-center">{t("stats.noData")}</p>
       ) : (
         <div>
           <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={t("stats.perDay")}>
-            <defs>
-              <linearGradient id="daily-sent" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#7fa8c9" />
-                <stop offset="100%" stopColor="#7a9e7e" />
-              </linearGradient>
-              <linearGradient id="daily-fail" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#d98e73" />
-                <stop offset="100%" stopColor="#b96f54" />
-              </linearGradient>
-            </defs>
             {daily.map((d, i) => {
               const h = Math.max(2, (d.total / max) * (H - 24));
               const sentH = (d.sent / Math.max(1, d.total)) * h;
@@ -135,35 +125,35 @@ function DailyChart({ daily }: { daily: DailyStat[] }) {
                     y={H - 20 - h}
                     width={barW - 2}
                     height={h}
-                    rx={3}
-                    fill="url(#daily-fail)"
-                    opacity={0.85}
+                    rx={2}
+                    fill="var(--error)"
+                    opacity={0.75}
                   />
                   <rect
                     x={i * barW + 1}
                     y={H - 20 - sentH}
                     width={barW - 2}
                     height={sentH}
-                    rx={3}
-                    fill="url(#daily-sent)"
-                    className="transition-[filter] duration-200 hover:[filter:drop-shadow(0_0_10px_rgba(34,211,238,0.85))]"
+                    rx={2}
+                    fill="var(--accent-primary)"
+                    opacity={0.9}
                   />
                 </g>
               );
             })}
-            <line x1={0} y1={H - 20} x2={W} y2={H - 20} stroke="var(--color-border-ink)" strokeWidth={1} />
+            <line x1={0} y1={H - 20} x2={W} y2={H - 20} stroke="var(--border)" strokeWidth={1} />
           </svg>
           <div className="flex justify-between text-[10px] font-mono text-fg-tertiary mt-1">
             <span>{daily[0]?.date.slice(5)}</span>
             <span>{daily[daily.length - 1]?.date.slice(5)}</span>
           </div>
-          <div className="flex gap-4 mt-3 text-xs">
+          <div className="flex gap-4 mt-3 text-xs text-fg-secondary">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-b from-accent-2 to-accent" />
+              <span className="inline-block w-3 h-3 rounded-sm bg-accent" />
               {t("stats.sent")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-b from-error to-[#b96f54]" />
+              <span className="inline-block w-3 h-3 rounded-sm bg-error" />
               {t("stats.failed")}
             </span>
           </div>
@@ -180,23 +170,23 @@ function WebhookChart({ webhooks }: { webhooks: WebhookStat[] }) {
 
   return (
     <Card className="p-5">
-      <h3 className="font-display text-lg uppercase mb-4">{t("stats.topWebhooks")}</h3>
+      <h3 className="text-lg mb-4">{t("stats.topWebhooks")}</h3>
       {webhooks.length === 0 ? (
         <p className="text-sm text-fg-secondary py-8 text-center">{t("stats.noData")}</p>
       ) : (
         <div className="space-y-3">
           {webhooks.map((w, i) => (
             <div key={w.webhookId ?? w.name} className="stagger-in" style={{ "--stagger-index": i } as CSSProperties}>
-              <div className="flex justify-between text-xs mb-1">
-                <span className="font-bold truncate max-w-[60%]">{w.name}</span>
+              <div className="flex justify-between text-xs mb-1.5">
+                <span className="font-semibold truncate max-w-[60%]">{w.name}</span>
                 <span className="font-mono text-fg-secondary">
                   {w.total}
                   {w.failed > 0 && <span className="text-error"> · {w.failed} ✗</span>}
                 </span>
               </div>
-              <div className="h-5 rounded-full bg-sunken border border-border-ink overflow-hidden">
+              <div className="h-3 rounded-md bg-sunken border border-border-ink overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-accent to-accent-2 shadow-[0_0_12px_rgba(122,158,126,0.45)]"
+                  className="h-full rounded-md bg-accent"
                   style={{ width: `${(w.total / max) * 100}%` }}
                 />
               </div>
@@ -208,7 +198,7 @@ function WebhookChart({ webhooks }: { webhooks: WebhookStat[] }) {
   );
 }
 
-/* --- Success rate: donut --- */
+/* --- Success rate: donut (solid lime arc) --- */
 function SuccessDonut({ rate, sent, failed }: { rate: number; sent: number; failed: number }) {
   const t = useTranslations("dashboard");
   const R = 54;
@@ -217,27 +207,20 @@ function SuccessDonut({ rate, sent, failed }: { rate: number; sent: number; fail
 
   return (
     <Card className="p-5 flex flex-col items-center">
-      <h3 className="font-display text-lg uppercase mb-4 self-start">{t("stats.successRate")}</h3>
+      <h3 className="text-lg mb-4 self-start">{t("stats.successRate")}</h3>
       <div className="relative">
         <svg width={140} height={140} viewBox="0 0 140 140">
-          <defs>
-            <linearGradient id="donut-grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#7a9e7e" />
-              <stop offset="100%" stopColor="#7fa8c9" />
-            </linearGradient>
-          </defs>
           <circle cx={70} cy={70} r={R} fill="none" strokeWidth={14}
-            stroke="var(--color-sunken, #e5e5e5)" />
+            stroke="var(--surface-sunken)" />
           <circle cx={70} cy={70} r={R} fill="none" strokeWidth={14}
-            stroke="url(#donut-grad)"
+            stroke="var(--accent-primary)"
             strokeDasharray={C}
             strokeDashoffset={offset}
             strokeLinecap="round"
-            transform="rotate(-90 70 70)"
-            style={{ filter: "drop-shadow(0 0 6px rgba(34,211,238,0.55))" }} />
+            transform="rotate(-90 70 70)" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-display text-3xl">{rate}%</span>
+          <span className="font-mono text-3xl tabular-nums">{rate}%</span>
         </div>
       </div>
       <div className="flex gap-4 mt-4 text-xs">

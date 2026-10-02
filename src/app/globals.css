@@ -1,137 +1,146 @@
 @import "tailwindcss";
 
+/* Dark mode variant based on data-theme attribute (not prefers-color-scheme).
+   NOTE: dark is the DEFAULT theme — :root carries dark tokens.
+   data-theme="light" opts into the light theme. */
+@custom-variant dark (&:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *));
+
 /* ============================================
-   MY KAIT — Cozy Cabin Design System
-   Warm, soft, nature-inspired. Colorful but comfy.
-   Rounded corners, gentle shadows, no harsh contrasts.
-   GPU-only animations (transform/opacity).
+   MY KAIT — Devtool Design System
+   Dark-first, precise, techy. Linear/Raycast-inspired.
+   Near-black surfaces, 1px borders, one lime accent,
+   semantic status colors. No gradients-as-decoration,
+   no glassmorphism, no cozy rounding.
    ============================================ */
 
-/* --- Design Tokens: Light (default, cozy cream) --- */
+/* --- Design Tokens: Dark (default) --- */
 :root {
-  /* Core surfaces — warm paper tones */
-  --bg: #faf7f2;
-  --surface: #fffdf9;
-  --surface-solid: #fffdf9;
-  --surface-sunken: #f3ede3;
-  --surface-inverted: #2d2a26;
+  /* Core surfaces — near-black */
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --surface-solid: #111113;
+  --surface-sunken: #08080a;
+  --surface-inverted: #f4f4f5;
 
-  /* Content — warm browns, never pure black */
-  --fg: #2d2a26;
-  --fg-secondary: #6b5f53;
-  --fg-tertiary: #a29380;
+  /* Content */
+  --fg: #f4f4f5;
+  --fg-secondary: #a1a1aa;
+  --fg-tertiary: #63636b;
 
-  /* Borders — soft, 1px, warm gray */
-  --border: #e8dfd2;
-  --border-strong: #d9cdb8;
-  --border-disabled: #efe8da;
+  /* Borders — precise 1px */
+  --border: #1f1f23;
+  --border-strong: #2e2e35;
+  --border-disabled: #1a1a1e;
 
-  /* Accent colors — cozy nature palette */
-  --accent-primary: #7a9e7e; /* sage green */
-  --accent-primary-deep: #5d7f63;
-  --accent-primary-soft: #e8f0e6;
-  --accent-secondary: #d98e73; /* warm terracotta */
-  --accent-secondary-deep: #b96f54;
-  --accent-secondary-soft: #fbeee6;
-  --accent-tertiary: #a893c7; /* muted lavender */
-  --accent-tertiary-deep: #8a6fae;
-  --accent-tertiary-soft: #f0eaf7;
-  --accent-sky: #7fa8c9; /* gentle sky blue */
-  --accent-sky-deep: #5f87a8;
-  --accent-sky-soft: #e8f1f8;
-  --accent-honey: #d9a441; /* warm honey */
-  --accent-honey-deep: #b5852f;
-  --accent-honey-soft: #fbf3e0;
+  /* Accent — electric lime, the one disciplined brand color */
+  --accent-primary: #a3e635;
+  --accent-primary-deep: #84cc16;
+  --accent-primary-soft: rgba(163, 230, 53, 0.12);
 
-  /* Status colors — softened */
-  --success: #6b9e6e;
-  --success-soft: #e6f0e4;
-  --warning: #d9a441;
-  --warning-soft: #fbf3e0;
-  --error: #c96f5a;
-  --error-soft: #f9e8e2;
-  --info: #7fa8c9;
-  --info-soft: #e8f1f8;
-  --link: #5d7f63;
+  /* Secondary accents — restrained, used sparingly */
+  --accent-secondary: #22d3ee;
+  --accent-secondary-deep: #06b6d4;
+  --accent-secondary-soft: rgba(34, 211, 238, 0.12);
+  --accent-tertiary: #a78bfa;
+  --accent-tertiary-deep: #8b5cf6;
+  --accent-tertiary-soft: rgba(167, 139, 250, 0.12);
+  --accent-sky: #7dd3fc;
+  --accent-sky-deep: #38bdf8;
+  --accent-sky-soft: rgba(125, 211, 252, 0.12);
+  --accent-honey: #fbbf24;
+  --accent-honey-deep: #f59e0b;
+  --accent-honey-soft: rgba(251, 191, 36, 0.12);
+
+  /* Status colors — semantic, never decorative */
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.12);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.12);
+  --error: #f87171;
+  --error-soft: rgba(248, 113, 113, 0.12);
+  --info: #7dd3fc;
+  --info-soft: rgba(125, 211, 252, 0.12);
+  --link: #a3e635;
 
   /* Disabled */
-  --disabled-bg: #f3ede3;
-  --disabled-fg: #b8a88f;
+  --disabled-bg: #161618;
+  --disabled-fg: #52525b;
 
   /* Hover/input surfaces */
-  --surface-hover: #f6f1e7;
-  --surface-input: #fffdf9;
+  --surface-hover: #18181b;
+  --surface-input: #0d0d0f;
 
-  /* Soft shadows (not harsh glows) */
-  --shadow-sm: 0 1px 3px rgba(90, 70, 50, 0.08);
-  --shadow-md: 0 4px 12px rgba(90, 70, 50, 0.1);
-  --shadow-lg: 0 8px 28px rgba(90, 70, 50, 0.13);
-  --shadow-accent: 0 4px 16px rgba(122, 158, 126, 0.25);
+  /* Shadows — deep, not warm */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+  --shadow-accent: 0 0 24px rgba(163, 230, 53, 0.18);
 
-  /* Radius — soft and round */
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  /* Radius — small and precise */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-full: 999px;
 
   /* Fonts */
-  --font-display: "Nunito", system-ui, sans-serif;
-  --font-body: "Nunito Sans", system-ui, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Courier New", monospace;
 }
 
-/* --- Design Tokens: Dark (warm charcoal) --- */
-[data-theme="dark"] {
-  --bg: #1a1512;
-  --surface: #241e19;
-  --surface-solid: #241e19;
-  --surface-sunken: #15100d;
-  --surface-inverted: #faf7f2;
+/* --- Design Tokens: Light (opt-in via data-theme="light") --- */
+[data-theme="light"] {
+  --bg: #f4f4f5;
+  --surface: #ffffff;
+  --surface-solid: #ffffff;
+  --surface-sunken: #e9e9ec;
+  --surface-inverted: #18181b;
 
-  --fg: #f0e8da;
-  --fg-secondary: #b8a88f;
-  --fg-tertiary: #7d6f5d;
+  --fg: #18181b;
+  --fg-secondary: #52525b;
+  --fg-tertiary: #a1a1aa;
 
-  --border: #38302a;
-  --border-strong: #4a4036;
-  --border-disabled: #2b251f;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --border-disabled: #f0f0f2;
 
-  --accent-primary: #8fb498;
-  --accent-primary-deep: #a8c8b0;
-  --accent-primary-soft: #2a3a2c;
-  --accent-secondary: #e0a184;
-  --accent-secondary-deep: #eba98b;
-  --accent-secondary-soft: #3a2a20;
-  --accent-tertiary: #bfa8d9;
-  --accent-tertiary-deep: #cbb6e0;
-  --accent-tertiary-soft: #322a3a;
-  --accent-sky: #93b8d4;
-  --accent-sky-deep: #a5c6de;
-  --accent-sky-soft: #25333d;
-  --accent-honey: #e3b85c;
-  --accent-honey-deep: #eec76f;
-  --accent-honey-soft: #3a2f1a;
+  --accent-primary: #a3e635;
+  --accent-primary-deep: #4d7c0f;
+  --accent-primary-soft: rgba(101, 163, 13, 0.12);
 
-  --success: #7fb383;
-  --success-soft: #243327;
-  --warning: #e3b85c;
-  --warning-soft: #3a2f1a;
-  --error: #d9856c;
-  --error-soft: #3a2620;
-  --info: #93b8d4;
-  --info-soft: #25333d;
-  --link: #a8c8b0;
+  --accent-secondary: #0891b2;
+  --accent-secondary-deep: #0e7490;
+  --accent-secondary-soft: rgba(8, 145, 178, 0.1);
+  --accent-tertiary: #7c3aed;
+  --accent-tertiary-deep: #6d28d9;
+  --accent-tertiary-soft: rgba(124, 58, 237, 0.1);
+  --accent-sky: #0284c7;
+  --accent-sky-deep: #0369a1;
+  --accent-sky-soft: rgba(2, 132, 199, 0.1);
+  --accent-honey: #b45309;
+  --accent-honey-deep: #92400e;
+  --accent-honey-soft: rgba(180, 83, 9, 0.1);
 
-  --disabled-bg: #241e19;
-  --disabled-fg: #5d5347;
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.1);
+  --warning: #b45309;
+  --warning-soft: rgba(180, 83, 9, 0.1);
+  --error: #dc2626;
+  --error-soft: rgba(220, 38, 38, 0.08);
+  --info: #0284c7;
+  --info-soft: rgba(2, 132, 199, 0.08);
+  --link: #4d7c0f;
 
-  --surface-hover: #2c251f;
-  --surface-input: #241e19;
+  --disabled-bg: #f0f0f2;
+  --disabled-fg: #a1a1aa;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.4);
-  --shadow-accent: 0 4px 16px rgba(143, 180, 152, 0.2);
+  --surface-hover: #f0f0f2;
+  --surface-input: #ffffff;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --shadow-accent: 0 0 24px rgba(101, 163, 13, 0.15);
 }
 
 /* --- Tailwind v4 Theme Mapping --- */
@@ -189,49 +198,40 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.65;
+  font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* Soft warm ambient wash */
-  background-image:
-    radial-gradient(900px 500px at 10% -5%, rgba(122, 158, 126, 0.1), transparent 60%),
-    radial-gradient(800px 500px at 95% 10%, rgba(217, 142, 115, 0.08), transparent 60%),
-    radial-gradient(700px 600px at 50% 110%, rgba(168, 147, 199, 0.07), transparent 60%);
-  background-attachment: fixed;
 }
 
-[data-theme="dark"] body {
-  background-image:
-    radial-gradient(900px 500px at 10% -5%, rgba(143, 180, 152, 0.07), transparent 60%),
-    radial-gradient(800px 500px at 95% 10%, rgba(224, 161, 132, 0.05), transparent 60%),
-    radial-gradient(700px 600px at 50% 110%, rgba(191, 168, 217, 0.05), transparent 60%);
-}
-
-/* Headings — friendly rounded, not shouty */
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  color: var(--fg);
-}
-h1 {
-  font-size: clamp(1.9rem, 4.5vw, 3.4rem);
-}
-h2 {
-  font-size: clamp(1.4rem, 3vw, 2.1rem);
-}
-h3 {
-  font-size: clamp(1.1rem, 2.2vw, 1.45rem);
-}
-h4 {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.35;
+/* Headings — Space Grotesk, tight, confident.
+   Wrapped in @layer base so utilities can override. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 4rem);
+  }
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+  }
+  h3 {
+    font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  }
+  h4 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
 }
 
 @layer base {
@@ -244,13 +244,13 @@ h4 {
   }
 }
 
-/* Selection */
+/* Selection — lime */
 ::selection {
   background: var(--accent-primary-soft);
-  color: var(--accent-primary-deep);
+  color: var(--accent-primary);
 }
 
-/* Scrollbar — soft */
+/* Scrollbar — minimal */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -268,62 +268,60 @@ h4 {
 
 /* --- Signature Utility Classes --- */
 
-/* Cozy card — soft surface, 1px border, gentle shadow, rounded */
+/* Panel — flat surface, 1px border, small radius */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* Legacy alias: cozy-card -> panel (kept so old classNames don't break) */
 .cozy-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
 }
 
-/* Glassmorphism panel (kept for landing accents) */
+/* Legacy alias: glass -> panel (no glassmorphism in new system) */
 .glass {
   background: var(--surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
 }
 
-/* Gradient border card — soft cozy gradient */
+/* Legacy: gradient-border -> plain bordered panel */
 .gradient-border {
-  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(var(--surface-solid), var(--surface-solid)) padding-box,
-    linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary)) border-box;
-  border: 1px solid transparent;
-  box-shadow: var(--shadow-sm);
 }
 
-/* Gradient text — warm */
+/* Legacy: gradient-text -> solid lime */
 .gradient-text {
-  background: linear-gradient(100deg, var(--accent-primary-deep), var(--accent-secondary-deep) 55%, var(--accent-tertiary-deep));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--accent-primary);
 }
 
-/* Animated gradient background (soft) */
-.animated-gradient {
-  background: linear-gradient(120deg, var(--accent-primary-soft), var(--accent-secondary-soft), var(--accent-tertiary-soft), var(--accent-primary-soft));
-  background-size: 300% 300%;
-  animation: gradient-shift 14s ease infinite;
+/* Dot-grid texture — restrained techy background */
+.dotgrid {
+  background-image: radial-gradient(circle, var(--border-strong) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 1;
+}
+.dotgrid-fade {
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
 }
 
-/* Soft glow helpers (gentle, not neon) */
-.glow-primary {
-  box-shadow: var(--shadow-accent);
-}
-.glow-success {
-  box-shadow: 0 4px 16px rgba(107, 158, 110, 0.2);
-}
-.glow-error {
-  box-shadow: 0 4px 16px rgba(201, 111, 90, 0.2);
+/* Mono micro-label */
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-tertiary);
 }
 
-/* Status dot with soft pulse */
+/* Status dot with pulse ring */
 .status-dot {
   position: relative;
   width: 8px;
@@ -341,15 +339,6 @@ h4 {
   animation: pulse-ring 2s ease-out infinite;
 }
 
-/* Terminal-style panel — warm dark */
-.terminal {
-  background: #241e19;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-family: var(--font-mono);
-  color: #e8dcc8;
-}
-
 /* Shimmer skeleton */
 .shimmer {
   position: relative;
@@ -362,14 +351,14 @@ h4 {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
   animation: shimmer-slide 1.6s ease-in-out infinite;
 }
-[data-theme="dark"] .shimmer::after {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+[data-theme="light"] .shimmer::after {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
 }
 
-/* Focus ring — soft */
+/* Focus ring — lime */
 .focus-ring:focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
@@ -378,10 +367,11 @@ h4 {
 
 /* Micro-interaction helpers (GPU only) */
 .lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .lift:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
   box-shadow: var(--shadow-md);
 }
 .press {
@@ -398,7 +388,7 @@ h4 {
   animation-delay: calc(var(--stagger-index, 0) * 70ms);
 }
 
-/* Scroll reveal helper (for whileInView fallbacks) */
+/* Scroll reveal helper */
 .reveal {
   opacity: 0;
   transform: translateY(24px);
@@ -409,23 +399,32 @@ h4 {
   transform: translateY(0);
 }
 
+/* Blinking block cursor (composer demo) */
+.tcursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--accent-primary);
+  vertical-align: -2px;
+  margin-left: 2px;
+  animation: cursor-blink 1.05s steps(1) infinite;
+}
+
+/* Mascot idle animation */
+.mascot {
+  animation: mascot-bob 3.4s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+.m-ant {
+  animation: mascot-ant 2.4s ease-in-out infinite;
+}
+.m-shadow {
+  animation: mascot-shadow 3.4s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
 /* --- Keyframes (transform/opacity only) --- */
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-14px); }
-}
-
-@keyframes float-gentle {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(1.5deg); }
-}
-
 @keyframes pulse-ring {
   0% { transform: scale(0.6); opacity: 0.5; }
   100% { transform: scale(1.6); opacity: 0; }
@@ -450,20 +449,33 @@ h4 {
   to { opacity: 1; }
 }
 
-@keyframes drift {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(12px, -14px); }
-  66% { transform: translate(-10px, 8px); }
+@keyframes cursor-blink {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0; }
+}
+
+@keyframes mascot-bob {
+  0%, 100% { transform: translateY(0) rotate(-1.6deg); }
+  50% { transform: translateY(-9px) rotate(1.6deg); }
+}
+
+@keyframes mascot-ant {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@keyframes mascot-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.32; }
+  50% { transform: scaleX(0.8); opacity: 0.2; }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
 }
 
 .animate-float-slow {
   animation: float-slow 7s ease-in-out infinite;
-}
-.animate-float-gentle {
-  animation: float-gentle 8s ease-in-out infinite;
-}
-.animate-drift {
-  animation: drift 14s ease-in-out infinite;
 }
 .animate-pulse-soft {
   animation: pulse-soft 2.6s ease-in-out infinite;

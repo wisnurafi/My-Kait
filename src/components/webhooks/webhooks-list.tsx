@@ -19,16 +19,16 @@ import {
 } from "@/server/actions/webhooks";
 import { PingHistory } from "@/components/webhooks/ping-history";
 import { EditWebhookForm } from "@/components/webhooks/edit-webhook-form";
-import { Search, Zap, Trash2, Send, RefreshCw, Pencil } from "lucide-react";
+import { Search, Zap, Trash2, Send, RefreshCw, Pencil, Webhook } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type WebhookStatus = "active" | "invalid" | "rate_limited" | "unchecked";
 
-const statusConfig: Record<WebhookStatus, { variant: "active" | "danger" | "warning" | "default"; icon: string; pulse: boolean }> = {
-  active: { variant: "active", icon: "", pulse: true },
-  invalid: { variant: "danger", icon: "✕", pulse: false },
-  rate_limited: { variant: "warning", icon: "⏳", pulse: false },
-  unchecked: { variant: "default", icon: "?", pulse: false },
+const statusConfig: Record<WebhookStatus, { variant: "active" | "danger" | "warning" | "default"; pulse: boolean }> = {
+  active: { variant: "active", pulse: true },
+  invalid: { variant: "danger", pulse: false },
+  rate_limited: { variant: "warning", pulse: false },
+  unchecked: { variant: "default", pulse: false },
 };
 
 type ConfirmTarget = { kind: "delete" | "test"; id: string } | null;
@@ -112,7 +112,9 @@ export function WebhooksList({
   if (filteredWebhooks.length === 0 && !search) {
     return (
       <Card className="p-12 text-center animate-fade-in">
-        <div className="text-5xl mb-4">🪝</div>
+        <div className="mx-auto mb-4 w-12 h-12 rounded-lg bg-accent-soft border border-accent/40 flex items-center justify-center">
+          <Webhook size={22} className="text-accent" />
+        </div>
         <p className="text-fg-secondary text-lg">{t("noWebhooks")}</p>
       </Card>
     );
@@ -172,8 +174,8 @@ export function WebhooksList({
                     ) : (
                       <h3 className="font-display text-lg font-bold uppercase tracking-[0.05em]">{wh.name}</h3>
                     )}
-                    <Badge variant={sc.variant} pulse={sc.pulse}>
-                      {sc.icon} {t(`status.${wh.lastStatus}`)}
+                    <Badge variant={sc.variant} pulse={sc.pulse} dot={!sc.pulse}>
+                      {t(`status.${wh.lastStatus}`)}
                     </Badge>
                   </div>
                   {wh.guildName && wh.channelName && (

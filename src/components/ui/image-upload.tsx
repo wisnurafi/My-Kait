@@ -4,12 +4,12 @@
  * Image upload component for embed images.
  * Uploads to Vercel Blob, returns URL.
  * See PRD section 3.10 (P2).
- * RawBlock styling: no radius, thick borders, uppercase tabs.
  */
 
 import { useState, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Upload, X, Link as LinkIcon, Loader2 } from "lucide-react";
 
@@ -65,35 +65,33 @@ export function ImageUpload({
     }
   }
 
+  const tabClasses = (isActive: boolean) =>
+    cn(
+      "flex items-center gap-1.5 px-3 py-1.5",
+      "font-mono text-[11px] font-medium uppercase tracking-wide leading-none",
+      "rounded-lg border cursor-pointer transition-colors duration-150 press",
+      isActive
+        ? "bg-accent text-[#0a0a0b] border-transparent"
+        : "bg-surface text-fg-secondary border-border-ink hover:text-fg hover:border-border-strong",
+    );
+
   return (
     <div className="space-y-1.5">
-      {label && (
-        <label className="block font-display font-bold text-[14px] mb-1">{label}</label>
-      )}
+      {label && <Label>{label}</Label>}
 
       {/* Mode tabs */}
       <div className="flex gap-1 mb-1.5">
         <button
           type="button"
           onClick={() => setMode("url")}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full border cursor-pointer transition-all duration-150",
-            mode === "url"
-              ? "bg-accent text-[#fffdf9] border-transparent shadow-sm"
-              : "bg-surface text-fg-secondary border-border hover:text-fg hover:border-border-strong",
-          )}
+          className={tabClasses(mode === "url")}
         >
           <LinkIcon size={12} /> URL
         </button>
         <button
           type="button"
           onClick={() => setMode("upload")}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full border cursor-pointer transition-all duration-150",
-            mode === "upload"
-              ? "bg-accent text-[#fffdf9] border-transparent shadow-sm"
-              : "bg-surface text-fg-secondary border-border hover:text-fg hover:border-border-strong",
-          )}
+          className={tabClasses(mode === "upload")}
         >
           <Upload size={12} /> Upload
         </button>
@@ -123,7 +121,7 @@ export function ImageUpload({
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center justify-center h-11 px-4 text-sm rounded-2xl border-2 border-dashed border-border-strong cursor-pointer hover:bg-surface-hover hover:border-accent transition-colors"
+          className="flex items-center justify-center h-11 px-4 text-sm rounded-lg border border-dashed border-border-strong cursor-pointer hover:bg-surface-hover hover:border-accent transition-colors"
         >
           {uploading ? (
             <>
@@ -132,7 +130,7 @@ export function ImageUpload({
             </>
           ) : value ? (
             <div className="flex items-center gap-2 w-full">
-              <img src={value} alt="" className="h-8 w-8 object-cover" />
+              <img src={value} alt="" className="h-8 w-8 object-cover rounded" />
               <span className="text-xs text-fg-secondary truncate flex-1 font-mono">{value}</span>
               <Button
                 type="button"

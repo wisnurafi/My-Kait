@@ -1,5 +1,5 @@
 /**
- * Cozy Select — warm paper fill, rounded, sage focus ring.
+ * Select — sunken fill, 1px ink border, lime focus ring.
  */
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -12,12 +12,12 @@ export const Select = forwardRef<
     <select
       ref={ref}
       className={cn(
-        "w-full h-11 px-4 py-2.5 rounded-2xl",
+        "w-full h-11 px-4 py-2.5 rounded-lg",
         "bg-surface-input text-fg text-[15px]",
-        "border border-border shadow-sm cursor-pointer",
+        "border border-border-ink shadow-sm cursor-pointer",
         "hover:border-border-strong",
         "focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-primary-soft)]",
-        "transition-all duration-150",
+        "transition-colors duration-150",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         className,
       )}

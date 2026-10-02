@@ -1,6 +1,6 @@
 /**
- * Cozy Button — warm sage primary, soft terracotta destructive.
- * Rounded, gentle shadows. GPU-only micro-interactions.
+ * Button — flat, precise, lime primary.
+ * No gradients, no colored glows, no translate-lift. GPU-only press.
  */
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -9,25 +9,25 @@ type Variant = "primary" | "secondary" | "ghost" | "destructive";
 type Size = "sm" | "md" | "lg" | "icon";
 
 const variantClasses: Record<Variant, string> = {
-  // Sage green fill, cream text, soft shadow. Hover: lift + deepen.
+  // Lime fill, dark text, semibold. Hover: deepen.
   primary:
-    "text-[#2d2a26] border-transparent bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-primary-deep))] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(122,158,126,0.35)] hover:brightness-105",
-  // Warm surface, soft border. Hover: lift + warm tint.
+    "bg-accent text-[#0a0a0b] border-transparent hover:bg-accent-deep",
+  // Surface fill, 1px ink border. Hover: surface-hover + strong border.
   secondary:
-    "bg-surface text-fg border-border hover:bg-surface-hover hover:border-border-strong hover:-translate-y-0.5 hover:shadow-md",
-  // Transparent, subtle. Hover: sage text + soft bg.
+    "bg-surface text-fg border-border-ink hover:bg-surface-hover hover:border-border-strong",
+  // Transparent. Hover: subtle surface wash.
   ghost:
-    "bg-transparent text-fg-secondary border-transparent hover:text-accent-deep hover:bg-accent-soft",
-  // Soft terracotta. Hover: lift + soft shadow.
+    "bg-transparent text-fg-secondary border-transparent hover:bg-surface-hover hover:text-fg",
+  // Solid error fill, white text. Hover: slightly transparent.
   destructive:
-    "text-[#fffdf9] border-transparent bg-[linear-gradient(135deg,var(--accent-secondary),var(--accent-secondary-deep))] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(217,142,115,0.35)] hover:brightness-105",
+    "bg-error text-white border-transparent hover:bg-error/90",
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: "h-9 px-4 text-xs rounded-xl",
-  md: "h-11 px-6 text-sm rounded-2xl",
-  lg: "h-14 px-10 text-base rounded-2xl",
-  icon: "h-10 w-10 text-sm rounded-2xl",
+  sm: "h-9 px-4 text-xs rounded-lg",
+  md: "h-11 px-6 text-sm rounded-lg",
+  lg: "h-14 px-10 text-base rounded-lg",
+  icon: "h-10 w-10 text-sm rounded-lg",
 };
 
 export interface ButtonProps
@@ -43,10 +43,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center gap-2 font-bold",
-          "font-display cursor-pointer select-none border",
-          "transition-all duration-150 ease-out press shadow-sm",
-          "disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:brightness-100 disabled:hover:shadow-none",
+          "inline-flex items-center justify-center gap-2 font-semibold",
+          "cursor-pointer select-none border",
+          "transition-colors duration-150 press",
+          "disabled:opacity-45 disabled:cursor-not-allowed",
           "focus-ring",
           variantClasses[variant],
           sizeClasses[size],
