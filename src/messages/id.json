@@ -175,7 +175,9 @@
       "logs": {
         "title": "Riwayat lengkap",
         "desc": "Lacak setiap pengiriman dengan detail"
-      }
+      },
+      "title": "Fitur Unggulan",
+      "subtitle": "Semua yang kamu butuhkan untuk mengelola webhook Discord dengan nyaman."
     }
   },
   "webhooks": {

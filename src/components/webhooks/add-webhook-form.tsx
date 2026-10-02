@@ -40,7 +40,7 @@ export function AddWebhookForm() {
   }
 
   return (
-    <Card className="bg-surface border-[3px] border-border-ink p-5">
+    <Card className="p-5">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

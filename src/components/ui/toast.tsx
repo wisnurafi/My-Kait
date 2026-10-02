@@ -33,7 +33,7 @@ export const toast = {
 const kindStyles: Record<ToastKind, { icon: typeof CheckCircle2; ring: string; iconColor: string }> = {
   success: { icon: CheckCircle2, ring: "border-[rgba(52,211,153,0.4)]", iconColor: "text-success" },
   error: { icon: XCircle, ring: "border-[rgba(251,113,133,0.4)]", iconColor: "text-error" },
-  info: { icon: Info, ring: "border-[rgba(88,101,242,0.45)]", iconColor: "text-accent-bright" },
+  info: { icon: Info, ring: "border-[rgba(122,158,126,0.45)]", iconColor: "text-accent-bright" },
 };
 
 export function Toaster() {

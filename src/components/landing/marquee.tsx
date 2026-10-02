@@ -2,10 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
+import { Sparkles } from "lucide-react";
 
 /**
- * RawBlock Marquee — infinite scrolling banner.
- * Inverted strip with display font, soft gradient edge fades.
+ * Cozy Marquee — infinite scrolling banner with warm gradient.
+ * Soft, rounded, gentle motion.
  */
 export function Marquee() {
   const t = useTranslations("landing");
@@ -15,13 +16,13 @@ export function Marquee() {
   const doubled = [...items, ...items, ...items, ...items];
 
   return (
-    <div className="relative bg-fg text-bg border-y-[5px] border-border-ink overflow-hidden">
+    <div className="relative overflow-hidden bg-[linear-gradient(100deg,var(--accent-primary-soft),var(--accent-secondary-soft),var(--accent-tertiary-soft))] border-y border-border">
       <div className="py-4">
         <motion.div
-          className="flex gap-8 whitespace-nowrap"
+          className="flex gap-10 whitespace-nowrap"
           animate={{ x: ["0%", "-50%"] }}
           transition={{
-            duration: 20,
+            duration: 28,
             repeat: Infinity,
             ease: "linear",
           }}
@@ -29,17 +30,17 @@ export function Marquee() {
           {doubled.map((item, i) => (
             <span
               key={i}
-              className="font-display text-2xl md:text-3xl uppercase flex items-center gap-8"
+              className="font-display font-extrabold text-xl md:text-2xl text-fg flex items-center gap-10"
             >
-              {item}
-              <span className="inline-block w-3 h-3 bg-bg" />
+              {item.trim()}
+              <Sparkles size={18} className="text-accent-secondary-deep shrink-0" />
             </span>
           ))}
         </motion.div>
       </div>
-      {/* Gradient edge fades */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[var(--fg)] to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[var(--fg)] to-transparent" />
+      {/* Soft edge fades */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[var(--bg)] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[var(--bg)] to-transparent" />
     </div>
   );
 }

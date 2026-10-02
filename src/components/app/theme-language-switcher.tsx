@@ -78,7 +78,7 @@ function ThemeButton({
       className={cn(
         "p-1.5 rounded-full transition-all duration-200 cursor-pointer",
         active
-          ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_10px_rgba(88,101,242,0.45)]"
+          ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_10px_rgba(122,158,126,0.45)]"
           : "text-fg-secondary hover:text-fg hover:bg-white/[0.06]",
       )}
     >

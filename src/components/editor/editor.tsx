@@ -442,7 +442,7 @@ export function Editor({
             <Card className="p-4 animate-fade-in">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))] text-white shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))] text-white shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
                     <Type size={14} />
                   </span>
                   <Label>{t("content")}</Label>
@@ -579,7 +579,7 @@ export function Editor({
           {/* Send form */}
           <Card className="p-4 animate-fade-in">
             <h3 className="flex items-center gap-2 font-bold text-sm mb-3 uppercase tracking-[0.05em]">
-              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary))] text-white shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary))] text-white shadow-[0_4px_16px_rgba(122,158,126,0.35)]">
                 <Send size={14} />
               </span>
               {t("sendTo")}
@@ -818,7 +818,7 @@ function EmbedEditor({
               type="color"
               value={embed.color}
               onChange={(e) => update({ color: e.target.value })}
-              className="h-10 w-12 border-[3px] border-border-ink cursor-pointer"
+              className="h-10 w-12 rounded-xl border border-border shadow-sm cursor-pointer"
             />
             <Input
               value={embed.color}

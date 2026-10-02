@@ -1,5 +1,5 @@
 /**
- * RawBlock Label — Archivo Black, uppercase, bold.
+ * Cozy Label — Nunito bold, sentence case, warm.
  */
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,7 @@ export function Label({
     <label
       htmlFor={htmlFor}
       className={cn(
-        "block font-display text-[14px] uppercase mb-1",
+        "block font-display font-bold text-[14px] mb-1.5 text-fg",
         className,
       )}
     >

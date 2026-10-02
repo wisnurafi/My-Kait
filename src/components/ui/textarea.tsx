@@ -1,5 +1,5 @@
 /**
- * Neon Glass Textarea — dark glass fill, rounded, blurple focus glow.
+ * Cozy Textarea — warm paper fill, rounded, sage focus ring.
  */
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -12,13 +12,13 @@ export const Textarea = forwardRef<
     <textarea
       ref={ref}
       className={cn(
-        "w-full px-4 py-3 rounded-xl",
-        "bg-surface-input text-fg font-mono text-[15px]",
-        "border border-border-ink backdrop-blur-md",
+        "w-full px-4 py-3 rounded-2xl",
+        "bg-surface-input text-fg text-[15px]",
+        "border border-border shadow-sm",
         "hover:border-border-strong",
-        "focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(88,101,242,0.25)]",
+        "focus:outline-none focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-primary-soft)]",
         "transition-all duration-150 resize-y",
-        "placeholder:text-fg-tertiary placeholder:font-body",
+        "placeholder:text-fg-tertiary",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         className,
       )}

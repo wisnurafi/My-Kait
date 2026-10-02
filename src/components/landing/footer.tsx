@@ -17,7 +17,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             {/* Logo + tagline */}
             <div className="flex items-center gap-3">
-              <div className="drop-shadow-[0_0_18px_rgba(88,101,242,0.4)]">
+              <div className="drop-shadow-[0_0_18px_rgba(122,158,126,0.4)]">
                 <HookLogo size={32} />
               </div>
               <div>
