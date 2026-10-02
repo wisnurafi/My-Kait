@@ -44,8 +44,10 @@ import {
   ChevronUp,
   Palette,
   Save,
+  SlidersHorizontal,
 } from "lucide-react";
 import { SaveTemplateModal } from "@/components/editor/save-template-modal";
+import { toast } from "@/components/ui/toast";
 
 /* --- Types --- */
 
@@ -305,7 +307,10 @@ export function Editor({
         const res = await editMessageAction(null, formData);
         setResult(res);
         if (res?.success) {
+          if (res.message) toast.success(res.message);
           setEditMessageId(null); // Exit edit mode after success
+        } else if (res?.error) {
+          toast.error(res.error);
         }
         return;
       }
@@ -313,7 +318,10 @@ export function Editor({
       const res = await sendMessageAction(null, formData);
       setResult(res);
       if (res?.success) {
+        if (res.message) toast.success(res.message);
         resetEditor();
+      } else if (res?.error) {
+        toast.error(res.error);
       }
     });
   }
@@ -360,7 +368,7 @@ export function Editor({
     <div className="space-y-4">
       {/* Edit mode indicator */}
       {editMessageId && (
-        <div className="flex items-center justify-between p-3 bg-surface border-[2px] border-warning">
+        <div className="glass flex items-center justify-between p-3 animate-fade-in border-warning/40">
           <span className="text-sm font-bold text-warning uppercase tracking-[0.05em]">
             Mode Edit — pesan akan di-PATCH, bukan kirim baru
           </span>
@@ -371,8 +379,8 @@ export function Editor({
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3 border-b-[3px] border-border-ink pb-3">
-        <h1 className="font-display text-3xl uppercase">{t("title")}</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3 border-b border-border-ink pb-3">
+        <h1 className="font-display text-3xl uppercase gradient-text">{t("title")}</h1>
         <div className="flex gap-2">
           <Button variant="ghost" size="sm" onClick={undo} disabled={historyIndex <= 0} className="gap-1.5 uppercase tracking-[0.05em]">
             <Undo size={16} /> {t("undo")}
@@ -394,7 +402,7 @@ export function Editor({
 
       {/* JSON Import/Export panel */}
       {showJson && (
-        <Card data-kbd-off className="p-4 bg-surface border-[3px] border-border-ink">
+        <Card data-kbd-off className="p-4 animate-fade-in">
           <Label>JSON Payload</Label>
           <Textarea
             value={jsonText}
@@ -431,9 +439,14 @@ export function Editor({
         <div className="space-y-4">
           {/* Content */}
           {(state.mode === "normal" || state.mode === "both") && (
-            <Card className="p-4 bg-surface border-[3px] border-border-ink">
+            <Card className="p-4 animate-fade-in">
               <div className="flex items-center justify-between mb-2">
-                <Label>{t("content")}</Label>
+                <div className="flex items-center gap-2">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))] text-white shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+                    <Type size={14} />
+                  </span>
+                  <Label>{t("content")}</Label>
+                </div>
                 <Badge variant={state.content.length > 2000 ? "danger" : "default"}>
                   {state.content.length}/2000
                 </Badge>
@@ -458,7 +471,9 @@ export function Editor({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-lg uppercase flex items-center gap-2">
-                  <Layers size={18} />
+                  <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-secondary),var(--accent-primary))] text-white shadow-[0_4px_16px_rgba(34,211,238,0.35)]">
+                    <Layers size={14} />
+                  </span>
                   {t("embeds")}
                 </h2>
                 <div className="flex items-center gap-2">
@@ -509,8 +524,13 @@ export function Editor({
           )}
 
           {/* Override section */}
-          <Card className="p-4 bg-surface border-[3px] border-border-ink">
-            <h3 className="font-bold text-sm mb-3 uppercase tracking-[0.05em]">{t("override")}</h3>
+          <Card className="p-4 animate-fade-in">
+            <h3 className="flex items-center gap-2 font-bold text-sm mb-3 uppercase tracking-[0.05em]">
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-tertiary),var(--accent-primary))] text-white shadow-[0_4px_16px_rgba(244,114,182,0.35)]">
+                <SlidersHorizontal size={14} />
+              </span>
+              {t("override")}
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <Label>{t("username")}</Label>
@@ -557,8 +577,13 @@ export function Editor({
           <DiscordPreview payload={payload} username={state.username} avatarUrl={state.avatarUrl} />
 
           {/* Send form */}
-          <Card className="p-4 bg-surface border-[3px] border-border-ink">
-            <h3 className="font-bold text-sm mb-3 uppercase tracking-[0.05em]">{t("sendTo")}</h3>
+          <Card className="p-4 animate-fade-in">
+            <h3 className="flex items-center gap-2 font-bold text-sm mb-3 uppercase tracking-[0.05em]">
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary))] text-white shadow-[0_4px_16px_rgba(88,101,242,0.35)]">
+                <Send size={14} />
+              </span>
+              {t("sendTo")}
+            </h3>
             <form ref={sendFormRef} onSubmit={handleSend} className="space-y-3">
               <div>
                 <Label>{t("selectWebhook")}</Label>
@@ -601,7 +626,7 @@ export function Editor({
                       {t("selectedCount", { count: sendConfig.multiTarget.length })}
                     </p>
                   )}
-                  <div className="space-y-1 max-h-36 overflow-y-auto mt-1 border-[2px] border-border-ink p-2 bg-background">
+                  <div className="terminal space-y-1 max-h-36 overflow-y-auto mt-1 p-2 text-xs">
                     {webhooks.map((wh) => (
                       <label key={wh.id} className="flex items-center gap-2 text-sm cursor-pointer">
                         <input
@@ -654,23 +679,26 @@ export function Editor({
                 <p className="text-sm text-success font-semibold uppercase tracking-[0.05em]">{result.message}</p>
               )}
               {result?.results && result.results.length > 0 && (
-                <div className="border-[2px] border-border-ink p-2 space-y-1 max-h-40 overflow-y-auto bg-background">
+                <div className="terminal space-y-1.5 max-h-40 overflow-y-auto p-3 text-xs" aria-live="polite">
                   {result.results.map((r) => (
-                    <div key={r.id} className="flex items-center gap-2 text-sm">
-                      <span className={r.success ? "text-success font-bold" : "text-error font-bold"}>
+                    <div key={r.id} className="flex items-center gap-2">
+                      <span className={r.success ? "text-success font-bold" : "text-error font-bold"} aria-hidden="true">
                         {r.success ? "✓" : "✗"}
                       </span>
-                      <span className="flex-1 truncate">{r.name}</span>
+                      <span className="flex-1 truncate text-fg-secondary">{r.name}</span>
+                      {r.success && r.messageId && (
+                        <span className="text-fg-tertiary truncate">#{r.messageId}</span>
+                      )}
                       {!r.success && r.error && (
-                        <span className="text-xs text-error truncate max-w-[50%]">{r.error}</span>
+                        <span className="text-error truncate max-w-[50%]">{r.error}</span>
                       )}
                     </div>
                   ))}
                 </div>
               )}
-              <Button type="submit" disabled={pending || !canSend} title={t("kbdSend", { mod: modKey })} className="w-full gap-2 uppercase tracking-[0.05em]" size="lg">
+              <Button type="submit" disabled={pending || !canSend} title={t("kbdSend", { mod: modKey })} className="w-full gap-2 uppercase tracking-[0.05em] glow-primary" size="lg">
                 {pending ? (
-                  <span className="inline-block h-5 w-5 animate-spin border-[3px] border-current border-t-transparent" />
+                  <span className="inline-block h-5 w-5 animate-spin rounded-full border-[3px] border-current border-t-transparent" />
                 ) : (
                   <Send size={20} />
                 )}
@@ -718,7 +746,15 @@ function EmbedEditor({
   }
 
   return (
-    <Card className="p-4 bg-surface border-[3px] border-border-ink">
+    <Card className="relative overflow-hidden p-4 animate-fade-in">
+      <div
+        aria-hidden="true"
+        className="absolute inset-y-0 left-0 w-1 rounded-l-2xl"
+        style={{
+          background: `linear-gradient(180deg, ${embed.color}, ${embed.color}66)`,
+          boxShadow: `0 0 16px ${embed.color}`,
+        }}
+      />
       <div className="flex items-center justify-between mb-3">
         <button
           onClick={() => setExpanded(!expanded)}
@@ -1050,7 +1086,7 @@ function RoleMentionHelper({ onInsert }: { onInsert: (mention: string) => void }
   }
 
   return (
-    <div className="mt-3 border-t-[2px] border-border-ink pt-3">
+    <div className="mt-3 border-t border-border-ink pt-3">
       <p className="text-xs font-bold uppercase tracking-[0.05em] mb-2">{t("mentionRole")}</p>
       <div className="flex gap-2">
         <Input

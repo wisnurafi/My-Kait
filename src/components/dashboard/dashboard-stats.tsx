@@ -1,8 +1,97 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
+import { Link2, SendHorizontal, TrendingUp } from "lucide-react";
 import type { DailyStat, WebhookStat } from "@/server/actions/stats";
+
+/* --- Animated count-up: rAF, easeOutCubic, 800ms --- */
+function useCountUp(target: number, duration = 800) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setValue(target);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return value;
+}
+
+/* --- 3 count cards: glass + gradient top accent bar + glowing icon --- */
+export function StatCards({
+  webhooks,
+  sent,
+  successRate,
+}: {
+  webhooks: number;
+  sent: number;
+  successRate: number;
+}) {
+  const t = useTranslations("dashboard");
+  const stats = [
+    { label: t("webhooksCount"), value: webhooks, suffix: "", icon: Link2 },
+    { label: t("messagesSent"), value: sent, suffix: "", icon: SendHorizontal },
+    { label: t("successRate"), value: successRate, suffix: "%", icon: TrendingUp },
+  ];
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {stats.map((s, i) => (
+        <StatCard key={s.label} label={s.label} value={s.value} suffix={s.suffix} icon={s.icon} index={i} />
+      ))}
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  suffix,
+  icon: Icon,
+  index,
+}: {
+  label: string;
+  value: number;
+  suffix: string;
+  icon: typeof Link2;
+  index: number;
+}) {
+  const count = useCountUp(value);
+  return (
+    <div className="stagger-in" style={{ "--stagger-index": index } as CSSProperties}>
+      <Card className="p-5 relative overflow-hidden lift">
+        {/* gradient top accent bar */}
+        <div
+          aria-hidden
+          className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-accent via-accent-2 to-accent-3"
+        />
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="font-display text-4xl tabular-nums">
+              {count}
+              {suffix}
+            </div>
+            <div className="text-sm text-fg-secondary mt-1">{label}</div>
+          </div>
+          <div className="rounded-xl p-2.5 bg-[rgba(88,101,242,0.12)] border border-[rgba(88,101,242,0.35)] glow-primary shrink-0">
+            <Icon size={20} className="text-accent-bright" />
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
 
 /* --- Messages per day: SVG stacked bar chart --- */
 function DailyChart({ daily }: { daily: DailyStat[] }) {
@@ -13,13 +102,23 @@ function DailyChart({ daily }: { daily: DailyStat[] }) {
   const barW = W / daily.length;
 
   return (
-    <Card className="p-5">
+    <Card className="p-5" elevated>
       <h3 className="font-display text-lg uppercase mb-4">{t("stats.perDay")}</h3>
       {daily.every((d) => d.total === 0) ? (
         <p className="text-sm text-fg-secondary py-8 text-center">{t("stats.noData")}</p>
       ) : (
         <div>
           <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={t("stats.perDay")}>
+            <defs>
+              <linearGradient id="daily-sent" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#22d3ee" />
+                <stop offset="100%" stopColor="#5865f2" />
+              </linearGradient>
+              <linearGradient id="daily-fail" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#fb7185" />
+                <stop offset="100%" stopColor="#be123c" />
+              </linearGradient>
+            </defs>
             {daily.map((d, i) => {
               const h = Math.max(2, (d.total / max) * (H - 24));
               const sentH = (d.sent / Math.max(1, d.total)) * h;
@@ -31,7 +130,8 @@ function DailyChart({ daily }: { daily: DailyStat[] }) {
                     y={H - 20 - h}
                     width={barW - 2}
                     height={h}
-                    fill="var(--color-error, #dc2626)"
+                    rx={3}
+                    fill="url(#daily-fail)"
                     opacity={0.85}
                   />
                   <rect
@@ -39,12 +139,14 @@ function DailyChart({ daily }: { daily: DailyStat[] }) {
                     y={H - 20 - sentH}
                     width={barW - 2}
                     height={sentH}
-                    fill="currentColor"
+                    rx={3}
+                    fill="url(#daily-sent)"
+                    className="transition-[filter] duration-200 hover:[filter:drop-shadow(0_0_10px_rgba(34,211,238,0.85))]"
                   />
                 </g>
               );
             })}
-            <line x1={0} y1={H - 20} x2={W} y2={H - 20} stroke="currentColor" strokeWidth={2} />
+            <line x1={0} y1={H - 20} x2={W} y2={H - 20} stroke="var(--color-border-ink)" strokeWidth={1} />
           </svg>
           <div className="flex justify-between text-[10px] font-mono text-fg-tertiary mt-1">
             <span>{daily[0]?.date.slice(5)}</span>
@@ -52,11 +154,11 @@ function DailyChart({ daily }: { daily: DailyStat[] }) {
           </div>
           <div className="flex gap-4 mt-3 text-xs">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 bg-ink border border-border-ink" />
+              <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-b from-accent-2 to-accent" />
               {t("stats.sent")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 bg-error border border-border-ink" />
+              <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-b from-error to-[#be123c]" />
               {t("stats.failed")}
             </span>
           </div>
@@ -78,8 +180,8 @@ function WebhookChart({ webhooks }: { webhooks: WebhookStat[] }) {
         <p className="text-sm text-fg-secondary py-8 text-center">{t("stats.noData")}</p>
       ) : (
         <div className="space-y-3">
-          {webhooks.map((w) => (
-            <div key={w.webhookId ?? w.name}>
+          {webhooks.map((w, i) => (
+            <div key={w.webhookId ?? w.name} className="stagger-in" style={{ "--stagger-index": i } as CSSProperties}>
               <div className="flex justify-between text-xs mb-1">
                 <span className="font-bold truncate max-w-[60%]">{w.name}</span>
                 <span className="font-mono text-fg-secondary">
@@ -87,9 +189,9 @@ function WebhookChart({ webhooks }: { webhooks: WebhookStat[] }) {
                   {w.failed > 0 && <span className="text-error"> · {w.failed} ✗</span>}
                 </span>
               </div>
-              <div className="h-5 bg-sunken border-2 border-border-ink">
+              <div className="h-5 rounded-full bg-sunken border border-border-ink overflow-hidden">
                 <div
-                  className="h-full bg-ink"
+                  className="h-full rounded-full bg-gradient-to-r from-accent to-accent-2 shadow-[0_0_12px_rgba(88,101,242,0.45)]"
                   style={{ width: `${(w.total / max) * 100}%` }}
                 />
               </div>
@@ -113,21 +215,28 @@ function SuccessDonut({ rate, sent, failed }: { rate: number; sent: number; fail
       <h3 className="font-display text-lg uppercase mb-4 self-start">{t("stats.successRate")}</h3>
       <div className="relative">
         <svg width={140} height={140} viewBox="0 0 140 140">
+          <defs>
+            <linearGradient id="donut-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#5865f2" />
+              <stop offset="100%" stopColor="#22d3ee" />
+            </linearGradient>
+          </defs>
           <circle cx={70} cy={70} r={R} fill="none" strokeWidth={14}
             stroke="var(--color-sunken, #e5e5e5)" />
           <circle cx={70} cy={70} r={R} fill="none" strokeWidth={14}
-            stroke="currentColor"
+            stroke="url(#donut-grad)"
             strokeDasharray={C}
             strokeDashoffset={offset}
-            strokeLinecap="square"
-            transform="rotate(-90 70 70)" />
+            strokeLinecap="round"
+            transform="rotate(-90 70 70)"
+            style={{ filter: "drop-shadow(0 0 6px rgba(34,211,238,0.55))" }} />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="font-display text-3xl">{rate}%</span>
         </div>
       </div>
       <div className="flex gap-4 mt-4 text-xs">
-        <span className="font-mono">✓ {sent}</span>
+        <span className="font-mono text-success">✓ {sent}</span>
         <span className="font-mono text-error">✗ {failed}</span>
       </div>
       <p className="text-[11px] text-fg-tertiary mt-2">{t("stats.last30days")}</p>
@@ -150,11 +259,13 @@ export function DashboardStats({
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-2 stagger-in" style={{ "--stagger-index": 3 } as CSSProperties}>
         <DailyChart daily={daily} />
       </div>
-      <SuccessDonut rate={successRate} sent={sent} failed={failed} />
-      <div className="lg:col-span-3">
+      <div className="stagger-in" style={{ "--stagger-index": 4 } as CSSProperties}>
+        <SuccessDonut rate={successRate} sent={sent} failed={failed} />
+      </div>
+      <div className="lg:col-span-3 stagger-in" style={{ "--stagger-index": 5 } as CSSProperties}>
         <WebhookChart webhooks={webhooks} />
       </div>
     </div>

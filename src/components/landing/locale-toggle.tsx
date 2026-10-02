@@ -26,8 +26,8 @@ export function LandingLocaleToggle() {
       title={locale === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia"}
       className={cn(
         "fixed top-6 right-[5.5rem] z-50 h-11 px-3 flex items-center gap-1.5 cursor-pointer",
-        "border-[3px] border-border-ink bg-surface hover:bg-surface-hover transition-colors duration-100",
-        "font-mono font-bold text-sm uppercase",
+        "glass rounded-full lift",
+        "font-mono font-bold text-sm uppercase text-fg",
         "focus-ring",
       )}
     >

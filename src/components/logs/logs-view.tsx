@@ -8,11 +8,13 @@
 import { useState, useTransition, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Badge, FilterChip } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { ConfirmDialog } from "@/components/ui/dialog";
+import { toast } from "@/components/ui/toast";
 import { clearLogsAction, deleteMessageAction } from "@/server/actions/messages";
 import { saveAsTemplateAction } from "@/server/actions/templates";
 import {
@@ -22,12 +24,12 @@ import {
   ChevronRight,
   X,
   Copy,
-  Send,
   Pencil,
   Eye,
   RefreshCw,
   Download,
   Save,
+  Terminal,
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { DiscordPreview } from "@/components/editor/discord-preview";
@@ -36,13 +38,17 @@ import { useState as useReactState } from "react";
 type MessageStatus = "sent" | "failed" | "rate_limited" | "edited" | "deleted";
 type MessageMode = "normal" | "embed" | "both";
 
-const statusConfig: Record<MessageStatus, { variant: "success" | "danger" | "warning" | "info" | "default"; icon: string }> = {
-  sent: { variant: "success", icon: "✓" },
-  failed: { variant: "danger", icon: "✕" },
-  rate_limited: { variant: "warning", icon: "⏳" },
-  edited: { variant: "info", icon: "✎" },
-  deleted: { variant: "default", icon: "🗑" },
+const statusConfig: Record<MessageStatus, { variant: "success" | "danger" | "warning" | "info" | "default" }> = {
+  sent: { variant: "success" },
+  failed: { variant: "danger" },
+  rate_limited: { variant: "warning" },
+  edited: { variant: "info" },
+  deleted: { variant: "default" },
 };
+
+function staggerStyle(i: number) {
+  return { "--stagger-index": i } as React.CSSProperties;
+}
 
 export function LogsView({
   logsData,
@@ -77,6 +83,8 @@ export function LogsView({
   const [pending, startTransition] = useTransition();
   const [selectedLog, setSelectedLog] = useState<(typeof logsData.logs)[0] | null>(null);
   const [search, setSearch] = useReactState(currentFilters.search ?? "");
+  const [confirmClearOpen, setConfirmClearOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   function updateFilter(key: string, value: string) {
     const params = new URLSearchParams(currentFilters as Record<string, string>);
@@ -108,17 +116,51 @@ export function LogsView({
   }
 
   function handleClearLogs() {
-    if (!confirm(t("confirmClear"))) return;
+    setConfirmClearOpen(true);
+  }
+
+  function doClearLogs() {
+    setConfirmClearOpen(false);
     startTransition(async () => {
-      await clearLogsAction();
+      try {
+        await clearLogsAction();
+        toast.success("Semua log berhasil dihapus");
+      } catch {
+        toast.error("Gagal menghapus log");
+      }
     });
+  }
+
+  function doDeleteMessage() {
+    if (!selectedLog) return;
+    const logId = selectedLog.id;
+    setConfirmDeleteOpen(false);
+    const fd = new FormData();
+    fd.set("logId", logId);
+    startTransition(async () => {
+      const res = await deleteMessageAction(null, fd);
+      if (res && "error" in res && res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Pesan dihapus dari Discord");
+      }
+      setSelectedLog(null);
+    });
+  }
+
+  function loadIntoEditor(payload: Record<string, unknown> | null, editLogId?: string) {
+    const json = JSON.stringify(payload ?? {});
+    sessionStorage.setItem("mykait-import-payload", json);
+    if (editLogId) sessionStorage.setItem("mykait-edit-message-id", editLogId);
+    toast.success("Payload dimuat ke editor");
+    router.push("/editor");
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-3xl font-bold uppercase">{t("title")}</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             variant="secondary"
             size="sm"
@@ -156,172 +198,165 @@ export function LogsView({
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4 bg-surface border-[3px] border-border-ink">
-          <div className="text-2xl font-display font-bold text-success">{logsData.summary.sent}</div>
-          <div className="text-sm text-fg-secondary">{t("summary.sent")}</div>
-        </Card>
-        <Card className="p-4 bg-surface border-[3px] border-border-ink">
-          <div className="text-2xl font-display font-bold text-error">{logsData.summary.failed}</div>
-          <div className="text-sm text-fg-secondary">{t("summary.failed")}</div>
-        </Card>
-        <Card className="p-4 bg-surface border-[3px] border-border-ink">
-          <div className="text-2xl font-display font-bold">{logsData.summary.successRate}%</div>
-          <div className="text-sm text-fg-secondary">{t("summary.successRate")}</div>
-        </Card>
+        {[
+          { value: logsData.summary.sent, label: t("summary.sent"), color: "text-success" },
+          { value: logsData.summary.failed, label: t("summary.failed"), color: "text-error" },
+          { value: `${logsData.summary.successRate}%`, label: t("summary.successRate"), color: "" },
+        ].map((s, i) => (
+          <div key={s.label} className="stagger-in" style={staggerStyle(i)}>
+            <Card hover className="p-5">
+              <div className={`text-3xl font-display font-bold ${s.color}`}>{s.value}</div>
+              <div className="text-sm text-fg-secondary mt-1">{s.label}</div>
+            </Card>
+          </div>
+        ))}
       </div>
 
       {/* Filters */}
-      <Card className="p-4 bg-surface border-[3px] border-border-ink">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div>
-            <Label>{t("filterStatus")}</Label>
-            <Select
-              value={currentFilters.status ?? ""}
-              onChange={(e) => updateFilter("status", e.target.value)}
-            >
-              <option value="">Semua</option>
-              <option value="sent">Terkirim</option>
-              <option value="failed">Gagal</option>
-              <option value="rate_limited">Rate limited</option>
-              <option value="edited">Diedit</option>
-              <option value="deleted">Dihapus</option>
-            </Select>
+      <div className="stagger-in" style={staggerStyle(3)}>
+        <Card className="p-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <Label>{t("filterStatus")}</Label>
+              <Select
+                value={currentFilters.status ?? ""}
+                onChange={(e) => updateFilter("status", e.target.value)}
+              >
+                <option value="">Semua</option>
+                <option value="sent">Terkirim</option>
+                <option value="failed">Gagal</option>
+                <option value="rate_limited">Rate limited</option>
+                <option value="edited">Diedit</option>
+                <option value="deleted">Dihapus</option>
+              </Select>
+            </div>
+            <div>
+              <Label>{t("filterWebhook")}</Label>
+              <Select
+                value={currentFilters.webhookId ?? ""}
+                onChange={(e) => updateFilter("webhookId", e.target.value)}
+              >
+                <option value="">Semua</option>
+                {webhooks.map((wh) => (
+                  <option key={wh.id} value={wh.id}>{wh.name}</option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <Label>{t("filterMode")}</Label>
+              <Select
+                value={currentFilters.mode ?? ""}
+                onChange={(e) => updateFilter("mode", e.target.value)}
+              >
+                <option value="">Semua</option>
+                <option value="normal">Normal</option>
+                <option value="embed">Embed</option>
+                <option value="both">Pesan + Embed</option>
+              </Select>
+            </div>
+            <div>
+              <Label>{t("filterDate")}</Label>
+              <Select
+                value={currentFilters.datePreset ?? "30d"}
+                onChange={(e) => updateFilter("datePreset", e.target.value)}
+              >
+                <option value="today">{t("datePresets.today")}</option>
+                <option value="7d">{t("datePresets.7d")}</option>
+                <option value="30d">{t("datePresets.30d")}</option>
+              </Select>
+            </div>
+            <div>
+              <Label>Urutan</Label>
+              <Select
+                value={currentFilters.sort ?? "newest"}
+                onChange={(e) => updateFilter("sort", e.target.value)}
+              >
+                <option value="newest">Terbaru</option>
+                <option value="oldest">Terlama</option>
+              </Select>
+            </div>
           </div>
-          <div>
-            <Label>{t("filterWebhook")}</Label>
-            <Select
-              value={currentFilters.webhookId ?? ""}
-              onChange={(e) => updateFilter("webhookId", e.target.value)}
-            >
-              <option value="">Semua</option>
-              {webhooks.map((wh) => (
-                <option key={wh.id} value={wh.id}>{wh.name}</option>
-              ))}
-            </Select>
-          </div>
-          <div>
-            <Label>{t("filterMode")}</Label>
-            <Select
-              value={currentFilters.mode ?? ""}
-              onChange={(e) => updateFilter("mode", e.target.value)}
-            >
-              <option value="">Semua</option>
-              <option value="normal">Normal</option>
-              <option value="embed">Embed</option>
-              <option value="both">Pesan + Embed</option>
-            </Select>
-          </div>
-          <div>
-            <Label>{t("filterDate")}</Label>
-            <Select
-              value={currentFilters.datePreset ?? "30d"}
-              onChange={(e) => updateFilter("datePreset", e.target.value)}
-            >
-              <option value="today">{t("datePresets.today")}</option>
-              <option value="7d">{t("datePresets.7d")}</option>
-              <option value="30d">{t("datePresets.30d")}</option>
-            </Select>
-          </div>
-          <div>
-            <Label>Urutan</Label>
-            <Select
-              value={currentFilters.sort ?? "newest"}
-              onChange={(e) => updateFilter("sort", e.target.value)}
-            >
-              <option value="newest">Terbaru</option>
-              <option value="oldest">Terlama</option>
-            </Select>
-          </div>
-        </div>
 
-        <div className="mt-3 flex gap-2 flex-wrap">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-tertiary" size={16} />
-            <Input
-              placeholder={t("searchPlaceholder")}
-              value={search}
-              onChange={handleSearch}
-              onKeyDown={(e) => e.key === "Enter" && applySearch()}
-              className="pl-9 bg-sunken border-[3px] border-border-ink font-mono text-[15px]"
-            />
+          <div className="mt-4 flex gap-2.5 flex-wrap items-center">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-tertiary" size={16} />
+              <Input
+                placeholder={t("searchPlaceholder")}
+                value={search}
+                onChange={handleSearch}
+                onKeyDown={(e) => e.key === "Enter" && applySearch()}
+                className="pl-9 font-mono"
+              />
+            </div>
+            <Button variant="secondary" size="sm" onClick={applySearch}>Cari</Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {currentFilters.status && (
+                <FilterChip active onClick={() => updateFilter("status", "")} className="inline-flex items-center gap-1.5">
+                  {t(`status.${currentFilters.status}`)} <X size={11} />
+                </FilterChip>
+              )}
+              {currentFilters.mode && (
+                <FilterChip active onClick={() => updateFilter("mode", "")} className="inline-flex items-center gap-1.5">
+                  {currentFilters.mode} <X size={11} />
+                </FilterChip>
+              )}
+              {currentFilters.search && (
+                <FilterChip active onClick={() => updateFilter("search", "")} className="inline-flex items-center gap-1.5">
+                  &ldquo;{currentFilters.search}&rdquo; <X size={11} />
+                </FilterChip>
+              )}
+              {(currentFilters.status || currentFilters.webhookId || currentFilters.mode || currentFilters.search) && (
+                <Button variant="ghost" size="sm" onClick={() => router.push("?")} className="gap-1">
+                  <X size={14} /> Reset
+                </Button>
+              )}
+            </div>
           </div>
-          <Button variant="secondary" size="sm" onClick={applySearch}>Cari</Button>
-          <div className="flex items-center gap-2 flex-wrap">
-            {currentFilters.status && (
-              <button
-                onClick={() => updateFilter("status", "")}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.05em] border-2 border-border-ink bg-surface text-fg"
-              >
-                {t(`status.${currentFilters.status}`)} <X size={10} />
-              </button>
-            )}
-            {currentFilters.mode && (
-              <button
-                onClick={() => updateFilter("mode", "")}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.05em] border-2 border-border-ink bg-surface text-fg"
-              >
-                {currentFilters.mode} <X size={10} />
-              </button>
-            )}
-            {currentFilters.search && (
-              <button
-                onClick={() => updateFilter("search", "")}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.05em] border-2 border-border-ink bg-surface text-fg"
-              >
-                "{currentFilters.search}" <X size={10} />
-              </button>
-            )}
-            {(currentFilters.status || currentFilters.webhookId || currentFilters.mode || currentFilters.search) && (
-              <Button variant="ghost" size="sm" onClick={() => router.push("?")} className="gap-1">
-                <X size={14} /> Reset
-              </Button>
-            )}
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
 
-      {/* Logs list */}
+      {/* Logs list — terminal style */}
       {logsData.logs.length === 0 ? (
-        <Card className="p-12 text-center bg-surface border-[3px] border-border-ink">
-          <div className="text-5xl mb-4">📭</div>
+        <Card className="p-12 text-center">
+          <Terminal size={40} className="mx-auto mb-4 text-fg-tertiary" />
           <p className="text-fg-secondary text-lg">{t("noLogs")}</p>
         </Card>
       ) : (
         <div className="space-y-2">
-          {logsData.logs.map((log) => {
+          {logsData.logs.map((log, i) => {
             const sc = statusConfig[log.status];
             return (
-              <Card key={log.id} className="p-4 bg-surface border-[3px] border-border-ink" hover>
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="flex items-center gap-3 flex-1 min-w-[200px]">
-                    <Badge variant={sc.variant} className="flex-shrink-0">
-                      {sc.icon} {t(`status.${log.status}`)}
-                    </Badge>
-                    <div>
-                      <div className="font-semibold text-sm">{log.webhookNameSnapshot}</div>
-                      <div className="text-xs text-fg-secondary">
-                        {log.mode} · {log.source}
-                        {log.httpStatus && ` · HTTP ${log.httpStatus}`}
-                        {log.latencyMs != null && ` · ${log.latencyMs}ms`}
+              <div key={log.id} className="stagger-in" style={staggerStyle(Math.min(i, 12))}>
+                <Card hover className="p-4">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-3 flex-1 min-w-[220px]">
+                      <Badge variant={sc.variant} dot className="flex-shrink-0">
+                        {t(`status.${log.status}`)}
+                      </Badge>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm truncate">{log.webhookNameSnapshot}</div>
+                        <div className="font-mono text-xs text-fg-tertiary mt-0.5">
+                          {new Date(log.createdAt).toLocaleString("id-ID")} · #{log.id.slice(0, 8)}
+                        </div>
+                        <div className="text-xs text-fg-secondary mt-0.5">
+                          {log.mode} · {log.source}
+                          {log.httpStatus && ` · HTTP ${log.httpStatus}`}
+                          {log.latencyMs != null && ` · ${log.latencyMs}ms`}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-fg-tertiary">
-                      {new Date(log.createdAt).toLocaleString("id-ID")}
-                    </span>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setSelectedLog(log)}
-                      className="gap-1"
+                      className="gap-1.5"
                     >
                       <Eye size={14} />
                       Detail
                     </Button>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             );
           })}
 
@@ -337,7 +372,7 @@ export function LogsView({
               >
                 <ChevronLeft size={16} /> Prev
               </Button>
-              <span className="text-sm text-fg-secondary">
+              <span className="text-sm text-fg-secondary font-mono">
                 {logsData.page} / {logsData.totalPages}
               </span>
               <Button
@@ -354,53 +389,65 @@ export function LogsView({
         </div>
       )}
 
-      {/* Detail drawer */}
+      {/* Detail panel */}
       {selectedLog && (
-        <div
-          className="fixed inset-0 z-50 flex justify-end"
-          style={{ backgroundColor: "color-mix(in srgb, var(--fg) 70%, transparent)" }}
-          onClick={() => setSelectedLog(null)}
-        >
+        <div className="fixed inset-0 z-50 flex justify-end">
           <div
-            className="w-full max-w-lg h-full bg-surface border-l-[5px] border-border-ink overflow-y-auto p-6"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setSelectedLog(null)}
+            aria-hidden
+          />
+          <div
+            className="relative w-full max-w-lg h-full glass overflow-y-auto p-6"
+            style={{ borderLeft: "1px solid var(--border)", borderRadius: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-5">
               <h2 className="font-display text-xl font-bold uppercase">Detail</h2>
               <Button variant="ghost" size="sm" onClick={() => setSelectedLog(null)}>
                 <X size={18} />
               </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               {/* Meta */}
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
+              <div className="space-y-2.5 text-sm">
+                <div className="flex justify-between items-center gap-3">
                   <span className="text-fg-secondary">{t("detail.messageId")}</span>
-                  <span className="font-mono text-xs">{selectedLog.discordMessageId ?? "—"}</span>
+                  <span className="font-mono text-xs text-fg-tertiary truncate">{selectedLog.discordMessageId ?? "—"}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center gap-3">
+                  <span className="text-fg-secondary">Log ID</span>
+                  <span className="font-mono text-xs text-fg-tertiary truncate">{selectedLog.id}</span>
+                </div>
+                <div className="flex justify-between items-center gap-3">
+                  <span className="text-fg-secondary">Waktu</span>
+                  <span className="font-mono text-xs text-fg-tertiary">
+                    {new Date(selectedLog.createdAt).toLocaleString("id-ID")}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center gap-3">
                   <span className="text-fg-secondary">Status</span>
-                  <Badge variant={statusConfig[selectedLog.status].variant}>
+                  <Badge variant={statusConfig[selectedLog.status].variant} dot>
                     {t(`status.${selectedLog.status}`)}
                   </Badge>
                 </div>
                 {selectedLog.httpStatus && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center gap-3">
                     <span className="text-fg-secondary">HTTP</span>
-                    <span>{selectedLog.httpStatus}</span>
+                    <span className="font-mono text-xs text-fg-tertiary">{selectedLog.httpStatus}</span>
                   </div>
                 )}
                 {selectedLog.latencyMs != null && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center gap-3">
                     <span className="text-fg-secondary">{t("detail.duration")}</span>
-                    <span>{selectedLog.latencyMs}ms</span>
+                    <span className="font-mono text-xs text-fg-tertiary">{selectedLog.latencyMs}ms</span>
                   </div>
                 )}
                 {selectedLog.error && (
                   <div>
-                    <div className="text-fg-secondary mb-1">{t("detail.error")}</div>
-                    <div className="text-xs p-2 bg-surface text-error border-[1px] border-error">
+                    <div className="text-fg-secondary mb-1.5">{t("detail.error")}</div>
+                    <div className="terminal p-3 text-xs text-error overflow-x-auto whitespace-pre-wrap">
                       {selectedLog.error}
                     </div>
                   </div>
@@ -408,101 +455,125 @@ export function LogsView({
               </div>
 
               {/* Actions */}
-            {selectedLog.payload && (
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="gap-1.5"
-                  onClick={() => {
-                    const payload = JSON.stringify(selectedLog.payload);
-                    sessionStorage.setItem("mykait-import-payload", payload);
-                    router.push("/editor");
-                  }}
-                >
-                  <Copy size={14} /> Duplikasi ke Editor
-                </Button>
-                {selectedLog.status === "failed" && (
+              {selectedLog.payload && (
+                <div className="flex gap-2 flex-wrap">
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     size="sm"
                     className="gap-1.5"
+                    onClick={() => loadIntoEditor(selectedLog.payload)}
+                  >
+                    <Copy size={14} /> Duplikasi ke Editor
+                  </Button>
+                  {selectedLog.status === "failed" && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => loadIntoEditor(selectedLog.payload)}
+                    >
+                      <RefreshCw size={14} /> Kirim Ulang
+                    </Button>
+                  )}
+                  {selectedLog.discordMessageId && selectedLog.webhookId && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => loadIntoEditor(selectedLog.payload, selectedLog.id)}
+                      >
+                        <Pencil size={14} /> Edit Pesan
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="gap-1.5"
+                        disabled={!selectedLog.discordMessageId || pending}
+                        onClick={() => setConfirmDeleteOpen(true)}
+                      >
+                        <Trash2 size={14} /> Hapus Pesan
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="gap-1.5"
+                    disabled={!selectedLog.payload || pending}
                     onClick={() => {
-                      const payload = JSON.stringify(selectedLog.payload);
-                      sessionStorage.setItem("mykait-import-payload", payload);
-                      router.push("/editor");
+                      startTransition(async () => {
+                        try {
+                          const fd = new FormData();
+                          fd.set("name", `${selectedLog.webhookNameSnapshot} (dari log)`);
+                          fd.set("payload", JSON.stringify(selectedLog.payload ?? {}));
+                          const res = await saveAsTemplateAction(null, fd);
+                          if (res && "error" in res && res.error) {
+                            toast.error(res.error);
+                          } else {
+                            toast.success("Template berhasil disimpan");
+                          }
+                        } catch {
+                          toast.error("Gagal menyimpan template");
+                        }
+                      });
                     }}
                   >
-                    <RefreshCw size={14} /> Kirim Ulang
+                    <Save size={14} /> Simpan Template
                   </Button>
-                )}
-                {selectedLog.discordMessageId && selectedLog.webhookId && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="gap-1.5"
-                      onClick={() => {
-                        const payload = JSON.stringify(selectedLog.payload);
-                        sessionStorage.setItem("mykait-import-payload", payload);
-                        sessionStorage.setItem("mykait-edit-message-id", selectedLog.id);
-                        router.push("/editor");
-                      }}
-                    >
-                      <Pencil size={14} /> Edit Pesan
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="gap-1.5"
-                      disabled={!selectedLog.discordMessageId}
-                      onClick={() => {
-                        if (!confirm("Hapus pesan ini dari Discord?")) return;
-                        const fd = new FormData();
-                        fd.set("logId", selectedLog.id);
-                        startTransition(async () => {
-                          await deleteMessageAction(null, fd);
-                          setSelectedLog(null);
-                        });
-                      }}
-                    >
-                      <Trash2 size={14} /> Hapus Pesan
-                    </Button>
-                  </>
-                )}
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="gap-1.5"
-                  disabled={!selectedLog.payload}
-                  onClick={() => {
-                    startTransition(async () => {
-                      const fd = new FormData();
-                      fd.set("name", `${selectedLog.webhookNameSnapshot} (dari log)`);
-                      fd.set("payload", JSON.stringify(selectedLog.payload ?? {}));
-                      await saveAsTemplateAction(null, fd);
-                    });
-                  }}
-                >
-                  <Save size={14} /> Simpan Template
-                </Button>
-              </div>
-            )}
+                </div>
+              )}
 
-            {/* Payload preview */}
-            {selectedLog.payload && (
-              <div>
-                <h3 className="font-display text-sm uppercase mb-2">{t("detail.payload")}</h3>
-                <DiscordPreview
-                  payload={selectedLog.payload ?? {}}
-                  username="My Kait"
-                />
-              </div>
-            )}
+              {/* Payload — terminal block */}
+              {selectedLog.payload && (
+                <div>
+                  <h3 className="font-display text-sm uppercase mb-2 flex items-center gap-1.5">
+                    <Terminal size={14} className="text-fg-tertiary" /> {t("detail.payload")}
+                  </h3>
+                  <pre className="terminal p-4 text-xs leading-relaxed overflow-auto max-h-72 whitespace-pre-wrap break-words">
+                    {JSON.stringify(selectedLog.payload, null, 2)}
+                  </pre>
+                </div>
+              )}
+
+              {/* Payload preview */}
+              {selectedLog.payload && (
+                <div>
+                  <h3 className="font-display text-sm uppercase mb-2">Preview</h3>
+                  <DiscordPreview
+                    payload={selectedLog.payload ?? {}}
+                    username="My Kait"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        </div>
       )}
+
+      {/* Confirm: clear all logs */}
+      <ConfirmDialog
+        open={confirmClearOpen}
+        onClose={() => setConfirmClearOpen(false)}
+        onConfirm={doClearLogs}
+        title={t("clearLogs")}
+        message={t("confirmClear")}
+        confirmLabel={t("clearLogs")}
+        loading={pending}
+        danger
+      />
+
+      {/* Confirm: delete Discord message */}
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        onConfirm={doDeleteMessage}
+        title="Hapus Pesan"
+        message="Hapus pesan ini dari Discord?"
+        confirmLabel="Hapus Pesan"
+        loading={pending}
+        danger
+      />
     </div>
   );
 }

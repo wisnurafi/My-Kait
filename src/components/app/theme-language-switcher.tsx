@@ -47,14 +47,14 @@ export function ThemeLanguageSwitcher() {
       {/* Language switcher */}
       <button
         onClick={switchLanguage}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold uppercase tracking-[0.05em] border-2 border-border-ink hover:bg-sunken transition-colors duration-100 cursor-pointer"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.05em] rounded-full border border-border-ink bg-white/[0.03] backdrop-blur hover:border-border-strong hover:bg-white/[0.07] transition-all duration-200 cursor-pointer"
       >
         <Globe size={14} />
         {locale.toUpperCase()}
       </button>
 
       {/* Theme switcher */}
-      <div className="flex items-center gap-0 p-0.5 border-2 border-border-ink">
+      <div className="flex items-center p-1 rounded-full border border-border-ink bg-white/[0.03] backdrop-blur">
         <ThemeButton icon={Monitor} active={theme === "system"} onClick={() => setTheme("system")} />
         <ThemeButton icon={Sun} active={theme === "light"} onClick={() => setTheme("light")} />
         <ThemeButton icon={Moon} active={theme === "dark"} onClick={() => setTheme("dark")} />
@@ -76,8 +76,10 @@ function ThemeButton({
     <button
       onClick={onClick}
       className={cn(
-        "p-1.5 transition-colors duration-100 cursor-pointer",
-        active ? "bg-fg text-bg" : "hover:bg-sunken text-fg-secondary",
+        "p-1.5 rounded-full transition-all duration-200 cursor-pointer",
+        active
+          ? "bg-gradient-to-r from-accent to-accent-2 text-white shadow-[0_0_10px_rgba(88,101,242,0.45)]"
+          : "text-fg-secondary hover:text-fg hover:bg-white/[0.06]",
       )}
     >
       <Icon size={14} />

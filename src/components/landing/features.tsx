@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
-import { Card } from "@/components/ui/card";
 import { Pencil, ShieldCheck, FileText, History } from "lucide-react";
 
 const features = [
@@ -18,7 +17,7 @@ export function Features() {
   return (
     <section className="py-24 px-6 border-t-[3px] border-border-ink">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-[3px] border-border-ink">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {features.map((f, i) => (
             <motion.div
               key={f.key}
@@ -26,21 +25,18 @@ export function Features() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="border-r-[3px] border-border-ink last:border-r-0 lg:border-b-0 border-b-[3px] lg:last:border-b-0"
             >
-              <Card className="h-full border-0 hover:bg-surface-hover">
-                <div className="p-6">
-                  <div className="mb-4">
-                    <f.icon size={40} className="text-fg" strokeWidth={2.5} />
-                  </div>
-                  <h3 className="font-display text-xl mb-2 uppercase">
-                    {t(`${f.key}.title`)}
-                  </h3>
-                  <p className="text-sm text-fg-secondary">
-                    {t(`${f.key}.desc`)}
-                  </p>
+              <div className="glass lift h-full p-6 hover:border-border-strong transition-colors">
+                <div className="mb-5 inline-flex rounded-xl bg-gradient-to-br from-accent via-accent-2 to-accent-3 p-3 glow-primary">
+                  <f.icon size={28} className="text-white" strokeWidth={2.25} />
                 </div>
-              </Card>
+                <h3 className="font-display text-xl mb-2 uppercase">
+                  {t(`${f.key}.title`)}
+                </h3>
+                <p className="text-sm text-fg-secondary">
+                  {t(`${f.key}.desc`)}
+                </p>
+              </div>
             </motion.div>
           ))}
         </div>

@@ -20,10 +20,12 @@ export default async function TemplatesPage({
   ]);
 
   return (
-    <TemplatesList
-      templates={templates}
-      folders={folders}
-      activeFolder={folder ?? "all"}
-    />
+    <div className="animate-fade-in">
+      <TemplatesList
+        templates={templates}
+        folders={folders}
+        activeFolder={folder ?? "all"}
+      />
+    </div>
   );
 }

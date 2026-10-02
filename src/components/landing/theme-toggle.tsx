@@ -8,7 +8,7 @@ type Theme = "system" | "light" | "dark";
 
 /**
  * Floating theme toggle for landing page.
- * RawBlock: square, thick border, inversion on active.
+ * Glass pill, cycling system → light → dark.
  */
 export function LandingThemeToggle() {
   const [theme, setTheme] = useState<Theme>("system");
@@ -53,7 +53,7 @@ export function LandingThemeToggle() {
       aria-label="Toggle theme"
       className={cn(
         "fixed top-6 right-6 z-50 w-11 h-11 flex items-center justify-center cursor-pointer",
-        "border-[3px] border-border-ink bg-surface hover:bg-surface-hover transition-colors duration-100",
+        "glass rounded-full lift",
         "focus-ring",
       )}
     >
