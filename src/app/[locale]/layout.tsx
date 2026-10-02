@@ -33,7 +33,10 @@ export const metadata: Metadata = {
   description:
     "Susun dan kirim pesan Discord lewat webhook. Editor visual, live preview, tanpa bot.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "48x48" },
+    ],
   },
 };
 
