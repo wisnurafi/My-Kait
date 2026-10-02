@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,7 @@ export function TemplatesList({
   activeFolder: string;
 }) {
   const t = useTranslations("templates");
+  const locale = useLocale();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [search, setSearch] = useReactState("");
@@ -154,8 +155,8 @@ export function TemplatesList({
     const template = initial.find((t) => t.id === id);
     if (!template) return;
     sessionStorage.setItem("mykait-import-payload", JSON.stringify(template.payload));
-    // Use full reload to ensure editor remounts and loads the payload
-    window.location.href = "/editor";
+    // Use full reload with locale prefix to ensure editor remounts and loads the payload
+    window.location.href = `/${locale}/editor`;
   }
 
   function handleSaveEdit(id: string) {
