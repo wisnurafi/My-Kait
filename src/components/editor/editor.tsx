@@ -300,7 +300,12 @@ export function Editor({
 
   /* --- Actions --- */
 
-  const [sendId] = useState(() => crypto.randomUUID());
+  // Idempotency key: must be unique per distinct message. It only needs to
+  // stay stable for the duration of ONE send attempt (double-clicks are
+  // blocked by `pending`; 429 retries happen server-side with the same key).
+  // It is rotated after every completed attempt — otherwise the 2nd message
+  // would reuse the 1st message's key and get blocked as "duplikat".
+  const [sendId, setSendId] = useState(() => crypto.randomUUID());
 
   function handleSend(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -331,6 +336,9 @@ export function Editor({
       }
 
       const res = await sendMessageAction(null, formData);
+      // Attempt is over — rotate the key so the next Send is treated as a
+      // new message, not a duplicate of this one.
+      setSendId(crypto.randomUUID());
       setResult(res);
       if (res?.success) {
         if (res.message) toast.success(res.message);
