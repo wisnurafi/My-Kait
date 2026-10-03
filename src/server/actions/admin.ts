@@ -444,15 +444,7 @@ export type AuditEntry = {
   createdAt: Date;
 };
 
-export const AUDIT_CATEGORIES = [
-  "all",
-  "report",
-  "share",
-  "template",
-  "user",
-  "admin",
-] as const;
-export type AuditCategory = (typeof AUDIT_CATEGORIES)[number];
+export type AuditCategory = "all" | "report" | "share" | "template" | "user" | "admin";
 
 export async function getAuditLogs(
   category?: AuditCategory,
