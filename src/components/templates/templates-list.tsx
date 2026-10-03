@@ -14,6 +14,7 @@ import { Select } from "@/components/ui/select";
 import { FilterChip } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   deleteTemplateAction,
   duplicateTemplateAction,
@@ -274,15 +275,16 @@ export function TemplatesList({
               <Folder size={14} className="shrink-0" />
               <span className="truncate">{t("folders.title")}</span>
             </h2>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setShowNewFolder((v) => !v)}
-              title={t("folders.new")}
-              className="gap-1"
-            >
-              <FolderPlus size={14} />
-            </Button>
+            <Tooltip content={t("folders.new")}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowNewFolder((v) => !v)}
+                className="gap-1"
+              >
+                <FolderPlus size={14} />
+              </Button>
+            </Tooltip>
           </div>
 
           {showNewFolder && (
@@ -295,9 +297,11 @@ export function TemplatesList({
                 onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
                 autoFocus
               />
-              <Button size="sm" onClick={handleCreateFolder} disabled={pending}>
-                <Check size={14} />
-              </Button>
+              <Tooltip content={t("folders.create")}>
+                <Button size="sm" onClick={handleCreateFolder} disabled={pending}>
+                  <Check size={14} />
+                </Button>
+              </Tooltip>
             </div>
           )}
 
@@ -336,23 +340,25 @@ export function TemplatesList({
                   )}
                 </div>
                 <div className="hidden group-hover:flex shrink-0">
-                  <button
-                    onClick={() => {
-                      setRenamingId(folder.id);
-                      setRenameValue(folder.name);
-                    }}
-                    className="p-1.5 text-fg-tertiary hover:text-fg cursor-pointer"
-                    title={t("folders.rename")}
-                  >
-                    <Pencil size={13} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteFolder(folder.id, folder.name)}
-                    className="p-1.5 text-fg-tertiary hover:text-error cursor-pointer"
-                    title={t("folders.delete")}
-                  >
-                    <Trash2 size={13} />
-                  </button>
+                  <Tooltip content={t("folders.rename")}>
+                    <button
+                      onClick={() => {
+                        setRenamingId(folder.id);
+                        setRenameValue(folder.name);
+                      }}
+                      className="p-1.5 text-fg-tertiary hover:text-fg cursor-pointer"
+                    >
+                      <Pencil size={13} />
+                    </button>
+                  </Tooltip>
+                  <Tooltip content={t("folders.delete")}>
+                    <button
+                      onClick={() => handleDeleteFolder(folder.id, folder.name)}
+                      className="p-1.5 text-fg-tertiary hover:text-error cursor-pointer"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </Tooltip>
                 </div>
               </div>
             ),
@@ -505,20 +511,24 @@ export function TemplatesList({
                             value={`${window.location.origin}/t/${shareSlug}`}
                             className="text-xs h-8 font-mono"
                           />
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => {
-                              navigator.clipboard.writeText(`${window.location.origin}/t/${shareSlug}`);
-                              toast.success(t("shareLinkCopied"));
-                            }}
-                          >
-                            <Copy size={12} />
-                          </Button>
-                          <a href={`/t/${shareSlug}`} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" variant="ghost">
-                              <ExternalLink size={14} />
+                          <Tooltip content={t("copyShareLink")}>
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}/t/${shareSlug}`);
+                                toast.success(t("shareLinkCopied"));
+                              }}
+                            >
+                              <Copy size={12} />
                             </Button>
+                          </Tooltip>
+                          <a href={`/t/${shareSlug}`} target="_blank" rel="noopener noreferrer">
+                            <Tooltip content={t("openShareLink")}>
+                              <Button size="sm" variant="ghost">
+                                <ExternalLink size={14} />
+                              </Button>
+                            </Tooltip>
                           </a>
                         </div>
                       </div>

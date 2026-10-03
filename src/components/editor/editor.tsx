@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { SaveTemplateModal } from "@/components/editor/save-template-modal";
 import { toast } from "@/components/ui/toast";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   extractCustomVariables,
   substitutePayloadVariables,
@@ -861,12 +862,16 @@ function EmbedEditor({
           Embed #{index + 1}
         </button>
         <div className="flex gap-1">
-          <Button variant="ghost" size="sm" onClick={onDuplicate}>
-            <Copy size={14} />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={onRemove} className="text-error">
-            <Trash2 size={14} />
-          </Button>
+          <Tooltip content={t("duplicateEmbed")}>
+            <Button variant="ghost" size="sm" onClick={onDuplicate}>
+              <Copy size={14} />
+            </Button>
+          </Tooltip>
+          <Tooltip content={t("removeEmbed")}>
+            <Button variant="ghost" size="sm" onClick={onRemove} className="text-error">
+              <Trash2 size={14} />
+            </Button>
+          </Tooltip>
         </div>
       </div>
 
