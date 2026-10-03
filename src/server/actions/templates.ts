@@ -6,6 +6,7 @@
  */
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { templates, templateShares, templateReports, users } from "@/lib/schema";
 import { eq, and, desc, ilike, or, sql, count, arrayContains } from "drizzle-orm";
@@ -13,6 +14,8 @@ import { requireAuth, auth } from "@/lib/auth";
 import { templateSchema, reportTemplateSchema } from "@/lib/validations";
 import { generateSlug } from "@/lib/utils";
 import { getActionT } from "@/server/i18n";
+import { checkRateLimit } from "@/lib/ratelimit";
+import { notifyAdminNewReport } from "@/server/admin-notify";
 
 /* --- Create template --- */
 export async function createTemplateAction(formData: FormData) {
@@ -439,6 +442,16 @@ export async function reportTemplateAction(
   formData: FormData,
 ) {
   const t = await getActionT("errors");
+
+  // Rate limit: 5 reports/hour per IP (spam protection)
+  const ip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
+  const rl = await checkRateLimit("report", `report:${ip}`);
+  if (!rl.success) {
+    return { error: t("rateLimited") };
+  }
+
   const parsed = reportTemplateSchema(t).safeParse({
     templateId: String(formData.get("templateId") ?? ""),
     reason: String(formData.get("reason") ?? "").trim(),
@@ -449,7 +462,7 @@ export async function reportTemplateAction(
 
   // Template must exist (prevents orphan reports)
   const [template] = await db
-    .select({ id: templates.id })
+    .select({ id: templates.id, name: templates.name })
     .from(templates)
     .where(eq(templates.id, parsed.data.templateId))
     .limit(1);
@@ -463,6 +476,22 @@ export async function reportTemplateAction(
   await db.insert(templateReports).values({
     templateId: parsed.data.templateId,
     reporterUserId: session?.user?.id ?? null,
+    reason: parsed.data.reason,
+  });
+
+  // Ping the admin on Discord (fire-and-forget; never breaks the report)
+  let reporterName: string | null = null;
+  if (session?.user?.id) {
+    const [u] = await db
+      .select({ username: users.username })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+    reporterName = u?.username ?? null;
+  }
+  await notifyAdminNewReport({
+    templateName: template.name,
+    reporterName,
     reason: parsed.data.reason,
   });
 

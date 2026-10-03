@@ -11,12 +11,14 @@ import { cn } from "@/lib/utils";
 import { HookLogo } from "@/components/hook-logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ThemeLanguageSwitcher } from "@/components/app/theme-language-switcher";
 import { adminLogoutAction } from "@/server/actions/admin-auth";
 import {
   LayoutDashboard,
   Flag,
   Link2,
   Users,
+  ScrollText,
   LogOut,
   ShieldAlert,
 } from "lucide-react";
@@ -26,6 +28,7 @@ const navItems = [
   { href: "/admin/reports", icon: Flag, key: "reports", exact: false },
   { href: "/admin/shares", icon: Link2, key: "shares", exact: false },
   { href: "/admin/users", icon: Users, key: "users", exact: false },
+  { href: "/admin/audit", icon: ScrollText, key: "audit", exact: false },
 ] as const;
 
 export function AdminSidebar({ pendingCount }: { pendingCount: number }) {
@@ -96,7 +99,10 @@ export function AdminSidebar({ pendingCount }: { pendingCount: number }) {
           })}
         </nav>
 
-        <div className="px-3 py-4 border-t border-border-ink">
+        <div className="px-3 py-4 border-t border-border-ink space-y-3">
+          <div className="px-3">
+            <ThemeLanguageSwitcher />
+          </div>
           <Button
             variant="ghost"
             size="sm"

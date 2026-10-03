@@ -46,6 +46,11 @@ export const env = {
   // NEVER commit real values. Optional: when unset, admin login is disabled.
   ADMIN_EMAIL: optional(process.env.ADMIN_EMAIL, ""),
   ADMIN_PASSWORD_HASH: optional(process.env.ADMIN_PASSWORD_HASH, ""),
+
+  // Discord webhook URL for admin notifications (e.g. new template reports).
+  // Optional: when unset, no notifications are sent. Create a webhook in a
+  // private channel/DM: Discord channel settings → Integrations → Webhooks.
+  ADMIN_NOTIFY_WEBHOOK_URL: optional(process.env.ADMIN_NOTIFY_WEBHOOK_URL, ""),
 };
 
 /**

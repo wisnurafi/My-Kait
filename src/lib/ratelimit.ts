@@ -35,13 +35,14 @@ const pingLimiter = createLimiter(20, "60 s");       // 20 pings per minute
 const addWebhookLimiter = createLimiter(10, "60 s"); // 10 webhook additions per minute
 const loginLimiter = createLimiter(5, "60 s");       // 5 login attempts per minute
 const publicTemplateLimiter = createLimiter(30, "60 s"); // 30 views per minute
+const reportLimiter = createLimiter(5, "1 h"); // 5 reports per hour per IP
 
 /**
  * Check rate limit. Returns { success, remaining, reset }.
  * If rate limiting is disabled, always returns success.
  */
 export async function checkRateLimit(
-  type: "send" | "ping" | "addWebhook" | "login" | "publicTemplate",
+  type: "send" | "ping" | "addWebhook" | "login" | "publicTemplate" | "report",
   identifier: string,
 ): Promise<{ success: boolean; remaining: number; reset: number }> {
   const limiter = {
@@ -50,6 +51,7 @@ export async function checkRateLimit(
     addWebhook: addWebhookLimiter,
     login: loginLimiter,
     publicTemplate: publicTemplateLimiter,
+    report: reportLimiter,
   }[type];
 
   if (!limiter) {
