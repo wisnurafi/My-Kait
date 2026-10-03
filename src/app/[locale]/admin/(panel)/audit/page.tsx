@@ -3,10 +3,18 @@ import { Link } from "@/i18n/routing";
 import { Badge } from "@/components/ui/badge";
 import {
   getAuditLogs,
-  AUDIT_CATEGORIES,
   type AuditCategory,
 } from "@/server/actions/admin";
 import { cn } from "@/lib/utils";
+
+const AUDIT_CATEGORIES: AuditCategory[] = [
+  "all",
+  "report",
+  "share",
+  "template",
+  "user",
+  "admin",
+];
 
 const categoryVariant = {
   report: "warning",
@@ -38,9 +46,9 @@ export default async function AdminAuditPage({
   setRequestLocale(locale);
   const t = await getTranslations("admin");
 
-  const active: AuditCategory = (AUDIT_CATEGORIES as readonly string[]).includes(
-    cat ?? "",
-  )
+  const active: AuditCategory = (
+    AUDIT_CATEGORIES as readonly string[]
+  ).includes(cat ?? "")
     ? (cat as AuditCategory)
     : "all";
   const logs = await getAuditLogs(active);
