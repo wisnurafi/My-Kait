@@ -19,6 +19,45 @@ const monthNamesID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "J
 const dayNamesEN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const monthNamesEN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+/**
+ * Built-in variable names. Anything matching {…} that is NOT in this list
+ * is treated as a user-defined custom variable.
+ */
+export const BUILTIN_VARIABLE_NAMES = [
+  "{tanggal}",
+  "{tanggal_en}",
+  "{waktu}",
+  "{timestamp}",
+  "{tanggal_lengkap}",
+  "{hari}",
+  "{hari_en}",
+  "{bulan}",
+  "{bulan_en}",
+  "{tahun}",
+] as const;
+
+const BUILTIN_SET = new Set<string>(BUILTIN_VARIABLE_NAMES);
+
+/**
+ * Extract custom (user-defined) variable tokens from text.
+ * Finds all {…} tokens and filters out the built-in ones.
+ * Returns unique tokens in order of first appearance.
+ */
+export function extractCustomVariables(text: string): string[] {
+  const found: string[] = [];
+  const seen = new Set<string>();
+  const re = /\{([^{}]+)\}/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const token = m[0];
+    if (!BUILTIN_SET.has(token) && !seen.has(token)) {
+      seen.add(token);
+      found.push(token);
+    }
+  }
+  return found;
+}
+
 export function substituteVariables(text: string, customVars?: Record<string, string>): string {
   const now = new Date();
   

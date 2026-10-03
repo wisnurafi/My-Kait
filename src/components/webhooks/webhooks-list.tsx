@@ -16,6 +16,7 @@ import {
   deleteWebhookAction,
   sendTestMessageAction,
   pingAllWebhooksAction,
+  moveWebhookToFolderAction,
 } from "@/server/actions/webhooks";
 import { PingHistory } from "@/components/webhooks/ping-history";
 import { EditWebhookForm } from "@/components/webhooks/edit-webhook-form";
@@ -35,10 +36,12 @@ type ConfirmTarget = { kind: "delete" | "test"; id: string } | null;
 
 export function WebhooksList({
   webhooks: initialWebhooks,
+  folders,
 }: {
   webhooks: Array<{
     id: string;
     name: string;
+    folderId: string | null;
     discordWebhookId: string | null;
     lastStatus: WebhookStatus;
     lastCheckedAt: Date | null;
@@ -47,6 +50,7 @@ export function WebhooksList({
     guildName: string | null;
     createdAt: Date;
   }>;
+  folders: Array<{ id: string; name: string }>;
 }) {
   const t = useTranslations("webhooks");
   const format = useFormatter();
@@ -106,6 +110,17 @@ export function WebhooksList({
   function handlePingAll() {
     startTransition(async () => {
       await pingAllWebhooksAction();
+    });
+  }
+
+  function handleMoveFolder(webhookId: string, folderId: string | null) {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("webhookId", webhookId);
+      formData.set("folderId", folderId ?? "");
+      const res = await moveWebhookToFolderAction(formData);
+      if (res?.error) toast.error(res.error);
+      else toast.success(t("movedToFolder"));
     });
   }
 
@@ -246,7 +261,30 @@ export function WebhooksList({
                   </Tooltip>
                 </div>
               </div>
-              {isExpanded && <PingHistory webhookId={wh.id} />}
+              {isExpanded && (
+                <div className="mt-4 space-y-3">
+                  {folders.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="label shrink-0">{t("folder")}</span>
+                      <Select
+                        value={wh.folderId ?? ""}
+                        onChange={(e) => handleMoveFolder(wh.id, e.target.value || null)}
+                        disabled={pending}
+                        className="h-8 text-sm max-w-[220px]"
+                        aria-label={t("folder")}
+                      >
+                        <option value="">{t("noFolder")}</option>
+                        {folders.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {f.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                  )}
+                  <PingHistory webhookId={wh.id} />
+                </div>
+              )}
             </Card>
             </div>
           );

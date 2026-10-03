@@ -51,6 +51,36 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   const multiTargetIds = multiTargetRaw ? multiTargetRaw.split(",").filter(Boolean) : [];
   const idempotencyKey = String(formData.get("idempotencyKey") ?? "") || undefined;
 
+  // Custom template variables: {name} -> value pairs supplied by the user
+  // in the send form. Validated strictly; malformed input is ignored.
+  let customVars: Record<string, string> | undefined;
+  const customVarsRaw = String(formData.get("customVars") ?? "");
+  if (customVarsRaw) {
+    try {
+      const parsed: unknown = JSON.parse(customVarsRaw);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        const entries = Object.entries(parsed as Record<string, unknown>);
+        const valid =
+          entries.length > 0 &&
+          entries.length <= 20 &&
+          entries.every(
+            ([k, v]) =>
+              typeof v === "string" &&
+              v.length <= 500 &&
+              /^\{[^{}]+\}$/.test(k) &&
+              k.length <= 60,
+          );
+        if (valid) {
+          customVars = Object.fromEntries(
+            entries.map(([k, v]) => [k, v as string]),
+          );
+        }
+      }
+    } catch {
+      // ignore malformed customVars
+    }
+  }
+
   // Idempotency check: if this key was already processed, return cached result
   if (idempotencyKey) {
     const existing = await db
@@ -118,7 +148,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
       }
       
       const targetUrl = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
-      const processedPayload = substitutePayloadVariables(payload);
+      const processedPayload = substitutePayloadVariables(payload, customVars);
       const start = Date.now();
       const result = await sendWebhookMessage(targetUrl, processedPayload);
       const latencyMs = Date.now() - start;
@@ -198,7 +228,7 @@ export async function sendMessageAction(prevState: unknown, formData: FormData) 
   }
 
   // Substitute template variables
-  const processedPayload = substitutePayloadVariables(payload);
+  const processedPayload = substitutePayloadVariables(payload, customVars);
 
   // Send
   const start = Date.now();

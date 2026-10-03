@@ -7,11 +7,11 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { webhooks, webhookChecks, webhookHealthAlerts } from "@/lib/schema";
-import { eq, and, desc, ilike } from "drizzle-orm";
+import { webhooks, webhookChecks, webhookHealthAlerts, templateFolders } from "@/lib/schema";
+import { eq, and, desc, ilike, isNull } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { getActionT } from "@/server/i18n";
-import { encryptWebhookUrl, decryptWebhookUrl, maskWebhookUrl } from "@/lib/crypto";
+import { encryptWebhookUrl, decryptWebhookUrl } from "@/lib/crypto";
 import { validateWebhookUrl, pingWebhook, sendWebhookMessage } from "@/lib/discord";
 import { addWebhookSchema, updateWebhookSchema } from "@/lib/validations";
 import { checkRateLimit } from "@/lib/ratelimit";
@@ -89,13 +89,14 @@ export async function addWebhookAction(formData: FormData) {
 }
 
 /* --- Get webhooks list --- */
-export async function getWebhooks(search?: string) {
+export async function getWebhooks(search?: string, folderId?: string | null) {
   const user = await requireAuth();
 
   const query = db
     .select({
       id: webhooks.id,
       name: webhooks.name,
+      folderId: webhooks.folderId,
       discordWebhookId: webhooks.discordWebhookId,
       lastStatus: webhooks.lastStatus,
       lastCheckedAt: webhooks.lastCheckedAt,
@@ -109,14 +110,16 @@ export async function getWebhooks(search?: string) {
     .orderBy(desc(webhooks.createdAt))
     .$dynamic();
 
+  const conditions = [eq(webhooks.userId, user.id)];
   if (search) {
-    query.where(
-      and(
-        eq(webhooks.userId, user.id),
-        ilike(webhooks.name, `%${search}%`),
-      ),
+    conditions.push(ilike(webhooks.name, `%${search}%`));
+  }
+  if (folderId !== undefined) {
+    conditions.push(
+      folderId === null ? isNull(webhooks.folderId) : eq(webhooks.folderId, folderId),
     );
   }
+  query.where(and(...conditions));
 
   return query;
 }
@@ -182,6 +185,52 @@ export async function deleteWebhookAction(formData: FormData) {
   }
 
   await db.delete(webhooks).where(eq(webhooks.id, id));
+
+  revalidatePath("/webhooks");
+  return { success: true };
+}
+
+/* --- Move webhook to folder (folders are shared with templates) --- */
+export async function moveWebhookToFolderAction(formData: FormData) {
+  const user = await requireAuth();
+  const t = await getActionT("errors");
+  const webhookId = String(formData.get("webhookId") ?? "");
+  const folderId = String(formData.get("folderId") ?? "") || null;
+
+  // Verify webhook ownership
+  const webhook = await db
+    .select({ id: webhooks.id })
+    .from(webhooks)
+    .where(
+      and(
+        eq(webhooks.id, webhookId),
+        eq(webhooks.userId, user.id),
+      ),
+    )
+    .limit(1);
+
+  if (webhook.length === 0) return { error: t("webhookNotFound") };
+
+  // Verify folder ownership when moving into a folder
+  if (folderId) {
+    const folder = await db
+      .select({ id: templateFolders.id })
+      .from(templateFolders)
+      .where(
+        and(
+          eq(templateFolders.id, folderId),
+          eq(templateFolders.userId, user.id),
+        ),
+      )
+      .limit(1);
+
+    if (folder.length === 0) return { error: t("folderNotFound") };
+  }
+
+  await db
+    .update(webhooks)
+    .set({ folderId })
+    .where(eq(webhooks.id, webhookId));
 
   revalidatePath("/webhooks");
   return { success: true };
@@ -365,43 +414,6 @@ export async function pingAllWebhooksAction() {
 
   revalidatePath("/webhooks");
   return { success: true, results };
-}
-
-/* --- Get decrypted URL (internal use only, never returned to client) --- */
-export async function getDecryptedWebhookUrl(webhookId: string, userId: string): Promise<string | null> {
-  const wh = await db
-    .select()
-    .from(webhooks)
-    .where(
-      and(
-        eq(webhooks.id, webhookId),
-        eq(webhooks.userId, userId),
-      ),
-    )
-    .limit(1);
-
-  if (wh.length === 0) return null;
-  return decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
-}
-
-/* --- Get masked URL for display --- */
-export async function getMaskedWebhookUrl(webhookId: string): Promise<string> {
-  const user = await requireAuth();
-
-  const wh = await db
-    .select()
-    .from(webhooks)
-    .where(
-      and(
-        eq(webhooks.id, webhookId),
-        eq(webhooks.userId, user.id),
-      ),
-    )
-    .limit(1);
-
-  if (wh.length === 0) return "••••••••";
-  const url = decryptWebhookUrl(wh[0].urlEncrypted, wh[0].keyVersion);
-  return maskWebhookUrl(url);
 }
 
 /* --- Health alerts --- */

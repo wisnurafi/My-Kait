@@ -265,7 +265,13 @@
     "deleteWebhook": "Hapus webhook",
     "expand": "Riwayat",
     "collapse": "Tutup",
-    "addNamePlaceholder": "Pengumuman Server A"
+    "addNamePlaceholder": "Pengumuman Server A",
+    "folder": "Folder",
+    "noFolder": "Tanpa folder",
+    "movedToFolder": "Webhook dipindah ke folder",
+    "folderFilter": "Filter folder",
+    "foldersAll": "Semua",
+    "foldersUnfiled": "Tanpa folder"
   },
   "editor": {
     "title": "Editor Pesan",
@@ -350,7 +356,10 @@
     "avatarPlaceholder": "https://… atau upload",
     "threadIdPlaceholder": "Thread ID (opsional)",
     "selectWebhookPlaceholder": "— Pilih webhook —",
-    "sendEdit": "Edit Pesan"
+    "sendEdit": "Edit Pesan",
+    "customVariables": "Variabel kustom",
+    "customVariablesDesc": "Isi nilai untuk setiap variabel {nama} sebelum mengirim. Nilai hanya berlaku untuk pengiriman ini.",
+    "variableValuePlaceholder": "Nilai…"
   },
   "logs": {
     "title": "Riwayat Pengiriman",

@@ -7,7 +7,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { templateFolders, templates } from "@/lib/schema";
+import { templateFolders, templates, webhooks } from "@/lib/schema";
 import { eq, and, desc, count } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth";
 import { getActionT } from "@/server/i18n";
@@ -176,4 +176,41 @@ export async function moveTemplateToFolderAction(formData: FormData) {
 
   revalidatePath("/templates");
   return { success: true };
+}
+
+/* --- Get folders with webhook counts (for the webhooks page) --- */
+export async function getWebhookFolders() {
+  const user = await requireAuth();
+
+  const folders = await db
+    .select()
+    .from(templateFolders)
+    .where(eq(templateFolders.userId, user.id))
+    .orderBy(desc(templateFolders.createdAt));
+
+  // Count webhooks per folder
+  const counts = await db
+    .select({
+      folderId: webhooks.folderId,
+      count: count(),
+    })
+    .from(webhooks)
+    .where(eq(webhooks.userId, user.id))
+    .groupBy(webhooks.folderId);
+
+  const countMap = new Map<string | null, number>();
+  for (const c of counts) {
+    countMap.set(c.folderId, Number(c.count));
+  }
+
+  const unfiled = countMap.get(null) ?? 0;
+
+  return {
+    folders: folders.map((f) => ({
+      ...f,
+      webhookCount: countMap.get(f.id) ?? 0,
+    })),
+    unfiledCount: unfiled,
+    totalCount: folders.reduce((sum, f) => sum + (countMap.get(f.id) ?? 0), unfiled),
+  };
 }
