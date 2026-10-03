@@ -204,6 +204,25 @@ export function WebhooksList({
                       #{wh.channelName} · {wh.guildName}
                     </p>
                   )}
+                  {folders.length > 0 && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <Folder size={13} className="text-fg-secondary shrink-0" aria-hidden="true" />
+                      <Select
+                        value={wh.folderId ?? ""}
+                        onChange={(e) => handleMoveFolder(wh.id, e.target.value || null)}
+                        disabled={pending}
+                        className="h-8 text-sm max-w-[200px]"
+                        aria-label={t("folder")}
+                      >
+                        <option value="">{t("noFolder")}</option>
+                        {folders.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {f.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                  )}
                   {wh.discordWebhookId && (
                     <p className="text-xs text-fg-tertiary mt-1 font-mono">
                       {wh.discordWebhookId}
@@ -267,30 +286,7 @@ export function WebhooksList({
                   </Tooltip>
                 </div>
               </div>
-              {isExpanded && (
-                <div className="mt-4 space-y-3">
-                  {folders.length > 0 && (
-                    <div className="flex items-center gap-2">
-                      <span className="label shrink-0">{t("folder")}</span>
-                      <Select
-                        value={wh.folderId ?? ""}
-                        onChange={(e) => handleMoveFolder(wh.id, e.target.value || null)}
-                        disabled={pending}
-                        className="h-8 text-sm max-w-[220px]"
-                        aria-label={t("folder")}
-                      >
-                        <option value="">{t("noFolder")}</option>
-                        {folders.map((f) => (
-                          <option key={f.id} value={f.id}>
-                            {f.name}
-                          </option>
-                        ))}
-                      </Select>
-                    </div>
-                  )}
-                  <PingHistory webhookId={wh.id} />
-                </div>
-              )}
+              {isExpanded && <PingHistory webhookId={wh.id} />}
             </Card>
             </div>
           );
