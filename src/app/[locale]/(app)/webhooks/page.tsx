@@ -7,6 +7,7 @@ import { getWebhookFolders } from "@/server/actions/folders";
 import { WebhooksList } from "@/components/webhooks/webhooks-list";
 import { AddWebhookForm } from "@/components/webhooks/add-webhook-form";
 import { HealthAlerts } from "@/components/webhooks/health-alerts";
+import { FolderQuickAdd } from "@/components/webhooks/folder-quick-add";
 import { cn } from "@/lib/utils";
 
 export default async function WebhooksPage({
@@ -49,7 +50,7 @@ export default async function WebhooksPage({
         className={cn(
           "font-mono text-xs uppercase tracking-[0.08em] px-3 py-1.5 rounded-full border transition-colors",
           isActive
-            ? "bg-accent text-ink border-accent font-bold"
+            ? "bg-accent text-[#0a0a0b] border-accent font-bold"
             : "border-border-ink text-fg-secondary hover:text-fg hover:border-border-strong",
         )}
         aria-current={isActive ? "true" : undefined}
@@ -69,13 +70,16 @@ export default async function WebhooksPage({
       </div>
       <HealthAlerts initialAlerts={healthAlerts} />
       <AddWebhookForm />
-      {(folderData.folders.length > 0 || folderData.unfiledCount > 0) && (
-        <div className="flex items-center gap-2 flex-wrap stagger-in" role="group" aria-label={t("folderFilter")}>
-          {chip("all", t("foldersAll"), folderData.totalCount)}
-          {chip("unfiled", t("foldersUnfiled"), folderData.unfiledCount)}
-          {folderData.folders.map((f) => chip(f.id, f.name, f.webhookCount))}
-        </div>
-      )}
+      <div className="flex items-center gap-2 flex-wrap stagger-in" role="group" aria-label={t("folderFilter")}>
+        {(folderData.folders.length > 0 || folderData.unfiledCount > 0) && (
+          <>
+            {chip("all", t("foldersAll"), folderData.totalCount)}
+            {chip("unfiled", t("foldersUnfiled"), folderData.unfiledCount)}
+            {folderData.folders.map((f) => chip(f.id, f.name, f.webhookCount))}
+          </>
+        )}
+        <FolderQuickAdd />
+      </div>
       <WebhooksList webhooks={webhooks} folders={folderData.folders} />
     </div>
   );
