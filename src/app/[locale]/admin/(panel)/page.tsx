@@ -2,7 +2,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Badge } from "@/components/ui/badge";
 import { Mascot } from "@/components/mascot";
-import { getAdminOverview, getReports } from "@/server/actions/admin";
+import { getAdminOverview, getReports, getAdminActivity } from "@/server/actions/admin";
+import { AdminActivityCharts } from "@/components/admin/activity-charts";
 import { Flag, ArrowRight } from "lucide-react";
 
 function StatCard({ value, label }: { value: number; label: string }) {
@@ -38,6 +39,7 @@ export default async function AdminOverviewPage({
 
   const stats = await getAdminOverview();
   const latest = (await getReports("pending")).slice(0, 5);
+  const activity = await getAdminActivity(30);
   const healthy =
     stats.webhooksDown === 0 &&
     stats.failedChecks24h === 0 &&
@@ -66,6 +68,9 @@ export default async function AdminOverviewPage({
         <StatCard value={stats.messages7d} label={t("statMessages7d")} />
         <StatCard value={stats.pendingReports} label={t("statPendingReports")} />
       </div>
+
+      {/* Activity charts */}
+      <AdminActivityCharts daily={activity} />
 
       <div className="grid md:grid-cols-2 gap-4">
         {/* Moderation */}
