@@ -72,6 +72,7 @@ export async function createFolderAction(formData: FormData) {
     .returning();
 
   revalidatePath("/templates");
+  revalidatePath("/webhooks");
   return { success: true, id: created.id };
 }
 
@@ -104,6 +105,7 @@ export async function renameFolderAction(formData: FormData) {
     .where(eq(templateFolders.id, id));
 
   revalidatePath("/templates");
+  revalidatePath("/webhooks");
   return { success: true };
 }
 
@@ -129,6 +131,7 @@ export async function deleteFolderAction(formData: FormData) {
   await db.delete(templateFolders).where(eq(templateFolders.id, id));
 
   revalidatePath("/templates");
+  revalidatePath("/webhooks");
   return { success: true };
 }
 
@@ -175,6 +178,7 @@ export async function moveTemplateToFolderAction(formData: FormData) {
     .where(eq(templates.id, templateId));
 
   revalidatePath("/templates");
+  revalidatePath("/webhooks");
   return { success: true };
 }
 

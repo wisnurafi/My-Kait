@@ -20,7 +20,7 @@ import {
 } from "@/server/actions/webhooks";
 import { PingHistory } from "@/components/webhooks/ping-history";
 import { EditWebhookForm } from "@/components/webhooks/edit-webhook-form";
-import { Search, Zap, Trash2, Send, RefreshCw, Pencil, Webhook } from "lucide-react";
+import { Search, Zap, Trash2, Send, RefreshCw, Pencil, Webhook, Folder } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type WebhookStatus = "active" | "invalid" | "rate_limited" | "unchecked";
@@ -192,6 +192,12 @@ export function WebhooksList({
                     <Badge variant={sc.variant} pulse={sc.pulse} dot={!sc.pulse}>
                       {t(`status.${wh.lastStatus}`)}
                     </Badge>
+                    {wh.folderId && (
+                      <Badge variant="default" className="gap-1">
+                        <Folder size={11} />
+                        {folders.find((f) => f.id === wh.folderId)?.name}
+                      </Badge>
+                    )}
                   </div>
                   {wh.guildName && wh.channelName && (
                     <p className="text-sm text-fg-secondary mt-1">

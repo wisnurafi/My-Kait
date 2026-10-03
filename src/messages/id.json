@@ -271,7 +271,10 @@
     "movedToFolder": "Webhook dipindah ke folder",
     "folderFilter": "Filter folder",
     "foldersAll": "Semua",
-    "foldersUnfiled": "Tanpa folder"
+    "foldersUnfiled": "Tanpa folder",
+    "folderNew": "Folder baru",
+    "folderNamePlaceholder": "Nama folder…",
+    "folderCreated": "Folder dibuat"
   },
   "editor": {
     "title": "Editor Pesan",

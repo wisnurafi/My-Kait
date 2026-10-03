@@ -271,7 +271,10 @@
     "movedToFolder": "Webhook moved to folder",
     "folderFilter": "Folder filter",
     "foldersAll": "All",
-    "foldersUnfiled": "Unfiled"
+    "foldersUnfiled": "Unfiled",
+    "folderNew": "New folder",
+    "folderNamePlaceholder": "Folder name…",
+    "folderCreated": "Folder created"
   },
   "editor": {
     "title": "Message Editor",
