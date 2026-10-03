@@ -265,7 +265,13 @@
     "deleteWebhook": "Delete webhook",
     "expand": "History",
     "collapse": "Close",
-    "addNamePlaceholder": "Server A announcements"
+    "addNamePlaceholder": "Server A announcements",
+    "folder": "Folder",
+    "noFolder": "No folder",
+    "movedToFolder": "Webhook moved to folder",
+    "folderFilter": "Folder filter",
+    "foldersAll": "All",
+    "foldersUnfiled": "Unfiled"
   },
   "editor": {
     "title": "Message Editor",
@@ -350,7 +356,10 @@
     "avatarPlaceholder": "https://… or upload",
     "threadIdPlaceholder": "Thread ID (optional)",
     "selectWebhookPlaceholder": "— Select webhook —",
-    "sendEdit": "Edit Message"
+    "sendEdit": "Edit Message",
+    "customVariables": "Custom variables",
+    "customVariablesDesc": "Fill in a value for each {name} variable before sending. Values apply to this send only.",
+    "variableValuePlaceholder": "Value…"
   },
   "logs": {
     "title": "Delivery History",

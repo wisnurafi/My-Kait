@@ -45,6 +45,10 @@ import {
 } from "lucide-react";
 import { SaveTemplateModal } from "@/components/editor/save-template-modal";
 import { toast } from "@/components/ui/toast";
+import {
+  extractCustomVariables,
+  substitutePayloadVariables,
+} from "@/lib/template-vars";
 
 /* --- Types --- */
 
@@ -156,6 +160,10 @@ export function Editor({
     savePayload: true,
     multiTarget: [] as string[],
   });
+
+  // Custom template variables detected in the payload (e.g. {nama_event}).
+  // Values are filled in the send form and substituted server-side at send time.
+  const [varValues, setVarValues] = useState<Record<string, string>>({});
 
   const [editMessageId, setEditMessageId] = useState<string | null>(null);
 
@@ -304,6 +312,24 @@ export function Editor({
 
   const payload = useMemo(() => buildPayload(state), [state]);
 
+  /* --- Custom variables: {tokens} in the payload that aren't built-in --- */
+
+  const customVarNames = useMemo(
+    () => extractCustomVariables(JSON.stringify(payload)),
+    [payload],
+  );
+
+  // Live preview with the filled-in custom values (built-ins stay raw until send).
+  // Hidden in edit mode: edit sends the payload as-is (same as built-in vars).
+  const showCustomVars = customVarNames.length > 0 && !editMessageId;
+  const previewPayload = useMemo(
+    () =>
+      showCustomVars
+        ? substitutePayloadVariables(payload, varValues)
+        : payload,
+    [payload, showCustomVars, varValues],
+  );
+
   /* --- Actions --- */
 
   // Idempotency key: must be unique per distinct message. It only needs to
@@ -323,6 +349,13 @@ export function Editor({
       formData.set("mode", state.mode);
       formData.set("savePayload", String(sendConfig.savePayload));
       formData.set("idempotencyKey", sendId);
+      if (showCustomVars) {
+        const vars: Record<string, string> = {};
+        for (const name of customVarNames) {
+          vars[name] = varValues[name] ?? "";
+        }
+        formData.set("customVars", JSON.stringify(vars));
+      }
       if (sendConfig.multiTarget.length > 0) {
         formData.set("multiTarget", sendConfig.multiTarget.join(","));
       }
@@ -617,7 +650,7 @@ export function Editor({
 
         {/* Right: preview + send */}
         <div className="space-y-4 lg:sticky lg:top-6 min-w-0">
-          <DiscordPreview payload={payload} username={state.username} avatarUrl={state.avatarUrl} />
+          <DiscordPreview payload={previewPayload} username={state.username} avatarUrl={state.avatarUrl} />
 
           {/* Send form */}
           <section className="panel p-5 animate-fade-in">
@@ -715,6 +748,32 @@ export function Editor({
                 onChange={(v) => setSendConfig({ ...sendConfig, savePayload: v })}
                 label="Simpan payload di log"
               />
+              {showCustomVars && (
+                <div className="rounded-lg border border-border-ink bg-sunken p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>{t("customVariables")}</Label>
+                    <Badge variant="info" className="font-mono">
+                      {customVarNames.length}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-fg-secondary">{t("customVariablesDesc")}</p>
+                  {customVarNames.map((name) => (
+                    <div key={name} className="flex items-center gap-2">
+                      <code className="font-mono text-xs text-accent shrink-0 max-w-[40%] truncate" title={name}>
+                        {name}
+                      </code>
+                      <Input
+                        value={varValues[name] ?? ""}
+                        onChange={(e) =>
+                          setVarValues((prev) => ({ ...prev, [name]: e.target.value }))
+                        }
+                        placeholder={t("variableValuePlaceholder")}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
               {result?.error && (
                 <p className="font-mono text-xs uppercase tracking-[0.14em] text-error">{result.error}</p>
               )}
