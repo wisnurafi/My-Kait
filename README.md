@@ -8,11 +8,12 @@ My-Kait is a webhook studio for Discord: compose rich messages in a visual edito
 
 - **Visual composer** — write plain text, embeds, or both, with a live Discord-style preview
 - **Template library** — save messages as templates, organize with folders and tags, full-text search
-- **Template variables** — dynamic placeholders like `{tanggal}`, `{waktu}`, `{hari}`, `{bulan}`, `{tahun}` (ID/EN aware)
+- **Template variables** — built-in placeholders like `{tanggal}`, `{waktu}`, `{hari}` (ID/EN aware), plus your own custom `{variables}` that you're prompted to fill in at send time
 - **Share links & public gallery** — share any template with a link, or browse community templates without logging in
-- **Webhook manager** — add webhooks, automatic health checks, ping history, and down/recovered alerts
+- **Webhook manager** — add webhooks, automatic health checks, ping history, down/recovered alerts, and organize webhooks into folders (shared with templates)
 - **Message logs** — every send logged with status, latency, and payload; resend, edit, or delete from the log
 - **Dashboard** — delivery stats, success rate, per-webhook breakdown
+- **Admin dashboard** — single-account moderation panel: report queue with Discord notifications, audit log, user management (suspend/delete), shared-template browser, and activity charts
 - **Command palette** — press `Ctrl/⌘+K` to jump anywhere or trigger actions
 - **Bilingual** — full English / Bahasa Indonesia UI
 - **Dark-first design** — precise devtool aesthetic with independent landing/app themes
@@ -66,6 +67,8 @@ Fill in `.env.local` (every variable is documented in `.env.example`):
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | ➖ | Rate limiting; disabled when unset |
 | `BLOB_READ_WRITE_TOKEN` | ➖ | Vercel Blob, for image uploads |
 | `CRON_SECRET` | ➖ | Protects `/api/cron/*` endpoints |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD_HASH` | ➖ | Single admin account (see Admin below); admin login disabled when unset |
+| `ADMIN_NOTIFY_WEBHOOK_URL` | ➖ | Discord webhook for new-report notifications in the admin panel |
 
 Add `http://localhost:3000/api/auth/callback/discord` as a redirect URI in your Discord app's OAuth2 settings.
 
@@ -102,6 +105,7 @@ src/
 │   │   ├── page.tsx            # Public landing page
 │   │   ├── gallery/            # Public template gallery (no login)
 │   │   ├── t/[slug]/           # Public shared-template view
+│   │   ├── admin/              # Moderation panel (single account, no public link)
 │   │   └── (app)/              # Authenticated app (dashboard, editor, …)
 │   └── api/
 │       ├── stats/              # Public aggregate stats (cached 5 min)
@@ -116,11 +120,34 @@ src/
 
 - `GET /api/stats` — public platform aggregates (`totalMessages`, `deliveryRate`, `medianLatencyMs`), cached for 5 minutes. Powers the landing page stats strip.
 
+## Admin
+
+A separate single-account moderation panel, independent from Discord OAuth. There is no sign-up and no link to it anywhere in the UI.
+
+### Setup
+
+```bash
+node scripts/hash-admin-password.mjs
+```
+
+Set the output as `ADMIN_PASSWORD_HASH` (plus `ADMIN_EMAIL`) in your environment, redeploy, then open `/id/admin/login` (or `/en/admin/login`) directly. When the variables are unset, admin login is disabled.
+
+### What it covers
+
+- **Overview** — KPIs, webhook/user/template health, and 30-day activity charts (messages per day, new users per day)
+- **Reports** — moderation queue for reported public templates; optional Discord notification per report via `ADMIN_NOTIFY_WEBHOOK_URL`
+- **Audit log** — every admin login/logout and moderation action, filterable by category
+- **Users** — list, detail view, suspend/unsuspend (blocks login and disables public shares), delete
+- **Shared templates** — browse all public shares, revoke or permanently delete abusive ones
+
+Admin pages send `noindex` and are disallowed in `public/robots.txt`.
+
 ## Security notes
 
 - Webhook URLs are encrypted at rest (AES) and never exposed to other users.
 - Share links are unguessable slugs; revoke anytime from the template page.
 - Report abusive public templates from the share page.
+- Admin auth is a separate HMAC-signed cookie (independent from Discord OAuth), with rate-limited login and no public sign-up.
 
 ## Contributing
 
