@@ -20,6 +20,7 @@ import {
   verifyAdminPassword,
   safeEqual,
 } from "@/server/admin-password";
+import { logAdminAction } from "@/server/actions/admin";
 
 const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -71,9 +72,15 @@ export async function adminLoginAction(
     path: "/",
     maxAge: ADMIN_SESSION_MAX_AGE,
   });
+  await logAdminAction("admin.login");
   return { success: true };
 }
 
 export async function adminLogoutAction(): Promise<void> {
+  try {
+    await logAdminAction("admin.logout");
+  } catch {
+    // already logged out — nothing to record
+  }
   (await cookies()).delete(ADMIN_COOKIE_NAME);
 }

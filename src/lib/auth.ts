@@ -60,6 +60,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             globalName: (profile.global_name as string) ?? null,
           });
         } else {
+          // Suspended users cannot sign in
+          if (existing[0].isSuspended) {
+            return false;
+          }
           // Update username/avatar in case they changed on Discord
           await db
             .update(users)
@@ -97,6 +101,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .limit(1);
 
         if (dbUser.length > 0) {
+          // Suspended users are treated as logged out everywhere
+          // (middleware + layouts check `session.user`)
+          if (dbUser[0].isSuspended) {
+            const { user: _removed, ...rest } = session;
+            return rest;
+          }
           session.user.id = dbUser[0].id;
         }
       }

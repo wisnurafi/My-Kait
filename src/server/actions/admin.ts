@@ -16,6 +16,7 @@ import {
   messageLogs,
   webhooks,
   webhookChecks,
+  adminAuditLogs,
   type ReportStatus,
 } from "@/lib/schema";
 import { ADMIN_COOKIE_NAME, verifyAdminSession } from "@/lib/admin-session";
@@ -28,6 +29,25 @@ export async function requireAdmin(): Promise<string> {
   const email = await verifyAdminSession(token);
   if (!email) throw new Error("UNAUTHORIZED");
   return email;
+}
+
+/**
+ * Append-only admin audit log. Call after every mutating admin action.
+ */
+export async function logAdminAction(
+  action: string,
+  targetType?: string | null,
+  targetId?: string | null,
+  detail?: string | null,
+): Promise<void> {
+  const adminEmail = await requireAdmin();
+  await db.insert(adminAuditLogs).values({
+    adminEmail,
+    action,
+    targetType: targetType ?? null,
+    targetId: targetId ?? null,
+    detail: detail ?? null,
+  });
 }
 
 const VALID_STATUSES: ReportStatus[] = [
@@ -188,6 +208,7 @@ export async function setReportStatus(
     .update(templateReports)
     .set({ status })
     .where(eq(templateReports.id, reportId));
+  await logAdminAction(`report.${status}`, "report", reportId);
   return { success: true };
 }
 
@@ -200,8 +221,12 @@ export async function actionReport(
 ): Promise<{ success: boolean }> {
   await requireAdmin();
   const [report] = await db
-    .select({ templateId: templateReports.templateId })
+    .select({
+      templateId: templateReports.templateId,
+      templateName: templates.name,
+    })
     .from(templateReports)
+    .innerJoin(templates, eq(templateReports.templateId, templates.id))
     .where(eq(templateReports.id, reportId))
     .limit(1);
   if (!report) throw new Error("NOT_FOUND");
@@ -213,6 +238,12 @@ export async function actionReport(
     .update(templateShares)
     .set({ isActive: false })
     .where(eq(templateShares.templateId, report.templateId));
+  await logAdminAction(
+    "report.actioned",
+    "report",
+    reportId,
+    `Template "${report.templateName}" unpublished`,
+  );
   return { success: true };
 }
 
@@ -270,10 +301,21 @@ export async function setShareActive(
   active: boolean,
 ): Promise<{ success: boolean }> {
   await requireAdmin();
+  const [share] = await db
+    .select({ slug: templateShares.slug })
+    .from(templateShares)
+    .where(eq(templateShares.id, shareId))
+    .limit(1);
   await db
     .update(templateShares)
     .set({ isActive: active })
     .where(eq(templateShares.id, shareId));
+  await logAdminAction(
+    active ? "share.enabled" : "share.disabled",
+    "share",
+    shareId,
+    share ? `/t/${share.slug}` : null,
+  );
   return { success: true };
 }
 
@@ -284,6 +326,7 @@ export type AdminUser = {
   username: string;
   globalName: string | null;
   discordId: string;
+  isSuspended: boolean;
   createdAt: Date;
   templateCount: number;
   webhookCount: number;
@@ -299,6 +342,7 @@ export async function getAdminUsers(query?: string): Promise<AdminUser[]> {
       username: users.username,
       globalName: users.globalName,
       discordId: users.discordId,
+      isSuspended: users.isSuspended,
       createdAt: users.createdAt,
       templateCount: sql<number>`(
         select count(*)::int from ${templates} t where t.user_id = ${users.id}
@@ -322,4 +366,201 @@ export async function getAdminUsers(query?: string): Promise<AdminUser[]> {
     .orderBy(desc(users.createdAt))
     .limit(200);
   return rows;
+}
+
+/* --- Stronger moderation --- */
+
+/**
+ * Permanently delete a template (cascades to its shares and reports).
+ * The owner's other data is untouched.
+ */
+export async function deleteTemplate(
+  templateId: string,
+): Promise<{ success: boolean }> {
+  await requireAdmin();
+  const [tpl] = await db
+    .select({ name: templates.name, userId: templates.userId })
+    .from(templates)
+    .where(eq(templates.id, templateId))
+    .limit(1);
+  if (!tpl) throw new Error("NOT_FOUND");
+  await db.delete(templates).where(eq(templates.id, templateId));
+  await logAdminAction(
+    "template.deleted",
+    "template",
+    templateId,
+    `Template "${tpl.name}" permanently deleted`,
+  );
+  return { success: true };
+}
+
+/**
+ * Suspend/unsuspend a user. Suspended users cannot sign in (enforced in
+ * Auth.js callbacks) and all their public shares are unpublished at once.
+ * Unsuspending does NOT re-publish shares — re-enable them manually.
+ */
+export async function setUserSuspended(
+  userId: string,
+  suspended: boolean,
+): Promise<{ success: boolean }> {
+  await requireAdmin();
+  const [u] = await db
+    .select({ username: users.username })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  if (!u) throw new Error("NOT_FOUND");
+  await db
+    .update(users)
+    .set({ isSuspended: suspended })
+    .where(eq(users.id, userId));
+  if (suspended) {
+    // Unpublish all their shares in one go
+    await db
+      .update(templateShares)
+      .set({ isActive: false })
+      .where(
+        sql`${templateShares.templateId} in (select ${templates.id} from ${templates} where ${templates.userId} = ${userId})`,
+      );
+  }
+  await logAdminAction(
+    suspended ? "user.suspended" : "user.unsuspended",
+    "user",
+    userId,
+    `@${u.username}${suspended ? " — shares unpublished" : ""}`,
+  );
+  return { success: true };
+}
+
+/* --- Audit log --- */
+
+export type AuditEntry = {
+  id: string;
+  adminEmail: string;
+  action: string;
+  targetType: string | null;
+  targetId: string | null;
+  detail: string | null;
+  createdAt: Date;
+};
+
+export const AUDIT_CATEGORIES = [
+  "all",
+  "report",
+  "share",
+  "template",
+  "user",
+  "admin",
+] as const;
+export type AuditCategory = (typeof AUDIT_CATEGORIES)[number];
+
+export async function getAuditLogs(
+  category?: AuditCategory,
+): Promise<AuditEntry[]> {
+  await requireAdmin();
+  const rows = await db
+    .select({
+      id: adminAuditLogs.id,
+      adminEmail: adminAuditLogs.adminEmail,
+      action: adminAuditLogs.action,
+      targetType: adminAuditLogs.targetType,
+      targetId: adminAuditLogs.targetId,
+      detail: adminAuditLogs.detail,
+      createdAt: adminAuditLogs.createdAt,
+    })
+    .from(adminAuditLogs)
+    .where(
+      category && category !== "all"
+        ? ilike(adminAuditLogs.action, `${category}.%`)
+        : undefined,
+    )
+    .orderBy(desc(adminAuditLogs.createdAt))
+    .limit(200);
+  return rows;
+}
+
+/* --- User detail --- */
+
+export type AdminUserDetail = {
+  id: string;
+  username: string;
+  globalName: string | null;
+  discordId: string;
+  isSuspended: boolean;
+  createdAt: Date;
+  templates: {
+    id: string;
+    name: string;
+    createdAt: Date;
+    shareSlug: string | null;
+    shareActive: boolean | null;
+    pendingReports: number;
+  }[];
+  webhooks: { id: string; name: string; lastStatus: string }[];
+  recentLogs: { id: string; status: string; createdAt: Date }[];
+};
+
+export async function getUserDetail(userId: string): Promise<AdminUserDetail> {
+  await requireAdmin();
+  const [u] = await db
+    .select({
+      id: users.id,
+      username: users.username,
+      globalName: users.globalName,
+      discordId: users.discordId,
+      isSuspended: users.isSuspended,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  if (!u) throw new Error("NOT_FOUND");
+
+  const [tpls, whs, logs] = await Promise.all([
+    db
+      .select({
+        id: templates.id,
+        name: templates.name,
+        createdAt: templates.createdAt,
+        shareSlug: templateShares.slug,
+        shareActive: templateShares.isActive,
+        pendingReports: sql<number>`(
+          select count(*)::int from ${templateReports} r
+          where r.template_id = ${templates.id} and r.status = 'pending'
+        )`,
+      })
+      .from(templates)
+      .leftJoin(
+        templateShares,
+        and(
+          eq(templateShares.templateId, templates.id),
+          eq(templateShares.isActive, true),
+        ),
+      )
+      .where(eq(templates.userId, userId))
+      .orderBy(desc(templates.createdAt))
+      .limit(100),
+    db
+      .select({
+        id: webhooks.id,
+        name: webhooks.name,
+        lastStatus: webhooks.lastStatus,
+      })
+      .from(webhooks)
+      .where(eq(webhooks.userId, userId))
+      .orderBy(desc(webhooks.createdAt))
+      .limit(100),
+    db
+      .select({
+        id: messageLogs.id,
+        status: messageLogs.status,
+        createdAt: messageLogs.createdAt,
+      })
+      .from(messageLogs)
+      .where(eq(messageLogs.userId, userId))
+      .orderBy(desc(messageLogs.createdAt))
+      .limit(10),
+  ]);
+
+  return { ...u, templates: tpls, webhooks: whs, recentLogs: logs };
 }

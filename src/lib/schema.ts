@@ -64,6 +64,7 @@ export const users = pgTable("users", {
   username: text("username").notNull(),
   avatar: text("avatar"),
   globalName: text("global_name"),
+  isSuspended: boolean("is_suspended").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -190,6 +191,26 @@ export const templateReports = pgTable(
   (table) => ({
     templateIdx: index("template_reports_template_id_idx").on(table.templateId),
     statusIdx: index("template_reports_status_idx").on(table.status),
+  }),
+);
+
+/* --- Admin audit log (single admin; append-only) --- */
+export const adminAuditLogs = pgTable(
+  "admin_audit_logs",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    adminEmail: text("admin_email").notNull(),
+    action: text("action").notNull(),
+    targetType: text("target_type"),
+    targetId: text("target_id"),
+    detail: text("detail"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    createdIdx: index("admin_audit_logs_created_at_idx").on(table.createdAt),
+    actionIdx: index("admin_audit_logs_action_idx").on(table.action),
   }),
 );
 

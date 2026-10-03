@@ -1,6 +1,8 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/routing";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getAdminUsers } from "@/server/actions/admin";
 import { Search } from "lucide-react";
 
@@ -74,12 +76,22 @@ export default async function AdminUsersPage({
                     className="border-t border-border-ink hover:bg-surface-hover/50"
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium">
-                        {u.globalName ?? u.username}
-                      </div>
+                      <Link
+                        href={`/admin/users/${u.id}`}
+                        className="no-underline hover:underline"
+                      >
+                        <div className="font-medium text-fg">
+                          {u.globalName ?? u.username}
+                        </div>
+                      </Link>
                       <div className="text-xs text-fg-tertiary font-mono">
                         @{u.username} · {u.discordId}
                       </div>
+                      {u.isSuspended && (
+                        <Badge variant="danger" className="mt-1 font-mono text-[10px]">
+                          {t("suspended")}
+                        </Badge>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-fg-secondary whitespace-nowrap">
                       {fmtDate(u.createdAt, locale)}

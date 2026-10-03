@@ -72,9 +72,10 @@ export default async function middleware(req: NextRequest) {
   }
 
   // Check auth for protected routes
+  // (session.user is stripped for suspended users — see auth.ts)
   if (!isPublicRoute(pathname)) {
     const session = await auth();
-    if (!session) {
+    if (!session?.user) {
       // Redirect to locale-prefixed home with login intent
       const locale = pathname.startsWith("/en") ? "en" : "id";
       const loginUrl = new URL(`/${locale}`, req.url);
