@@ -14,11 +14,11 @@ export type NewReportNotice = {
 
 export async function notifyAdminNewReport(
   notice: NewReportNotice,
+  reviewUrl: string,
 ): Promise<void> {
   const url = env.ADMIN_NOTIFY_WEBHOOK_URL;
   if (!url) return;
 
-  const reviewUrl = `${env.AUTH_URL.replace(/\/$/, "")}/id/admin/reports?status=pending`;
   const reason =
     notice.reason.length > 400
       ? `${notice.reason.slice(0, 397)}...`

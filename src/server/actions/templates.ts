@@ -479,7 +479,9 @@ export async function reportTemplateAction(
     reason: parsed.data.reason,
   });
 
-  // Ping the admin on Discord (fire-and-forget; never breaks the report)
+  // Ping the admin on Discord (fire-and-forget; never breaks the report).
+  // Review link is built from the request host so it always matches the
+  // environment the report was filed on (env.AUTH_URL may be unset).
   let reporterName: string | null = null;
   if (session?.user?.id) {
     const [u] = await db
@@ -489,11 +491,21 @@ export async function reportTemplateAction(
       .limit(1);
     reporterName = u?.username ?? null;
   }
-  await notifyAdminNewReport({
-    templateName: template.name,
-    reporterName,
-    reason: parsed.data.reason,
-  });
+  const reqHeaders = await headers();
+  const reqHost =
+    reqHeaders.get("x-forwarded-host") ?? reqHeaders.get("host") ?? "";
+  const reqProto =
+    reqHeaders.get("x-forwarded-proto") ??
+    (reqHost.startsWith("localhost") ? "http" : "https");
+  const reviewUrl = `${reqProto}://${reqHost}/id/admin/reports?status=pending`;
+  await notifyAdminNewReport(
+    {
+      templateName: template.name,
+      reporterName,
+      reason: parsed.data.reason,
+    },
+    reviewUrl,
+  );
 
   return { success: true };
 }
