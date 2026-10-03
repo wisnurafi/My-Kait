@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tooltip } from "@/components/ui/tooltip";
 import { updateWebhookAction } from "@/server/actions/webhooks";
 import { Pencil, Check, X } from "lucide-react";
 
@@ -19,6 +21,7 @@ export function EditWebhookForm({
   const [name, setName] = useState(currentName);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("webhooks");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,12 +47,16 @@ export function EditWebhookForm({
         className="h-8 text-sm font-mono"
         autoFocus
       />
-      <Button type="submit" size="sm" variant="primary" disabled={pending} className="h-8 w-8 p-0">
-        <Check size={14} />
-      </Button>
-      <Button type="button" size="sm" variant="ghost" onClick={onDone} className="h-8 w-8 p-0">
-        <X size={14} />
-      </Button>
+      <Tooltip content={t("save")}>
+        <Button type="submit" size="sm" variant="primary" disabled={pending} className="h-8 w-8 p-0">
+          <Check size={14} />
+        </Button>
+      </Tooltip>
+      <Tooltip content={t("cancel")}>
+        <Button type="button" size="sm" variant="ghost" onClick={onDone} className="h-8 w-8 p-0">
+          <X size={14} />
+        </Button>
+      </Tooltip>
       {error && <span className="text-xs text-error">{error}</span>}
     </form>
   );

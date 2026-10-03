@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tooltip } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/toast";
 import { createFolderAction } from "@/server/actions/folders";
 import { Check, FolderPlus } from "lucide-react";
@@ -64,9 +65,11 @@ export function FolderQuickAdd() {
         }}
         autoFocus
       />
-      <Button size="sm" onClick={handleCreate} disabled={pending || !name.trim()}>
-        <Check size={14} />
-      </Button>
+      <Tooltip content={t("folderCreate")}>
+        <Button size="sm" onClick={handleCreate} disabled={pending || !name.trim()}>
+          <Check size={14} />
+        </Button>
+      </Tooltip>
     </div>
   );
 }

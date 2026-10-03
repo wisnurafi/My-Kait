@@ -85,11 +85,14 @@
       "created": "Folder created",
       "renamed": "Folder renamed",
       "deleted": "Folder deleted",
-      "moveTo": "Move to folder"
+      "moveTo": "Move to folder",
+      "create": "Create folder"
     },
     "previewTitle": "Preview",
     "tagsPlaceholder": "tag1, tag2",
-    "importTagsPlaceholder": "tag1, tag2, tag3"
+    "importTagsPlaceholder": "tag1, tag2, tag3",
+    "copyShareLink": "Copy link",
+    "openShareLink": "Open link"
   },
   "dashboard": {
     "greeting": "Hey, {name}! 👋",
@@ -274,7 +277,10 @@
     "foldersUnfiled": "Unfiled",
     "folderNew": "New folder",
     "folderNamePlaceholder": "Folder name…",
-    "folderCreated": "Folder created"
+    "folderCreated": "Folder created",
+    "save": "Save",
+    "cancel": "Cancel",
+    "folderCreate": "Create folder"
   },
   "editor": {
     "title": "Message Editor",
@@ -362,7 +368,9 @@
     "sendEdit": "Edit Message",
     "customVariables": "Custom variables",
     "customVariablesDesc": "Fill in a value for each {name} variable before sending. Values apply to this send only.",
-    "variableValuePlaceholder": "Value…"
+    "variableValuePlaceholder": "Value…",
+    "duplicateEmbed": "Duplicate embed",
+    "removeEmbed": "Remove embed"
   },
   "logs": {
     "title": "Delivery History",

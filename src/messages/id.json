@@ -85,11 +85,14 @@
       "created": "Folder dibuat",
       "renamed": "Nama folder diubah",
       "deleted": "Folder dihapus",
-      "moveTo": "Pindah ke folder"
+      "moveTo": "Pindah ke folder",
+      "create": "Buat folder"
     },
     "previewTitle": "Preview",
     "tagsPlaceholder": "tag1, tag2",
-    "importTagsPlaceholder": "tag1, tag2, tag3"
+    "importTagsPlaceholder": "tag1, tag2, tag3",
+    "copyShareLink": "Salin tautan",
+    "openShareLink": "Buka tautan"
   },
   "dashboard": {
     "greeting": "Hai, {name}! 👋",
@@ -274,7 +277,10 @@
     "foldersUnfiled": "Tanpa folder",
     "folderNew": "Folder baru",
     "folderNamePlaceholder": "Nama folder…",
-    "folderCreated": "Folder dibuat"
+    "folderCreated": "Folder dibuat",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "folderCreate": "Buat folder"
   },
   "editor": {
     "title": "Editor Pesan",
@@ -362,7 +368,9 @@
     "sendEdit": "Edit Pesan",
     "customVariables": "Variabel kustom",
     "customVariablesDesc": "Isi nilai untuk setiap variabel {nama} sebelum mengirim. Nilai hanya berlaku untuk pengiriman ini.",
-    "variableValuePlaceholder": "Nilai…"
+    "variableValuePlaceholder": "Nilai…",
+    "duplicateEmbed": "Duplikat embed",
+    "removeEmbed": "Hapus embed"
   },
   "logs": {
     "title": "Riwayat Pengiriman",
