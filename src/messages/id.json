@@ -633,6 +633,11 @@
     "emptyTemplates": "Tidak ada template.",
     "emptyWebhooks": "Tidak ada webhook.",
     "emptyLogs": "Belum ada pesan.",
-    "recentLogs": "Pesan terakhir"
+    "recentLogs": "Pesan terakhir",
+    "chartMessages": "Pesan per hari (30 hari)",
+    "chartUsers": "Pengguna baru per hari (30 hari)",
+    "sent": "Terkirim",
+    "failed": "Gagal",
+    "noData": "Belum ada data."
   }
 }

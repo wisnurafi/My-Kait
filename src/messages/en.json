@@ -633,6 +633,11 @@
     "emptyTemplates": "No templates.",
     "emptyWebhooks": "No webhooks.",
     "emptyLogs": "No messages yet.",
-    "recentLogs": "Recent messages"
+    "recentLogs": "Recent messages",
+    "chartMessages": "Messages per day (30 days)",
+    "chartUsers": "New users per day (30 days)",
+    "sent": "Sent",
+    "failed": "Failed",
+    "noData": "No data yet."
   }
 }

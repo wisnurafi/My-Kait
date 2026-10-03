@@ -471,7 +471,66 @@ export async function getAuditLogs(
   return rows;
 }
 
-/* --- User detail --- */
+/* --- Activity charts (overview) --- */
+
+export type AdminDaily = {
+  date: string;
+  sent: number;
+  failed: number;
+  users: number;
+};
+
+/**
+ * Per-day activity for the last N days (global, all users).
+ * sent = ('sent','edited'), failed = ('failed','rate_limited') —
+ * 'deleted' is excluded from both, same as the user dashboard.
+ */
+export async function getAdminActivity(days = 30): Promise<AdminDaily[]> {
+  await requireAdmin();
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const day = (
+    col: typeof messageLogs.createdAt | typeof users.createdAt,
+  ) => sql<string>`to_char(${col}, 'YYYY-MM-DD')`;
+
+  const [msgs, usrs] = await Promise.all([
+    db
+      .select({
+        date: day(messageLogs.createdAt),
+        sent: sql<number>`count(*) filter (where ${messageLogs.status} in ('sent','edited'))::int`,
+        failed: sql<number>`count(*) filter (where ${messageLogs.status} in ('failed','rate_limited'))::int`,
+      })
+      .from(messageLogs)
+      .where(gte(messageLogs.createdAt, since))
+      .groupBy(day(messageLogs.createdAt)),
+    db
+      .select({
+        date: day(users.createdAt),
+        n: sql<number>`count(*)::int`,
+      })
+      .from(users)
+      .where(gte(users.createdAt, since))
+      .groupBy(day(users.createdAt)),
+  ]);
+
+  const byDate = new Map<string, AdminDaily>();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+    const key = d.toISOString().slice(0, 10);
+    byDate.set(key, { date: key, sent: 0, failed: 0, users: 0 });
+  }
+  for (const m of msgs) {
+    const row = byDate.get(m.date);
+    if (row) {
+      row.sent = m.sent;
+      row.failed = m.failed;
+    }
+  }
+  for (const u of usrs) {
+    const row = byDate.get(u.date);
+    if (row) row.users = u.n;
+  }
+  return [...byDate.values()];
+}
 
 export type AdminUserDetail = {
   id: string;
