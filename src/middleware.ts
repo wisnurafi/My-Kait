@@ -6,6 +6,10 @@
 import createMiddleware from "next-intl/middleware";
 import { auth } from "@/lib/auth";
 import { routing } from "@/i18n/routing";
+import {
+  ADMIN_COOKIE_NAME,
+  verifyAdminSession,
+} from "@/lib/admin-session";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -43,6 +47,29 @@ export default async function middleware(req: NextRequest) {
 
   // Run next-intl middleware first (handles locale prefixing)
   const intlResponse = intlMiddleware(req);
+
+  // Admin dashboard: separate email+password session (not Discord OAuth).
+  // Guarded here AND inside every admin action/layout (defense in depth).
+  const adminMatch = pathname.match(/^\/(id|en)\/admin(\/.*)?$/);
+  if (adminMatch) {
+    const locale = adminMatch[1];
+    const rest = adminMatch[2] ?? "";
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const adminEmail = await verifyAdminSession(token);
+    if (rest === "/login") {
+      // Already logged in → bounce to dashboard
+      if (adminEmail) {
+        return NextResponse.redirect(new URL(`/${locale}/admin`, req.url));
+      }
+      return intlResponse;
+    }
+    if (!adminEmail) {
+      return NextResponse.redirect(
+        new URL(`/${locale}/admin/login`, req.url),
+      );
+    }
+    return intlResponse;
+  }
 
   // Check auth for protected routes
   if (!isPublicRoute(pathname)) {

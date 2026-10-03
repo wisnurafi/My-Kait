@@ -39,6 +39,13 @@ export const env = {
 
   // Vercel Cron secret — generate with: openssl rand -hex 16
   CRON_SECRET: optional(process.env.CRON_SECRET, "dev-cron-secret"),
+
+  // Admin dashboard (single account, no signup).
+  // Login is email + password via /<locale>/admin/login — separate from Discord OAuth.
+  // Generate the hash with: node scripts/hash-admin-password.mjs
+  // NEVER commit real values. Optional: when unset, admin login is disabled.
+  ADMIN_EMAIL: optional(process.env.ADMIN_EMAIL, ""),
+  ADMIN_PASSWORD_HASH: optional(process.env.ADMIN_PASSWORD_HASH, ""),
 };
 
 /**
