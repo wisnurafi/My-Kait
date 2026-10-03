@@ -211,7 +211,7 @@ export function WebhooksList({
                         value={wh.folderId ?? ""}
                         onChange={(e) => handleMoveFolder(wh.id, e.target.value || null)}
                         disabled={pending}
-                        className="h-8 text-sm max-w-[200px]"
+                        className="h-9 px-3 py-1 text-sm max-w-[220px]"
                         aria-label={t("folder")}
                       >
                         <option value="">{t("noFolder")}</option>
